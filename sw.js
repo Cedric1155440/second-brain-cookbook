@@ -1,6 +1,6 @@
 // Offline-Modus: App-Dateien werden beim ersten Öffnen gespeichert.
 // Nach Änderungen an der App die Versionsnummer erhöhen, damit iPhones das Update laden.
-const CACHE = "kochbuch-v4";
+const CACHE = "kochbuch-v5";
 const LANG_FILES = ["en", "fr", "es", "it", "pt", "tr"].map(l => `./lang/${l}.js`);
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", ...LANG_FILES];
 

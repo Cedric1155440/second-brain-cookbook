@@ -118,6 +118,17 @@
   .ai-tag { color: var(--accent); font-weight: 600; }
   .spinner { width: 18px; height: 18px; flex: none; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .tut-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .tut-dots { display: flex; gap: 6px; }
+  .tut-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+  .tut-dots i.done { background: var(--ok); }
+  .tut-dots i.on { background: var(--accent); width: 22px; border-radius: 99px; }
+  .tut-hero { font-size: 48px; line-height: 1; margin: 8px 0 10px; }
+  .tut-list { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 10px; }
+  .tut-list li { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; }
+  .tut-actions { align-items: center; }
+  .tut-step { margin-right: auto; color: var(--muted); font-size: 13px; }
+  .tut-actions .btn.ghost[data-tut="back"] { margin-right: 0; }
   .cam { padding: 10px 12px; font-size: 18px; line-height: 1; }
   .scan-img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 12px; margin: 8px 0 12px; }
   .scan-list { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -830,7 +841,7 @@ function openSettings() {
          <form class="addrow" id="aiKeyForm" autocomplete="off"><input id="aiKeyInput" type="password" spellcheck="false" autocapitalize="off" placeholder="sk-ant-…"><button class="btn">${t("save")}</button></form>`}
     <label class="chk"><input type="checkbox" id="aiAutoChk" ${aiAuto() ? "checked" : ""}> ${t("aiAuto")}</label>
     <p class="hint">${t("aiKeyHint")}</p>
-    <div class="actions"><button class="btn small" data-close>${t("done")}</button></div>`;
+    <div class="actions"><button class="btn ghost small" data-tut-restart="1">🎓 ${t("tutAgain")}</button><button class="btn small" data-close>${t("done")}</button></div>`;
   $("#overlay").classList.add("open");
   const form = $("#aiKeyForm");
   if (form) form.addEventListener("submit", e => {
@@ -843,11 +854,12 @@ function openSettings() {
   $("#aiAutoChk").addEventListener("change", e => { store.set("kb_ai_auto", e.target.checked); scheduleAI(); renderResults(); });
 }
 
-function setLang(code) {
+function switchLang(code) {
   if (!LANGS[code]) return;
   lang = code; L = LANGS[code]; store.set("kb_lang", code);
-  renderAll(); openSettings();
+  renderAll();
 }
+function setLang(code) { switchLang(code); openSettings(); }
 
 function applyTheme(pref) {
   const root = document.documentElement;
@@ -867,7 +879,10 @@ function applyTheme(pref) {
   }
 }
 
-function closeModal() { $("#overlay").classList.remove("open"); }
+function closeModal() {
+  if (tut.active) { tut.active = false; store.set("kb_onboarded", true); } // Tutorial weggeklickt = übersprungen
+  $("#overlay").classList.remove("open");
+}
 function toast(msg) { const el = $("#toast"); el.textContent = msg; el.classList.add("show"); clearTimeout(el._h); el._h = setTimeout(() => el.classList.remove("show"), 1800); }
 
 // ---------- KI-Suche (Claude API) ----------
@@ -1221,6 +1236,132 @@ const CAM_UI = {
 };
 for (const l in CAM_UI) Object.assign(AI_UI[l], CAM_UI[l]);
 
+// ---------- Tutorial beim ersten Öffnen ----------
+const tut = { active: false, step: 0 };
+const TUT_STEPS = ["lang", "theme", "how", "ai", "done"];
+
+function openTutorial(step) {
+  tut.active = true; tut.step = Math.max(0, Math.min(TUT_STEPS.length - 1, step));
+  const kind = TUT_STEPS[tut.step];
+  const last = tut.step === TUT_STEPS.length - 1;
+  const theme = store.get("kb_theme", "system");
+  let body = "";
+  if (kind === "lang") body = `
+    <div class="tut-hero">👋</div>
+    <h2>${t("tutWelcome")}</h2>
+    <p class="hint">${t("tutIntro")}</p>
+    <h3>${t("tutLangQ")}</h3>
+    <div class="lang-list">${LANG_ORDER.map(c => `<button data-tut-lang="${c}" class="${c === lang ? "on" : ""}"><span>${LANGS[c].flag}</span>${esc(LANGS[c].name)}</button>`).join("")}</div>`;
+  else if (kind === "theme") body = `
+    <div class="tut-hero">🎨</div>
+    <h2>${t("tutThemeTitle")}</h2>
+    <div class="seg theme-seg">${[["system", "🖥️"], ["light", "☀️"], ["dark", "🌙"]].map(([k, ic]) =>
+      `<button data-theme-opt="${k}" class="${theme === k ? "on" : ""}">${ic} ${t(k)}</button>`).join("")}</div>
+    <p class="hint">${t("systemHint")}</p>`;
+  else if (kind === "how") body = `
+    <div class="tut-hero">🍳</div>
+    <h2>${t("tutHowTitle")}</h2>
+    <ul class="tut-list">${["tutHow1", "tutHow2", "tutHow3", "tutHow4"].map(k => `<li>${t(k)}</li>`).join("")}</ul>`;
+  else if (kind === "ai") body = `
+    <div class="tut-hero">✨</div>
+    <h2>${t("tutAiTitle")}</h2>
+    <p>${t("tutAiText")}</p>
+    ${aiKey()
+      ? `<div class="key-row"><span>✅ ${t("aiKeySaved")}</span></div>`
+      : `<label class="lbl" for="tutKeyInput">${t("aiKeyLabel")}</label>
+         <form class="addrow" id="tutKeyForm" autocomplete="off"><input id="tutKeyInput" type="password" spellcheck="false" autocapitalize="off" placeholder="sk-ant-…"><button class="btn">${t("save")}</button></form>`}
+    <p class="hint">${t("aiKeyHint")}</p>`;
+  else body = `
+    <div class="tut-hero">🎉</div>
+    <h2>${t("tutDoneTitle")}</h2>
+    <p>📱 ${t("tutDoneText")}</p>
+    <p class="hint">⚙️ ${t("tutDoneText2")}</p>`;
+
+  $("#modal").innerHTML = `
+    <div class="tut-top">
+      <div class="tut-dots">${TUT_STEPS.map((_, i) => `<i class="${i === tut.step ? "on" : i < tut.step ? "done" : ""}"></i>`).join("")}</div>
+      ${last ? "" : `<button class="btn ghost small" data-tut="skipall">${t("tutSkipAll")} ✕</button>`}
+    </div>
+    ${body}
+    <div class="actions tut-actions">
+      ${tut.step > 0 ? `<button class="btn ghost small" data-tut="back">← ${t("tutBack")}</button>` : ""}
+      <span class="tut-step">${t("tutStep", { a: tut.step + 1, b: TUT_STEPS.length })}</span>
+      ${last ? `<button class="btn small" data-tut="finish">${t("tutStart")} →</button>`
+             : `<button class="btn ghost small" data-tut="next">${t("tutSkip")}</button><button class="btn small" data-tut="next">${t("tutNext")} →</button>`}
+    </div>`;
+  $("#overlay").classList.add("open");
+  const form = $("#tutKeyForm");
+  if (form) form.addEventListener("submit", e => {
+    e.preventDefault();
+    const v = $("#tutKeyInput").value.trim();
+    if (!v) return;
+    store.set("kb_ai_key", v); toast(t("aiKeySaved")); scheduleAI(); renderResults();
+    openTutorial(tut.step + 1);
+  });
+}
+
+function endTutorial() { tut.active = false; store.set("kb_onboarded", true); $("#overlay").classList.remove("open"); }
+
+const TUT_UI = {
+  de: { tutWelcome: "Willkommen beim Second Brain Cookbook!", tutIntro: "Kurz einrichten – dauert nur 30 Sekunden.", tutLangQ: "Welche Sprache möchtest du?",
+    tutThemeTitle: "Wie soll die App aussehen?", tutHowTitle: "So funktioniert's",
+    tutHow1: "🧺 Trag ein, was du zuhause hast – eintippen oder bei den Zutaten antippen.", tutHow2: "📷 Oder fotografiere einfach deinen Kühlschrank.",
+    tutHow3: "🍽️ Du siehst sofort, was du kochen kannst und wo nur 1–2 Zutaten fehlen.", tutHow4: "⭐ Eigene Rezepte kannst du jederzeit hinzufügen.",
+    tutAiTitle: "KI-Suche (optional)", tutAiText: "Mit einem Claude-API-Schlüssel sucht die KI Rezepte, wenn das Kochbuch nichts findet, und erkennt Zutaten auf Fotos. Das kannst du auch später machen.",
+    tutDoneTitle: "Fertig!", tutDoneText: "Tipp fürs iPhone: In Safari auf Teilen → „Zum Home-Bildschirm“ tippen – dann hast du das Kochbuch wie eine App.",
+    tutDoneText2: "Alles kannst du später in den Einstellungen ändern.", tutNext: "Weiter", tutBack: "Zurück", tutSkip: "Überspringen",
+    tutSkipAll: "Tutorial überspringen", tutStart: "Los geht's", tutAgain: "Tutorial nochmal ansehen", tutStep: "{a} / {b}" },
+  en: { tutWelcome: "Welcome to Second Brain Cookbook!", tutIntro: "Quick setup – takes only 30 seconds.", tutLangQ: "Which language would you like?",
+    tutThemeTitle: "How should the app look?", tutHowTitle: "How it works",
+    tutHow1: "🧺 Enter what you have at home – type it or tap the ingredients.", tutHow2: "📷 Or simply take a photo of your fridge.",
+    tutHow3: "🍽️ You instantly see what you can cook and where only 1–2 ingredients are missing.", tutHow4: "⭐ You can add your own recipes at any time.",
+    tutAiTitle: "AI search (optional)", tutAiText: "With a Claude API key the AI finds recipes when the cookbook has nothing and recognizes ingredients in photos. You can also do this later.",
+    tutDoneTitle: "All set!", tutDoneText: "iPhone tip: in Safari tap Share → “Add to Home Screen” – then the cookbook works like an app.",
+    tutDoneText2: "You can change everything later in Settings.", tutNext: "Next", tutBack: "Back", tutSkip: "Skip",
+    tutSkipAll: "Skip tutorial", tutStart: "Let's go", tutAgain: "Show tutorial again", tutStep: "{a} / {b}" },
+  fr: { tutWelcome: "Bienvenue dans Second Brain Cookbook !", tutIntro: "Petite configuration – 30 secondes seulement.", tutLangQ: "Quelle langue veux-tu ?",
+    tutThemeTitle: "Quelle apparence pour l'app ?", tutHowTitle: "Comment ça marche",
+    tutHow1: "🧺 Indique ce que tu as à la maison – tape-le ou touche les ingrédients.", tutHow2: "📷 Ou prends simplement ton frigo en photo.",
+    tutHow3: "🍽️ Tu vois tout de suite ce que tu peux cuisiner et où il ne manque que 1–2 ingrédients.", tutHow4: "⭐ Tu peux ajouter tes propres recettes à tout moment.",
+    tutAiTitle: "Recherche IA (optionnelle)", tutAiText: "Avec une clé API Claude, l'IA trouve des recettes quand le livre n'a rien et reconnaît les ingrédients sur les photos. Tu peux aussi le faire plus tard.",
+    tutDoneTitle: "C'est prêt !", tutDoneText: "Astuce iPhone : dans Safari, touche Partager → « Sur l'écran d'accueil » – le livre fonctionne alors comme une app.",
+    tutDoneText2: "Tu peux tout modifier plus tard dans les réglages.", tutNext: "Suivant", tutBack: "Retour", tutSkip: "Passer",
+    tutSkipAll: "Passer le tutoriel", tutStart: "C'est parti", tutAgain: "Revoir le tutoriel", tutStep: "{a} / {b}" },
+  es: { tutWelcome: "¡Bienvenido a Second Brain Cookbook!", tutIntro: "Configuración rápida – solo 30 segundos.", tutLangQ: "¿Qué idioma prefieres?",
+    tutThemeTitle: "¿Cómo quieres que se vea la app?", tutHowTitle: "Cómo funciona",
+    tutHow1: "🧺 Indica lo que tienes en casa – escríbelo o toca los ingredientes.", tutHow2: "📷 O simplemente hazle una foto a tu nevera.",
+    tutHow3: "🍽️ Verás al instante qué puedes cocinar y dónde faltan solo 1–2 ingredientes.", tutHow4: "⭐ Puedes añadir tus propias recetas cuando quieras.",
+    tutAiTitle: "Búsqueda con IA (opcional)", tutAiText: "Con una clave API de Claude, la IA busca recetas cuando el recetario no encuentra nada y reconoce ingredientes en fotos. También puedes hacerlo más tarde.",
+    tutDoneTitle: "¡Listo!", tutDoneText: "Consejo para iPhone: en Safari toca Compartir → «Añadir a pantalla de inicio» y tendrás el recetario como una app.",
+    tutDoneText2: "Puedes cambiarlo todo más tarde en Ajustes.", tutNext: "Siguiente", tutBack: "Atrás", tutSkip: "Saltar",
+    tutSkipAll: "Saltar tutorial", tutStart: "Empezar", tutAgain: "Ver el tutorial otra vez", tutStep: "{a} / {b}" },
+  it: { tutWelcome: "Benvenuto in Second Brain Cookbook!", tutIntro: "Configurazione rapida – solo 30 secondi.", tutLangQ: "Che lingua preferisci?",
+    tutThemeTitle: "Che aspetto deve avere l'app?", tutHowTitle: "Come funziona",
+    tutHow1: "🧺 Inserisci cosa hai in casa – scrivilo o tocca gli ingredienti.", tutHow2: "📷 Oppure fotografa semplicemente il tuo frigo.",
+    tutHow3: "🍽️ Vedi subito cosa puoi cucinare e dove mancano solo 1–2 ingredienti.", tutHow4: "⭐ Puoi aggiungere le tue ricette in qualsiasi momento.",
+    tutAiTitle: "Ricerca IA (facoltativa)", tutAiText: "Con una chiave API di Claude l'IA trova ricette quando il ricettario non ha nulla e riconosce gli ingredienti nelle foto. Puoi farlo anche dopo.",
+    tutDoneTitle: "Tutto pronto!", tutDoneText: "Consiglio per iPhone: in Safari tocca Condividi → «Aggiungi alla schermata Home» e il ricettario funzionerà come un'app.",
+    tutDoneText2: "Puoi cambiare tutto più tardi nelle impostazioni.", tutNext: "Avanti", tutBack: "Indietro", tutSkip: "Salta",
+    tutSkipAll: "Salta il tutorial", tutStart: "Iniziamo", tutAgain: "Rivedi il tutorial", tutStep: "{a} / {b}" },
+  pt: { tutWelcome: "Bem-vindo ao Second Brain Cookbook!", tutIntro: "Configuração rápida – só 30 segundos.", tutLangQ: "Que idioma preferes?",
+    tutThemeTitle: "Como deve ser o aspeto da app?", tutHowTitle: "Como funciona",
+    tutHow1: "🧺 Indica o que tens em casa – escreve ou toca nos ingredientes.", tutHow2: "📷 Ou tira simplesmente uma foto ao frigorífico.",
+    tutHow3: "🍽️ Vês logo o que podes cozinhar e onde faltam só 1–2 ingredientes.", tutHow4: "⭐ Podes adicionar as tuas próprias receitas a qualquer momento.",
+    tutAiTitle: "Pesquisa com IA (opcional)", tutAiText: "Com uma chave API do Claude, a IA encontra receitas quando o livro não tem nada e reconhece ingredientes em fotos. Também podes fazer isto mais tarde.",
+    tutDoneTitle: "Pronto!", tutDoneText: "Dica para iPhone: no Safari toca em Partilhar → «Adicionar ao ecrã principal» e o livro funciona como uma app.",
+    tutDoneText2: "Podes mudar tudo mais tarde nas definições.", tutNext: "Seguinte", tutBack: "Voltar", tutSkip: "Saltar",
+    tutSkipAll: "Saltar tutorial", tutStart: "Vamos lá", tutAgain: "Ver o tutorial outra vez", tutStep: "{a} / {b}" },
+  tr: { tutWelcome: "Second Brain Cookbook'a hoş geldin!", tutIntro: "Hızlı kurulum – sadece 30 saniye.", tutLangQ: "Hangi dili istersin?",
+    tutThemeTitle: "Uygulama nasıl görünsün?", tutHowTitle: "Nasıl çalışır",
+    tutHow1: "🧺 Evde ne olduğunu gir – yaz ya da malzemelere dokun.", tutHow2: "📷 Ya da sadece buzdolabının fotoğrafını çek.",
+    tutHow3: "🍽️ Ne pişirebileceğini ve nerede sadece 1–2 malzeme eksik olduğunu hemen görürsün.", tutHow4: "⭐ İstediğin zaman kendi tariflerini ekleyebilirsin.",
+    tutAiTitle: "Yapay zekâ araması (isteğe bağlı)", tutAiText: "Claude API anahtarıyla yapay zekâ, yemek kitabı bir şey bulamazsa tarif bulur ve fotoğraflardaki malzemeleri tanır. Bunu sonra da yapabilirsin.",
+    tutDoneTitle: "Hazır!", tutDoneText: "iPhone ipucu: Safari'de Paylaş → „Ana Ekrana Ekle“ye dokun – yemek kitabı bir uygulama gibi çalışır.",
+    tutDoneText2: "Her şeyi daha sonra Ayarlar'dan değiştirebilirsin.", tutNext: "İleri", tutBack: "Geri", tutSkip: "Atla",
+    tutSkipAll: "Eğitimi atla", tutStart: "Başlayalım", tutAgain: "Eğitimi tekrar göster", tutStep: "{a} / {b}" },
+};
+for (const l in TUT_UI) Object.assign(AI_UI[l], TUT_UI[l]);
+
 // ---------- Events ----------
 $("#addForm").addEventListener("submit", e => {
   e.preventDefault();
@@ -1280,6 +1421,14 @@ $("#overlay").addEventListener("click", e => {
     document.querySelectorAll("[data-theme-opt]").forEach(b => b.classList.toggle("on", b === btn));
   }
   if (btn.dataset.lang) setLang(btn.dataset.lang);
+  if (btn.dataset.tutLang) { switchLang(btn.dataset.tutLang); openTutorial(tut.step); }
+  if (btn.dataset.tut) {
+    const a = btn.dataset.tut;
+    if (a === "next") openTutorial(tut.step + 1);
+    else if (a === "back") openTutorial(tut.step - 1);
+    else endTutorial(); // skipall / finish
+  }
+  if (btn.dataset.tutRestart) openTutorial(0);
   if (btn.dataset.scan) {
     const it = scan.items[+btn.dataset.scan];
     if (it) { it.on = !it.on; renderScanResult(scan.dataUrl); }
@@ -1304,6 +1453,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal()
 
 applyTheme(store.get("kb_theme", "system"));
 renderAll();
+if (!store.get("kb_onboarded", false)) openTutorial(0);
 
 // Offline-Modus (nur wenn über http/https geöffnet)
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
