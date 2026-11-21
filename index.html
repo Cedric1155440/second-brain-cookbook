@@ -258,6 +258,12 @@
 <script src="lang/it.js"></script>
 <script src="lang/pt.js"></script>
 <script src="lang/tr.js"></script>
+<script src="lang/en-more.js"></script>
+<script src="lang/fr-more.js"></script>
+<script src="lang/es-more.js"></script>
+<script src="lang/it-more.js"></script>
+<script src="lang/pt-more.js"></script>
+<script src="lang/tr-more.js"></script>
 
 <script>
 // ---------- Zutaten-Katalog ----------
@@ -370,6 +376,11 @@ const ING = {
   paprikapulver: ["Paprikapulver", 5, ["edelsüß", "rosenpaprika", "geräuchertes paprikapulver"]],
   fischsauce: ["Fischsauce", 5, ["fischsoße"]],
   miso: ["Miso", 5, ["misopaste"]],
+  // --- Erweiterung 2 ---
+  spargel: ["Spargel", 0, ["grüner spargel", "weißer spargel"]],
+  sellerie: ["Sellerie", 0, ["staudensellerie", "knollensellerie", "stangensellerie"]],
+  frischkaese: ["Frischkäse", 2, ["ricotta", "philadelphia", "doppelrahmfrischkäse"]],
+  nuesse: ["Nüsse", 4, ["walnüsse", "mandeln", "haselnüsse", "cashews", "nuss", "pistazien"]],
 };
 
 // ---------- Rezepte ----------
@@ -566,6 +577,118 @@ R.push(
   ["🍰","Pavlova","Dessert",150,["eier","zucker","sahne","beeren"],["mango","zitrone"],["Eiweiß steif schlagen, Zucker langsam einrieseln lassen.","Zu einem Kreis aufs Blech streichen.","Bei 120 °C 1,5 Std. trocknen, im Ofen abkühlen.","Mit Schlagsahne und Früchten belegen."],3,"Australien"],
   ["🍌","Bananenbrot","Dessert",70,["bananen","mehl","eier","zucker","butter"],["backpulver","zimt","schokolade"],["Reife Bananen zerdrücken.","Mit Butter, Zucker, Eiern verrühren.","Mehl und Backpulver unterheben, in eine Kastenform füllen.","Bei 175 °C ca. 55 Min. backen."],1,"USA"],
   ["🍎","Apfelstrudel","Dessert",60,["blaetterteig","aepfel","zucker","zimt"],["butter","paniermehl","vanille"],["Äpfel schälen, in dünne Scheiben schneiden, mit Zucker und Zimt mischen.","Teig ausrollen, mit Butter bestreichen und Paniermehl bestreuen.","Äpfel verteilen und aufrollen.","Bei 190 °C 35 Min. backen, mit Vanillesauce servieren."],2,"Österreich"],
+);
+
+// Erweiterung 2: 100 weitere Rezepte [emoji, name, kategorie, minuten, pflicht, optional, schritte, schwierigkeit, küche]
+R.push(
+  // Frühstück
+  ["🥣","Overnight Oats","Frühstück",5,["haferflocken","milch","joghurt"],["beeren","honig","bananen","nuesse"],["Haferflocken, Milch und Joghurt in einem Glas verrühren.","Über Nacht im Kühlschrank quellen lassen.","Morgens mit Obst, Honig und Nüssen toppen."],1,"USA"],
+  ["🥣","Bircher Müsli","Frühstück",10,["haferflocken","aepfel","joghurt"],["nuesse","honig","zitrone","beeren"],["Haferflocken mit etwas Milch oder Wasser einweichen.","Apfel grob reiben und mit Zitronensaft beträufeln.","Alles mit Joghurt verrühren und mit Nüssen bestreuen."],1,"Schweiz"],
+  ["🍳","Eggs Benedict","Frühstück",30,["eier","toast","schinken","butter","zitrone"],[],["Für die Hollandaise Eigelb mit Zitronensaft über Wasserdampf aufschlagen und warme Butter langsam einrühren.","Eier in siedendem Essigwasser 3–4 Min. pochieren.","Toast rösten, mit Schinken belegen.","Pochiertes Ei darauf setzen und mit Hollandaise übergießen."],3,"USA"],
+  ["🍳","Spiegelei mit Speck","Frühstück",10,["eier","speck"],["toast","tomaten"],["Speck in der Pfanne knusprig braten.","Eier daneben aufschlagen und bei mittlerer Hitze braten, bis das Eiweiß fest ist.","Salzen, pfeffern und mit Toast servieren."],1,"Großbritannien"],
+  ["🍓","Smoothie Bowl","Frühstück",10,["bananen","beeren","joghurt"],["haferflocken","honig","nuesse","mango"],["Gefrorene Banane und Beeren mit Joghurt dickcremig pürieren.","In eine Schale füllen.","Mit Obst, Haferflocken und Nüssen garnieren."],1,"International"],
+  ["🌯","Frühstücks-Burrito","Frühstück",15,["tortillas","eier","kaese"],["bohnen","paprika","avocado","speck"],["Paprika (und Speck) anbraten.","Eier dazugeben und zu Rührei braten.","Mit Käse und Bohnen in eine warme Tortilla füllen und einrollen."],1,"USA"],
+  ["🌶️","Chilaquiles","Frühstück",25,["tortillas","dosentomaten","eier"],["kaese","zwiebeln","chili","avocado","sahne"],["Tortillas in Ecken schneiden und in Öl knusprig braten.","Tomaten mit Zwiebel und Chili zu einer Salsa kochen.","Tortilla-Ecken in der Salsa schwenken.","Mit Spiegelei, Käse und Schmand servieren."],2,"Mexiko"],
+  ["🍳","Tamagoyaki","Frühstück",15,["eier","sojasauce","zucker"],["fruehlingszwiebeln"],["Eier mit Sojasauce und Zucker verquirlen.","Eine dünne Schicht in die geölte Pfanne geben, stocken lassen und aufrollen.","Weitere Schichten dazugeben und jeweils um die Rolle wickeln.","Etwas abkühlen lassen und in Scheiben schneiden."],2,"Japan"],
+  ["🍞","Strammer Max","Frühstück",10,["brot","schinken","eier"],["gurke","butter"],["Brot mit Butter bestreichen und kurz anrösten.","Mit Schinken belegen.","Spiegelei braten und obendrauf legen."],1,"Deutschland"],
+  ["🥜","Granola","Frühstück",35,["haferflocken","honig","nuesse"],["zimt","beeren"],["Ofen auf 160 °C vorheizen.","Haferflocken, gehackte Nüsse, Honig, etwas Öl und Zimt mischen.","Auf einem Blech 20–25 Min. goldbraun backen, zwischendurch wenden.","Abkühlen lassen, dabei wird es knusprig."],1,"USA"],
+  // Suppen
+  ["🥕","Gemüsesuppe","Suppe",35,["karotten","kartoffeln","lauch","bruehe"],["sellerie","erbsen","petersilie"],["Gemüse würfeln.","In etwas Öl andünsten.","Mit Brühe auffüllen und 20 Min. köcheln.","Mit Petersilie servieren."],1,"International"],
+  ["🍲","Hühnersuppe","Suppe",60,["haehnchen","karotten","sellerie","nudeln"],["lauch","petersilie","zwiebeln"],["Hähnchen mit Gemüse in Wasser aufsetzen, salzen und 40 Min. sanft köcheln.","Hähnchen herausnehmen und zerzupfen.","Suppennudeln in der Brühe garen.","Fleisch zurückgeben und mit Petersilie servieren."],1,"Deutschland"],
+  ["🥦","Brokkoli-Cremesuppe","Suppe",25,["brokkoli","kartoffeln","bruehe"],["sahne","kaese","zwiebeln"],["Zwiebel andünsten, Kartoffeln und Brokkoli dazugeben.","Mit Brühe bedecken und 15 Min. kochen.","Pürieren und mit Sahne oder Käse verfeinern."],1,"International"],
+  ["🍄","Champignon-Cremesuppe","Suppe",30,["champignons","zwiebeln","bruehe","sahne"],["petersilie","butter"],["Pilze und Zwiebel in Butter anbraten.","Mit Brühe aufgießen und 15 Min. köcheln.","Pürieren, Sahne einrühren und abschmecken."],1,"Frankreich"],
+  ["🍠","Süßkartoffel-Kokos-Suppe","Suppe",30,["suesskartoffel","kokosmilch","bruehe"],["ingwer","currypaste","chili","koriander"],["Süßkartoffel würfeln, mit Ingwer und Curry andünsten.","Brühe dazugeben und 20 Min. weich kochen.","Kokosmilch einrühren, pürieren und mit Koriander servieren."],1,"International"],
+  ["🥣","Spargelcremesuppe","Suppe",35,["spargel","bruehe","sahne"],["butter","mehl","zitrone"],["Spargel schälen, Schalen in der Brühe 15 Min. auskochen und entfernen.","Spargelstücke in der Brühe weich garen.","Butter und Mehl anschwitzen, mit Brühe ablöschen.","Sahne dazu, Spargelstücke einlegen und mit Zitrone abschmecken."],2,"Deutschland"],
+  ["🥣","Ribollita","Suppe",60,["bohnen","kohl","brot","dosentomaten"],["karotten","zwiebeln","sellerie","parmesan"],["Zwiebel, Karotte und Sellerie in Olivenöl andünsten.","Tomaten, Kohl, Bohnen und Wasser dazugeben und 40 Min. köcheln.","Altbackenes Brot hineinbrechen und sämig einkochen.","Mit Olivenöl und Parmesan servieren."],2,"Italien"],
+  ["🍲","Harira","Suppe",60,["linsen","kichererbsen","dosentomaten","zwiebeln"],["lamm","koriander","zitrone","sellerie"],["Zwiebel (und Lamm) mit Gewürzen anbraten.","Tomaten, Linsen und Wasser dazugeben, 30 Min. köcheln.","Kichererbsen hinzufügen und weitere 10 Min. kochen.","Mit Koriander und Zitrone servieren."],2,"Marokko"],
+  ["🌶️","Tortilla-Suppe","Suppe",35,["tortillas","dosentomaten","bruehe","haehnchen"],["avocado","kaese","chili","mais"],["Tomaten mit Zwiebel und Chili anbraten, mit Brühe auffüllen.","Hähnchen darin 15 Min. garen und zerzupfen.","Tortillastreifen knusprig braten.","Suppe mit Tortillastreifen, Avocado und Käse servieren."],2,"Mexiko"],
+  ["🥢","Sauer-Scharf-Suppe","Suppe",30,["tofu","champignons","essig","sojasauce","bruehe"],["eier","chili","fruehlingszwiebeln"],["Brühe mit Pilzen und Tofustreifen aufkochen.","Mit Sojasauce, Essig und Chili würzen.","Mit etwas Stärke andicken, verquirltes Ei einrühren.","Mit Frühlingszwiebeln servieren."],2,"China"],
+  // Salate
+  ["🥗","Couscous-Salat","Salat",20,["couscous","gurke","tomaten"],["paprika","petersilie","feta","zitrone"],["Couscous mit heißem Wasser übergießen und quellen lassen.","Gemüse klein würfeln.","Alles mit Zitrone, Olivenöl, Salz und Kräutern mischen."],1,"Nahost"],
+  ["🥗","Linsensalat","Salat",30,["linsen","zwiebeln","essig"],["karotten","petersilie","feta","senf"],["Linsen bissfest kochen und abtropfen lassen.","Dressing aus Essig, Öl, Senf, Salz und Pfeffer rühren.","Linsen noch warm mit Zwiebeln und Dressing mischen.","Mit Petersilie und Feta servieren."],1,"Frankreich"],
+  ["🍏","Waldorfsalat","Salat",15,["aepfel","sellerie","nuesse","mayo"],["joghurt","zitrone"],["Äpfel und Sellerie in feine Stifte schneiden.","Mit Zitronensaft beträufeln.","Mit Mayonnaise und Joghurt mischen, Walnüsse unterheben."],1,"USA"],
+  ["🥬","Coleslaw","Salat",15,["kohl","karotten","mayo"],["essig","zucker","senf"],["Kohl fein hobeln, Karotten raspeln.","Mayonnaise mit Essig, Zucker und Senf verrühren.","Alles mischen und 30 Min. durchziehen lassen."],1,"USA"],
+  ["🥗","Rote-Bete-Salat","Salat",15,["rotebete","essig"],["zwiebeln","feta","nuesse","aepfel"],["Gekochte Rote Bete in Würfel schneiden.","Mit Essig, Öl, Salz und Zwiebeln anmachen.","Mit Feta und Nüssen bestreuen."],1,"Russland"],
+  ["🥗","Salade Niçoise","Salat",25,["thunfisch","eier","tomaten","bohnen"],["kartoffeln","oliven","salat"],["Eier hart kochen, grüne Bohnen kurz blanchieren.","Salat, Tomaten, Bohnen und Kartoffeln anrichten.","Thunfisch, Eier und Oliven darauf verteilen.","Mit Essig-Öl-Dressing beträufeln."],1,"Frankreich"],
+  ["🍅","Panzanella","Salat",15,["brot","tomaten","gurke"],["zwiebeln","basilikum","essig"],["Altbackenes Brot würfeln und kurz anrösten.","Tomaten und Gurke grob schneiden.","Alles mit Olivenöl, Essig, Salz und Basilikum mischen und 10 Min. ziehen lassen."],1,"Italien"],
+  ["🥗","Fattoush","Salat",20,["brot","salat","tomaten","gurke"],["paprika","zitrone","petersilie","fruehlingszwiebeln"],["Fladenbrot in Stücke brechen und knusprig rösten.","Gemüse grob schneiden.","Dressing aus Zitrone und Olivenöl rühren.","Alles kurz vor dem Servieren mischen."],1,"Nahost"],
+  ["🍜","Glasnudelsalat (Yam Woon Sen)","Salat",20,["asianudeln","garnelen","zitrone","fischsauce"],["chili","koriander","zwiebeln","tomaten"],["Glasnudeln einweichen und kurz kochen.","Garnelen in wenig Wasser garen.","Dressing aus Limette, Fischsauce, Zucker und Chili rühren.","Alles mit Zwiebeln und Koriander mischen."],2,"Thailand"],
+  ["🥗","Kichererbsensalat","Salat",10,["kichererbsen","tomaten","gurke","zitrone"],["zwiebeln","petersilie","feta"],["Kichererbsen abspülen.","Gemüse würfeln.","Mit Zitrone, Olivenöl, Salz und Petersilie mischen."],1,"Nahost"],
+  // Vegetarisch
+  ["🥬","Gemüse-Lasagne","Vegetarisch",75,["nudeln","zucchini","spinat","dosentomaten","kaese"],["aubergine","paprika","milch","mehl","butter"],["Gemüse würfeln und anbraten, Tomaten dazugeben und 15 Min. köcheln.","Eine Béchamel aus Butter, Mehl und Milch kochen.","Lasagneplatten, Gemüsesauce, Spinat und Béchamel schichten.","Mit Käse bestreuen und bei 180 °C 40 Min. backen."],2,"Italien"],
+  ["🥬","Spinat-Ricotta-Cannelloni","Vegetarisch",60,["nudeln","spinat","frischkaese","dosentomaten"],["parmesan","knoblauch"],["Spinat dünsten, ausdrücken und mit Ricotta, Salz und Muskat mischen.","Cannelloni damit füllen.","Tomatensauce in eine Form geben, Cannelloni darauflegen, mit Sauce bedecken.","Mit Parmesan bestreuen und 30 Min. bei 190 °C backen."],2,"Italien"],
+  ["🫑","Gefüllte Paprika","Vegetarisch",50,["paprika","reis","dosentomaten"],["kaese","zwiebeln","mais","bohnen"],["Reis vorkochen und mit Mais, Bohnen und Gewürzen mischen.","Paprika aushöhlen und füllen.","In Tomatensauce setzen, mit Käse bestreuen.","Bei 190 °C 30 Min. backen."],2,"International"],
+  ["🎃","Kürbis-Risotto","Vegetarisch",40,["reis","kuerbis","bruehe","parmesan"],["zwiebeln","butter"],["Zwiebel und Kürbiswürfel in Butter andünsten.","Reis kurz mitdünsten.","Heiße Brühe nach und nach unter Rühren zugeben, ca. 18 Min.","Parmesan und Butter unterrühren."],2,"Italien"],
+  ["🥟","Spinatknödel","Vegetarisch",45,["brot","spinat","eier","milch"],["parmesan","zwiebeln","butter"],["Brotwürfel mit warmer Milch einweichen.","Spinat und Zwiebel dünsten, hacken und mit Brot und Eiern verkneten.","Knödel formen und in Salzwasser 15 Min. sieden.","Mit brauner Butter und Parmesan servieren."],2,"Österreich"],
+  ["🍛","Gemüse-Curry","Vegetarisch",30,["kokosmilch","currypaste","kartoffeln","blumenkohl"],["erbsen","spinat","reis"],["Currypaste in Öl anrösten.","Kartoffeln und Blumenkohl dazugeben, mit Kokosmilch und etwas Wasser auffüllen.","20 Min. köcheln, Erbsen und Spinat zugeben.","Mit Reis servieren."],1,"Indien"],
+  ["🥢","Tofu-Gemüse-Pfanne","Vegetarisch",25,["tofu","brokkoli","paprika","sojasauce"],["ingwer","knoblauch","reis"],["Tofu würfeln und knusprig braten.","Gemüse im Wok scharf anbraten.","Ingwer, Knoblauch und Sojasauce zugeben, Tofu unterheben.","Mit Reis servieren."],1,"China"],
+  ["🍝","Linsen-Bolognese","Vegetarisch",40,["nudeln","linsen","dosentomaten","zwiebeln"],["karotten","knoblauch","tomatenmark"],["Zwiebel, Karotte und Knoblauch andünsten.","Tomatenmark anrösten, rote Linsen und Tomaten dazugeben.","Mit etwas Wasser 20 Min. köcheln.","Mit Nudeln servieren."],1,"Italien"],
+  ["🍔","Bohnen-Burger","Vegetarisch",30,["bohnen","paniermehl","zwiebeln","brot"],["mais","salat","tomaten","kaese"],["Bohnen zerdrücken, mit Zwiebel, Paniermehl und Gewürzen mischen.","Patties formen und von beiden Seiten braten.","Brötchen mit Salat, Tomate und Patty belegen."],2,"USA"],
+  ["🥦","Blumenkohl-Steaks","Vegetarisch",35,["blumenkohl"],["paprikapulver","tahini","petersilie","zitrone"],["Ofen auf 220 °C vorheizen.","Blumenkohl in dicke Scheiben schneiden, mit Öl, Salz und Paprika bestreichen.","25 Min. backen, einmal wenden.","Mit Tahini-Zitronen-Sauce und Petersilie servieren."],1,"International"],
+  ["🥒","Zucchini-Puffer","Vegetarisch",30,["zucchini","eier","mehl"],["feta","joghurt","knoblauch"],["Zucchini raspeln, salzen und gut ausdrücken.","Mit Ei, Mehl und Feta mischen.","Kleine Puffer in Öl goldbraun braten.","Mit Knoblauch-Joghurt servieren."],1,"Griechenland"],
+  ["🍆","Imam Bayildi","Vegetarisch",60,["aubergine","zwiebeln","tomaten","knoblauch"],["petersilie"],["Auberginen längs einschneiden und in Öl anbraten.","Zwiebeln, Knoblauch und Tomaten weich dünsten.","Auberginen damit füllen.","Mit etwas Wasser und Öl bei 180 °C 30 Min. schmoren."],2,"Türkei"],
+  ["🍚","Mujaddara","Vegetarisch",50,["linsen","reis","zwiebeln"],["joghurt","petersilie"],["Viele Zwiebeln langsam dunkelbraun und knusprig braten.","Linsen 15 Min. vorkochen.","Reis und Wasser dazugeben und garen.","Mit den Röstzwiebeln und Joghurt servieren."],1,"Nahost"],
+  ["🥔","Kartoffelgratin","Vegetarisch",70,["kartoffeln","sahne","kaese"],["knoblauch","butter"],["Form mit Knoblauch und Butter ausreiben.","Kartoffeln in dünne Scheiben schneiden und einschichten.","Mit gewürzter Sahne übergießen und mit Käse bestreuen.","Bei 180 °C ca. 50 Min. backen."],2,"Frankreich"],
+  ["🍤","Gemüse-Tempura","Vegetarisch",30,["mehl","zucchini","suesskartoffel"],["brokkoli","sojasauce","garnelen"],["Mehl mit eiskaltem Wasser nur kurz verrühren.","Gemüse in dünne Scheiben schneiden.","Durch den Teig ziehen und in heißem Öl knusprig frittieren.","Mit Sojasauce zum Dippen servieren."],2,"Japan"],
+  ["🍄","Pilz-Stroganoff","Vegetarisch",25,["champignons","zwiebeln","sahne"],["paprikapulver","senf","nudeln","reis"],["Pilze scharf anbraten.","Zwiebeln und Paprikapulver dazugeben.","Sahne und Senf einrühren und einköcheln.","Mit Nudeln oder Reis servieren."],1,"Russland"],
+  ["🥔","Saag Aloo","Vegetarisch",30,["kartoffeln","spinat","zwiebeln"],["ingwer","knoblauch","currypaste"],["Kartoffeln würfeln und vorkochen.","Zwiebel, Ingwer, Knoblauch und Gewürze anbraten.","Kartoffeln darin anrösten.","Spinat dazugeben und zusammenfallen lassen."],1,"Indien"],
+  ["🫑","Ofengemüse mit Feta","Vegetarisch",40,["paprika","zucchini","zwiebeln","feta"],["tomaten","knoblauch","oliven"],["Ofen auf 200 °C vorheizen.","Gemüse grob schneiden, mit Öl und Kräutern mischen.","Feta in die Mitte legen.","30 Min. backen."],1,"Griechenland"],
+  ["🍝","Pasta e Fagioli","Vegetarisch",35,["nudeln","bohnen","dosentomaten"],["zwiebeln","knoblauch","parmesan","sellerie"],["Zwiebel, Sellerie und Knoblauch andünsten.","Tomaten, Bohnen und Wasser dazugeben, 15 Min. köcheln.","Kleine Nudeln darin garen.","Mit Olivenöl und Parmesan servieren."],1,"Italien"],
+  ["🥬","Spargel mit Hollandaise","Vegetarisch",30,["spargel","eier","butter","zitrone"],["kartoffeln","schinken"],["Spargel schälen und in Salzwasser mit etwas Zucker 12–15 Min. garen.","Eigelb mit Zitrone über Wasserdampf aufschlagen.","Geschmolzene Butter langsam einrühren.","Spargel mit Sauce und Kartoffeln servieren."],2,"Deutschland"],
+  // Fleisch & Fisch
+  ["🍛","Chicken Tikka Masala","Hauptgericht",50,["haehnchen","joghurt","dosentomaten","sahne"],["ingwer","knoblauch","currypaste","reis"],["Hähnchen in Joghurt und Gewürzen marinieren und scharf anbraten.","Zwiebel, Ingwer, Knoblauch und Gewürze anrösten.","Tomaten dazugeben und 15 Min. köcheln.","Sahne und Hähnchen zufügen und mit Reis servieren."],2,"Indien"],
+  ["🌯","Hähnchen-Fajitas","Hauptgericht",25,["haehnchen","tortillas","paprika","zwiebeln"],["avocado","sahne","kaese","chili"],["Hähnchen in Streifen schneiden und würzen.","Mit Paprika und Zwiebeln scharf anbraten.","In warmen Tortillas mit Toppings servieren."],1,"Mexiko"],
+  ["🌮","Fisch-Tacos","Hauptgericht",25,["fisch","tortillas","kohl"],["zitrone","avocado","sahne","koriander"],["Fisch würzen und braten oder panieren und frittieren.","Kohl fein schneiden und mit Limette anmachen.","Tortillas erwärmen und mit Fisch, Kohl und Sauce füllen."],1,"Mexiko"],
+  ["🐟","Fischcurry","Hauptgericht",35,["fisch","kokosmilch","tomaten","zwiebeln"],["currypaste","ingwer","koriander","reis"],["Zwiebel, Ingwer und Curry anbraten.","Tomaten und Kokosmilch dazugeben, 10 Min. köcheln.","Fischstücke einlegen und 6–8 Min. gar ziehen lassen.","Mit Koriander und Reis servieren."],2,"Indien"],
+  ["🥩","Saltimbocca","Hauptgericht",25,["schwein","schinken","butter"],["rotwein","zitrone"],["Dünne Schnitzel mit Schinken (und Salbei) belegen und feststecken.","In Butter von beiden Seiten kurz braten.","Mit Wein ablöschen und die Sauce kurz einkochen."],2,"Italien"],
+  ["🍢","Hähnchen-Satay","Hauptgericht",40,["haehnchen","erdnuesse","kokosmilch","sojasauce"],["currypaste","zitrone","reis"],["Hähnchenstreifen in Sojasauce und Curry marinieren und aufspießen.","Erdnussbutter mit Kokosmilch und Limette zur Sauce verrühren.","Spieße grillen oder braten.","Mit Erdnusssauce und Reis servieren."],2,"Indonesien"],
+  ["🍚","Nasi Goreng","Hauptgericht",25,["reis","eier","sojasauce"],["haehnchen","garnelen","chili","zwiebeln","gurke"],["Zwiebel, Knoblauch und Chili anbraten.","Hähnchen oder Garnelen mitbraten.","Kalten Reis dazugeben, mit süßer Sojasauce würzen.","Mit Spiegelei und Gurke servieren."],1,"Indonesien"],
+  ["🥩","Rendang","Hauptgericht",180,["rind","kokosmilch","chili","ingwer"],["zwiebeln","knoblauch","zitrone"],["Zwiebeln, Chili, Ingwer und Knoblauch zur Paste pürieren und anbraten.","Rindfleisch und Kokosmilch dazugeben.","Offen 2–3 Std. schmoren, bis die Flüssigkeit fast verkocht ist.","Weiter rühren, bis das Fleisch dunkel und trocken glänzt."],3,"Indonesien"],
+  ["🍜","Laksa","Hauptgericht",40,["asianudeln","kokosmilch","currypaste","garnelen"],["tofu","eier","koriander","chili"],["Currypaste in Öl anrösten.","Mit Brühe und Kokosmilch aufgießen und 10 Min. köcheln.","Garnelen und Tofu darin garen.","Über gekochte Nudeln gießen und mit Ei und Koriander servieren."],2,"Malaysia"],
+  ["🍗","Adobo","Hauptgericht",50,["haehnchen","sojasauce","essig","knoblauch"],["reis"],["Hähnchen mit Sojasauce, Essig, Knoblauch, Lorbeer und Pfeffer aufkochen.","Zugedeckt 30 Min. schmoren.","Deckel abnehmen und die Sauce einkochen, Hähnchen leicht anbräunen.","Mit Reis servieren."],1,"Philippinen"],
+  ["🍖","Tonkatsu","Hauptgericht",30,["schwein","mehl","eier","paniermehl"],["kohl","reis"],["Schweineschnitzel salzen und pfeffern.","In Mehl, Ei und Panko wenden.","In heißem Öl goldbraun frittieren.","In Streifen schneiden, mit Kohl, Reis und Sauce servieren."],2,"Japan"],
+  ["🥩","Lomo Saltado","Hauptgericht",30,["rind","zwiebeln","tomaten","kartoffeln","sojasauce"],["reis","essig","koriander"],["Pommes frittieren oder backen.","Rindfleischstreifen sehr heiß anbraten.","Zwiebeln und Tomaten kurz mitbraten, mit Sojasauce und Essig ablöschen.","Pommes unterheben und mit Reis servieren."],2,"Peru"],
+  ["🥙","Hähnchen-Shawarma","Hauptgericht",40,["haehnchen","joghurt","brot"],["knoblauch","zitrone","tomaten","gurke","tahini"],["Hähnchen mit Joghurt, Zitrone und Gewürzen marinieren.","Scharf anbraten oder im Ofen garen und in Streifen schneiden.","In Fladenbrot mit Gemüse und Knoblauch- oder Tahinisauce wickeln."],2,"Nahost"],
+  ["🍖","Hackbraten","Hauptgericht",75,["hack","eier","zwiebeln","paniermehl"],["senf","tomatenmark","kartoffeln"],["Hack mit Ei, Zwiebel, Paniermehl, Senf und Gewürzen verkneten.","Zu einem Laib formen.","Bei 180 °C ca. 50 Min. backen.","In Scheiben mit Kartoffeln servieren."],2,"Deutschland"],
+  ["🍢","Ćevapčići","Hauptgericht",30,["hack","zwiebeln","knoblauch"],["paprikapulver","brot","reis","paprika"],["Hack mit Knoblauch, Paprikapulver und Salz kräftig verkneten.","Kleine Röllchen formen.","In der Pfanne oder auf dem Grill braten.","Mit Zwiebeln, Fladenbrot und Ajvar servieren."],1,"Bosnien"],
+  ["🥬","Kohlrouladen","Hauptgericht",90,["kohl","hack","reis","dosentomaten"],["zwiebeln","sahne"],["Kohlblätter blanchieren.","Hack mit Reis, Zwiebel und Gewürzen mischen.","Auf die Blätter geben und einrollen.","In Tomatensauce 50 Min. schmoren."],3,"Polen"],
+  ["🍤","Jambalaya","Hauptgericht",50,["reis","wuerstchen","haehnchen","paprika","dosentomaten"],["garnelen","sellerie","zwiebeln","chili"],["Wurst und Hähnchen anbraten.","Zwiebel, Paprika und Sellerie dazugeben.","Reis, Tomaten, Gewürze und Brühe zufügen und zugedeckt 20 Min. garen.","Garnelen in den letzten Minuten mitgaren."],2,"USA"],
+  ["🍛","Rogan Josh","Hauptgericht",90,["lamm","joghurt","zwiebeln","currypaste"],["ingwer","knoblauch","dosentomaten","reis"],["Lammwürfel anbraten.","Zwiebeln, Ingwer, Knoblauch und Gewürze dazugeben.","Joghurt und Tomaten einrühren.","Zugedeckt 1 Std. schmoren und mit Reis servieren."],2,"Indien"],
+  // Snacks & Beilagen
+  ["🧀","Nachos mit Käse","Snack",15,["tortillas","kaese"],["bohnen","chili","avocado","sahne","tomaten"],["Tortillas in Ecken schneiden und im Ofen knusprig backen.","Mit Käse und Bohnen bestreuen und überbacken.","Mit Salsa, Guacamole und Schmand servieren."],1,"Mexiko"],
+  ["🍟","Ofen-Pommes","Beilage",40,["kartoffeln"],["paprikapulver","mayo"],["Kartoffeln in Stäbchen schneiden und 10 Min. wässern, trockentupfen.","Mit Öl, Salz und Paprika mischen.","Bei 220 °C 30 Min. knusprig backen, einmal wenden."],1,"Belgien"],
+  ["🥖","Knoblauchbrot","Beilage",15,["brot","butter","knoblauch"],["petersilie","kaese"],["Butter mit Knoblauch und Petersilie verrühren.","Baguette einschneiden und die Butter einstreichen.","Bei 200 °C 10 Min. backen."],1,"International"],
+  ["🍚","Reis-Pilaw","Beilage",25,["reis","butter","bruehe"],["zwiebeln","nuesse"],["Reis in Butter glasig dünsten.","Mit heißer Brühe aufgießen.","Zugedeckt bei kleiner Hitze 18 Min. garen.","Auflockern und mit gerösteten Nüssen servieren."],1,"Türkei"],
+  ["🍠","Süßkartoffel-Pommes","Beilage",35,["suesskartoffel"],["paprikapulver","joghurt","knoblauch"],["Süßkartoffeln in Stäbchen schneiden.","Mit Öl, etwas Stärke, Salz und Paprika mischen.","Bei 220 °C 25 Min. backen.","Mit Knoblauch-Joghurt servieren."],1,"USA"],
+  ["🥚","Gefüllte Eier","Snack",25,["eier","mayo","senf"],["paprikapulver","fruehlingszwiebeln"],["Eier hart kochen, abschrecken und halbieren.","Eigelb mit Mayonnaise und Senf glatt rühren.","In die Eiweißhälften spritzen und mit Paprika bestreuen."],1,"USA"],
+  ["🍆","Baba Ganoush","Snack",45,["aubergine","tahini","zitrone","knoblauch"],["petersilie","oliven"],["Auberginen im Ofen oder über der Flamme rösten, bis sie weich sind.","Fruchtfleisch herauslösen.","Mit Tahini, Zitrone, Knoblauch und Salz zerdrücken.","Mit Olivenöl und Petersilie servieren."],1,"Nahost"],
+  ["🥞","Frühlingszwiebel-Pfannkuchen","Snack",45,["mehl","fruehlingszwiebeln"],["sojasauce","essig"],["Mehl mit heißem Wasser zu einem weichen Teig kneten und ruhen lassen.","Dünn ausrollen, mit Öl bestreichen und Frühlingszwiebeln bestreuen.","Aufrollen, zur Schnecke drehen und wieder flach rollen.","In der Pfanne knusprig braten und mit Soja-Dip servieren."],2,"China"],
+  ["🧀","Mozzarella-Sticks","Snack",25,["mozzarella","eier","mehl","paniermehl"],["dosentomaten"],["Mozzarella in Stifte schneiden und kurz einfrieren.","In Mehl, Ei und Paniermehl wenden (zweimal).","In heißem Öl kurz goldbraun frittieren.","Mit Tomatensauce servieren."],2,"USA"],
+  ["🥨","Laugenbrezeln","Snack",90,["mehl","hefe","butter","backpulver"],[],["Hefeteig kneten und 30 Min. gehen lassen.","Lange Stränge rollen und zu Brezeln schlingen.","Kurz in heißes Natronwasser tauchen und mit grobem Salz bestreuen.","Bei 220 °C 15 Min. backen."],3,"Deutschland"],
+  ["🌶️","Muhammara","Snack",15,["paprika","nuesse","paniermehl"],["zitrone","chili","knoblauch"],["Paprika rösten und häuten.","Mit Walnüssen, Paniermehl, Knoblauch und Gewürzen pürieren.","Mit Zitrone und Olivenöl abschmecken."],1,"Nahost"],
+  ["🥒","Gurken-Raita","Beilage",10,["joghurt","gurke"],["koriander","chili"],["Gurke raspeln und ausdrücken.","Mit Joghurt, Salz und Kreuzkümmel verrühren.","Mit Koriander bestreuen."],1,"Indien"],
+  // Desserts & Backen
+  ["🍎","Apfelkuchen","Dessert",75,["aepfel","mehl","butter","zucker","eier"],["zimt","backpulver"],["Rührteig aus Butter, Zucker, Eiern, Mehl und Backpulver herstellen.","In eine Springform füllen.","Äpfel in Spalten schneiden, einritzen und auf den Teig drücken.","Bei 180 °C ca. 45 Min. backen."],2,"Deutschland"],
+  ["🍰","Käsekuchen","Dessert",90,["quark","eier","zucker","mehl","butter"],["zitrone","vanille"],["Mürbeteig aus Mehl, Butter und Zucker in eine Springform drücken.","Quark mit Eiern, Zucker, Vanille und Zitrone glatt rühren.","Auf den Boden geben.","Bei 170 °C ca. 60 Min. backen und im Ofen abkühlen lassen."],2,"Deutschland"],
+  ["🍫","Schokoladen-Lavakuchen","Dessert",25,["schokolade","butter","eier","zucker","mehl"],["beeren"],["Schokolade mit Butter schmelzen.","Eier und Zucker aufschlagen, Schokolade und wenig Mehl unterheben.","In gefettete Förmchen füllen.","Bei 220 °C 10–12 Min. backen – innen bleibt es flüssig."],2,"Frankreich"],
+  ["🧁","Blaubeer-Muffins","Dessert",35,["mehl","zucker","eier","milch","butter","beeren"],["backpulver","vanille"],["Trockene und feuchte Zutaten getrennt mischen.","Kurz zusammenrühren und Beeren unterheben.","In Muffinförmchen füllen.","Bei 180 °C 20–25 Min. backen."],1,"USA"],
+  ["🍌","Bananensplit","Dessert",10,["bananen","sahne","schokolade"],["nuesse","beeren"],["Banane längs halbieren.","Mit Eis und Schlagsahne anrichten.","Mit geschmolzener Schokolade und Nüssen garnieren."],1,"USA"],
+  ["🍓","Rote Grütze","Dessert",20,["beeren","zucker"],["vanille","sahne"],["Beeren mit Zucker und etwas Saft aufkochen.","Mit angerührter Stärke binden.","Abkühlen lassen und mit Vanillesauce oder Sahne servieren."],1,"Deutschland"],
+  ["🍩","Churros","Dessert",30,["mehl","zucker","butter"],["zimt","schokolade"],["Wasser mit Butter und Salz aufkochen, Mehl einrühren, bis sich ein Kloß bildet.","Teig in einen Spritzbeutel mit Sterntülle füllen.","Streifen in heißes Öl spritzen und goldbraun frittieren.","In Zimtzucker wälzen und mit Schokolade servieren."],2,"Spanien"],
+  ["🍯","Baklava","Dessert",90,["blaetterteig","nuesse","butter","honig"],["zimt","zitrone"],["Filoteig-Blätter mit Butter bestreichen und schichten.","Gehackte Nüsse mit Zimt dazwischen streuen.","In Rauten schneiden und bei 170 °C 45 Min. backen.","Heißen Honigsirup darübergießen und durchziehen lassen."],3,"Türkei"],
+  ["🍎","Bratapfel","Dessert",35,["aepfel","nuesse","honig"],["zimt","vanille","butter"],["Kerngehäuse der Äpfel ausstechen.","Mit Nüssen, Honig und Zimt füllen.","Ein Stück Butter obendrauf setzen.","Bei 180 °C 25 Min. backen."],1,"Deutschland"],
+  ["🍮","Flan","Dessert",60,["eier","milch","zucker"],["vanille"],["Zucker zu Karamell schmelzen und in Förmchen gießen.","Eier, Milch, Zucker und Vanille verquirlen und darübergießen.","Im Wasserbad bei 160 °C 40 Min. stocken lassen.","Kühlen und stürzen."],2,"Spanien"],
+  ["🍋","Zitronenkuchen","Dessert",60,["zitrone","mehl","butter","zucker","eier"],["backpulver"],["Butter mit Zucker schaumig rühren, Eier einrühren.","Mehl, Backpulver und Zitronenschale unterheben.","In einer Kastenform bei 175 °C 45 Min. backen.","Mit Zitronenglasur übergießen."],1,"Deutschland"],
+  ["🍏","Tarte Tatin","Dessert",60,["aepfel","blaetterteig","zucker","butter"],["vanille"],["Zucker und Butter in einer ofenfesten Pfanne karamellisieren.","Apfelspalten dicht hineinlegen und kurz garen.","Mit Blätterteig bedecken und die Ränder einschlagen.","Bei 200 °C 25 Min. backen und stürzen."],3,"Frankreich"],
+  ["🍞","Hefezopf","Dessert",150,["mehl","hefe","milch","butter","zucker","eier"],[],["Hefeteig kneten und 1 Std. gehen lassen.","In drei Stränge teilen und flechten.","Weitere 30 Min. gehen lassen und mit Ei bestreichen.","Bei 180 °C ca. 30 Min. backen."],3,"Deutschland"],
+  ["🍯","Joghurt mit Honig und Nüssen","Dessert",5,["joghurt","honig","nuesse"],["beeren"],["Griechischen Joghurt in eine Schale geben.","Mit Honig beträufeln.","Mit gerösteten Nüssen und Beeren bestreuen."],1,"Griechenland"],
+  ["🍫","Schokoladenpudding","Dessert",15,["milch","kakao","zucker"],["vanille","sahne"],["Etwas Milch mit Stärke, Kakao und Zucker glatt rühren.","Restliche Milch aufkochen und die Mischung einrühren.","Unter Rühren 1 Min. kochen und in Schälchen füllen.","Abkühlen lassen."],1,"Deutschland"],
+  // Getränke
+  ["☕","Heiße Schokolade","Getränk",10,["milch","schokolade"],["sahne","zimt","vanille"],["Milch erhitzen.","Gehackte Schokolade darin schmelzen und glatt rühren.","Mit Sahne und Zimt servieren."],1,"International"],
+  ["🥤","Bananen-Milchshake","Getränk",5,["bananen","milch"],["honig","vanille"],["Banane mit kalter Milch und etwas Honig pürieren.","Sofort servieren."],1,"USA"],
+  ["🍋","Zitronenlimonade","Getränk",10,["zitrone","zucker"],["beeren"],["Zitronen auspressen.","Saft mit Zucker und kaltem Wasser verrühren.","Mit Eis und Zitronenscheiben servieren."],1,"International"],
+  ["☕","Chai Latte","Getränk",15,["milch","ingwer","zimt"],["honig","zucker"],["Wasser mit Ingwer, Zimt und Gewürzen 5 Min. köcheln.","Schwarzen Tee dazugeben und ziehen lassen.","Milch dazugeben, erhitzen und süßen.","Abseihen und servieren."],1,"Indien"],
+  ["🧋","Eiskaffee","Getränk",5,["kaffee","milch"],["zucker","sahne","vanille"],["Starken Kaffee kochen und abkühlen lassen.","Ein Glas mit Eiswürfeln füllen.","Kaffee und Milch darübergießen und süßen."],1,"International"],
 );
 
 const CATS = ["Alle", "Hauptgericht", "Vegetarisch", "Frühstück", "Suppe", "Salat", "Snack", "Beilage", "Dessert", "Getränk"];
@@ -1296,6 +1419,33 @@ const WIKI = {
   "Borschtsch": "Borscht", "Pierogi": "Pierogi", "Bœuf Stroganoff": "Beef Stroganoff", "Köttbullar": "de:Köttbullar",
   "Zimtschnecken": "Cinnamon roll", "Pavlova": "Pavlova (cake)", "Bananenbrot": "Banana bread", "Apfelstrudel": "Apple strudel",
 };
+Object.assign(WIKI, { // Erweiterung 2
+  "Overnight Oats": "Overnight oats", "Bircher Müsli": "Muesli", "Eggs Benedict": "Eggs Benedict", "Spiegelei mit Speck": "Fried egg",
+  "Smoothie Bowl": "Smoothie", "Frühstücks-Burrito": "Breakfast burrito", "Chilaquiles": "Chilaquiles", "Tamagoyaki": "Tamagoyaki",
+  "Strammer Max": "Strammer Max", "Granola": "Granola", "Gemüsesuppe": "de:Gemüsesuppe", "Hühnersuppe": "Chicken soup",
+  "Brokkoli-Cremesuppe": "Cream of broccoli soup", "Champignon-Cremesuppe": "Cream of mushroom soup", "Süßkartoffel-Kokos-Suppe": "Sweet potato soup",
+  "Spargelcremesuppe": "de:Spargelcremesuppe", "Ribollita": "Ribollita", "Harira": "Harira", "Tortilla-Suppe": "Tortilla soup",
+  "Sauer-Scharf-Suppe": "Hot and sour soup", "Couscous-Salat": "Couscous", "Waldorfsalat": "Waldorf salad",
+  "Coleslaw": "Coleslaw", "Rote-Bete-Salat": "Vinegret", "Salade Niçoise": "Salade niçoise", "Panzanella": "Panzanella", "Fattoush": "Fattoush",
+  "Glasnudelsalat (Yam Woon Sen)": "Glass noodles", "Kichererbsensalat": "Chickpea salad", "Gemüse-Lasagne": "Lasagna",
+  "Spinat-Ricotta-Cannelloni": "Cannelloni", "Gefüllte Paprika": "Stuffed peppers", "Kürbis-Risotto": "Risotto", 
+  "Gemüse-Curry": "Aloo matar", "Tofu-Gemüse-Pfanne": "Stir frying", "Linsen-Bolognese": "Bolognese sauce", "Bohnen-Burger": "Veggie burger",
+  "Blumenkohl-Steaks": "Cauliflower", "Zucchini-Puffer": "Fritter", "Imam Bayildi": "İmam bayıldı", "Mujaddara": "Mujaddara",
+  "Kartoffelgratin": "Gratin dauphinois", "Gemüse-Tempura": "Tempura", "Pilz-Stroganoff": "Beef Stroganoff", "Saag Aloo": "Saag aloo",
+  "Pasta e Fagioli": "Pasta e fagioli", "Spargel mit Hollandaise": "Hollandaise sauce",
+  "Chicken Tikka Masala": "Chicken tikka masala", "Hähnchen-Fajitas": "Fajita", "Fisch-Tacos": null, "Fischcurry": null,
+  "Saltimbocca": "Saltimbocca", "Hähnchen-Satay": "Satay", "Nasi Goreng": "Nasi goreng", "Rendang": "Rendang", "Laksa": "Laksa",
+  "Adobo": "Philippine adobo", "Tonkatsu": "Tonkatsu", "Lomo Saltado": "Lomo saltado", "Hähnchen-Shawarma": "Shawarma", "Hackbraten": "Meatloaf",
+  "Ćevapčići": "Ćevapi", "Kohlrouladen": "Cabbage roll", "Jambalaya": "Jambalaya", "Rogan Josh": "Rogan josh", "Nachos mit Käse": "Nachos",
+  "Ofen-Pommes": "French fries", "Knoblauchbrot": "Garlic bread", "Reis-Pilaw": "Pilaf", "Süßkartoffel-Pommes": null,
+  "Gefüllte Eier": null, "Baba Ganoush": "Baba ghanoush", "Frühlingszwiebel-Pfannkuchen": "Cong you bing",
+  "Mozzarella-Sticks": "Mozzarella sticks", "Laugenbrezeln": "Pretzel", "Muhammara": "Muhammara", "Gurken-Raita": "Raita",
+  "Apfelkuchen": "de:Apfelkuchen", "Käsekuchen": "de:Käsekuchen", "Schokoladen-Lavakuchen": "Lava cake", "Blaubeer-Muffins": "Muffin",
+  "Bananensplit": "Banana split", "Rote Grütze": "Rote Grütze", "Churros": "Churro", "Baklava": "Baklava", "Bratapfel": "Baked apple",
+  "Flan": "Crème caramel", "Zitronenkuchen": "Pound cake", "Tarte Tatin": "Tarte Tatin", "Hefezopf": "Hefekranz",
+  "Joghurt mit Honig und Nüssen": "Strained yogurt", "Schokoladenpudding": "Chocolate pudding", "Heiße Schokolade": "Hot chocolate",
+  "Bananen-Milchshake": "Milkshake", "Zitronenlimonade": "Lemonade", "Chai Latte": "Masala chai", "Eiskaffee": "Iced coffee",
+});
 const imgCache = store.get("kb_img2", {});
 const imgPending = {};
 
