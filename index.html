@@ -276,6 +276,10 @@
   [data-style="sleek"] .placeholder { border-style: solid; border-width: 1px; border-radius: 22px; background: var(--surface); }
   [data-style="sleek"] .toast { border-radius: 999px; padding: 10px 18px; }
   [data-style="sleek"] .jump { border-radius: 999px; }
+  .layout > * { min-width: 0; } /* verhindert seitliches Überlaufen auf schmalen Bildschirmen */
+  .tool-icons { margin-left: auto; letter-spacing: 2px; font-size: 14px; }
+  .tool-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tool-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--surface-2); font-size: 14px; font-weight: 500; }
   .style-seg { display: flex; width: 100%; margin-bottom: 4px; }
   .style-seg button { flex: 1; padding: 10px 8px; font-size: 14px; }
 </style>
@@ -936,7 +940,7 @@ function card(r, ev) {
     <div class="top"><span class="emoji">${r.emoji || "🍽️"}</span>${badge}</div>
     <h3>${esc(r.name)}</h3>
     <div class="meta"><span>⏱ ${fmtTime(r.time)}</span>${r.land ? `<span>🌍 ${esc(landName(r.land))}</span>` : ""}${r.own ? `<span>★ ${t("ownTag")}</span>` : ""}${r.ai ? `<span class="ai-tag">✨ ${t("aiTag")}</span>` : ""}</div>
-    <div class="meta">${diffBadge(r.diff)}<span>${esc(catName(r.cat))}</span></div>
+    <div class="meta">${diffBadge(r.diff)}<span>${esc(catName(r.cat))}</span>${recipeTools(r).length ? `<span class="tool-icons">${toolIcons(r)}</span>` : ""}</div>
     <div class="bar"><i style="width:${Math.round(ev.ratio * 100)}%"></i></div>
     ${ev.missing.length && ev.missing.length <= 3 ? `<div class="missing">${t("needStill")} ${ev.missing.map(nameOf).map(esc).join(", ")}</div>` : ""}
     ${ev.optHave.length ? `<div class="meta">+ ${t("goesWith")} ${ev.optHave.map(nameOf).map(esc).join(", ")}</div>` : ""}
@@ -981,6 +985,84 @@ function renderResults() {
   observeImgs($("#results"));
   $("#jumpBtn").textContent = "🍽️ " + (pantry.size ? t("jumpCount", { a: ready.length, b: almost.length }) : t("jump"));
 }
+// ---------- Küchengeräte: aus den Zubereitungsschritten abgeleitet ----------
+// [Emoji, Namen je Sprache, Erkennungsmuster (Deutsch + Englisch für eigene/KI-Rezepte)]
+const TOOLS = {
+  pfanne: ["🍳", { de: "Pfanne", en: "Pan", fr: "Poêle", es: "Sartén", it: "Padella", pt: "Frigideira", tr: "Tava" },
+    /pfanne|anbraten|\bbraten\b|knusprig braten|goldbraun braten|\bbrat|rösten|schwenken|karamellisier(?!.*form)|\bpan\b|\bfry\b|sauté|\bsear\b/],
+  wok: ["🥘", { de: "Wok", en: "Wok", fr: "Wok", es: "Wok", it: "Wok", pt: "Wok", tr: "Wok" }, /\bwok\b/],
+  topf: ["🍲", { de: "Topf", en: "Pot", fr: "Casserole", es: "Olla", it: "Pentola", pt: "Panela", tr: "Tencere" },
+    /topf|\bkochen\b|kochen,|köcheln|aufkochen|kocht|sieden|siedend|salzwasser|blanchier|wasserbad|wasserdampf|haschen|\bgaren in|in .*brühe|mit brühe|brühe auf|aufgießen|auffüllen|schmoren|\bboil|simmer|\bpot\b|saucepan/],
+  ofen: ["🔥", { de: "Backofen", en: "Oven", fr: "Four", es: "Horno", it: "Forno", pt: "Forno", tr: "Fırın" },
+    /ofen|°c|überbacken|gratinier|unter dem grill|\boven\b|\bbake\b|°f/],
+  backform: ["🎂", { de: "Backform", en: "Baking tin", fr: "Moule", es: "Molde", it: "Stampo", pt: "Forma", tr: "Kalıp" },
+    /springform|kastenform|backform|muffinförmchen|muffin|förmchen|tarteform|kuchenform|\bcake tin|loaf tin/],
+  auflaufform: ["🫕", { de: "Auflaufform", en: "Baking dish", fr: "Plat à gratin", es: "Fuente de horno", it: "Pirofila", pt: "Tabuleiro", tr: "Fırın kabı" },
+    /auflaufform|ofenfeste schalen|in eine form|in die form|\bform geben|form legen|form füllen|baking dish|casserole dish/],
+  blech: ["🟫", { de: "Backblech", en: "Baking tray", fr: "Plaque", es: "Bandeja", it: "Teglia", pt: "Tabuleiro de forno", tr: "Fırın tepsisi" },
+    /blech|baking tray|baking sheet/],
+  fritteuse: ["🍟", { de: "Frittiertopf", en: "Deep fryer", fr: "Friteuse", es: "Freidora", it: "Friggitrice", pt: "Fritadeira", tr: "Fritöz" },
+    /frittier|deep-fr|deep fr|schwimmend/],
+  mixer: ["🌀", { de: "Mixer / Pürierstab", en: "Blender", fr: "Mixeur", es: "Batidora", it: "Frullatore", pt: "Liquidificador", tr: "Blender" },
+    /pürier|mixer|\bmixen|zur paste|fein hacken.*kichererbsen|\bblend|blender/],
+  handmixer: ["🥣", { de: "Schneebesen / Handmixer", en: "Whisk / hand mixer", fr: "Fouet / batteur", es: "Varillas / batidora", it: "Frusta / sbattitore", pt: "Batedeira / vara", tr: "Çırpma teli / mikser" },
+    /schaumig|steif schlagen|aufschlagen|aufgeschlagen|schaumig rühren|cremig rühren|whisk|whip|beat .*until/],
+  reibe: ["🧀", { de: "Reibe", en: "Grater", fr: "Râpe", es: "Rallador", it: "Grattugia", pt: "Ralador", tr: "Rende" },
+    /\breiben\b|raspeln|grob reiben|reiben,|\bgrate\b|grated/],
+  waffeleisen: ["🧇", { de: "Waffeleisen", en: "Waffle iron", fr: "Gaufrier", es: "Gofrera", it: "Piastra per waffle", pt: "Máquina de waffles", tr: "Waffle makinesi" }, /waffeleisen|waffle iron/],
+  kuehlschrank: ["❄️", { de: "Kühlschrank", en: "Fridge", fr: "Frigo", es: "Nevera", it: "Frigo", pt: "Frigorífico", tr: "Buzdolabı" },
+    /kühlschrank|\bkühlen\b|kalt stellen|über nacht|\bchill|refrigerat|fridge/],
+  spezial: ["🧰", { de: "Spezialwerkzeug", en: "Special tool", fr: "Outil spécial", es: "Utensilio especial", it: "Attrezzo speciale", pt: "Utensílio especial", tr: "Özel alet" },
+    /spätzlehobel|bambusmatte|spritzbeutel|spieß|brenner|nudelholz|ausstechen/],
+};
+// Korrekturen, wo die Erkennung danebenliegt (Rezeptname → Geräte)
+const TOOLS_FIX = {
+  "Tomate-Mozzarella": [], "Griechischer Salat": [], "Guacamole": [], "Tzatziki": [], "Gurkensalat": ["reibe"],
+  "Bruschetta": ["ofen"], "Pfannkuchen": ["pfanne"], "Bananen-Pancakes": ["pfanne"], "Crêpes": ["pfanne"],
+  "Kaiserschmarrn": ["pfanne", "handmixer"], "Tortilla de Patatas": ["pfanne"], "Menemen": ["pfanne"], "Rührei": ["pfanne"],
+  "Spiegelei mit Speck": ["pfanne"], "Gebratener Reis": ["wok", "topf"], "Gemüsepfanne mit Reis": ["wok", "topf"],
+  "Schweinebraten": ["ofen"], "Pulled Pork": ["ofen"], "Mango Lassi": ["mixer"], "Bananen-Milchshake": ["mixer"],
+  "Smoothie Bowl": ["mixer"], "Gazpacho": ["mixer", "kuehlschrank"], "Hummus": ["mixer"], "Muhammara": ["ofen", "mixer"],
+  "Eiskaffee": [], "Zitronenlimonade": [], "Overnight Oats": ["kuehlschrank"], "Joghurt mit Honig und Nüssen": [],
+  "Avocado-Toast": [], "Strammer Max": ["pfanne"], "Nachos mit Käse": ["ofen", "blech"], "Ceviche": ["kuehlschrank"],
+  "Panzanella": ["pfanne"], "Fattoush": ["pfanne"], "Couscous-Salat": ["topf"], "Kichererbsensalat": [],
+  "Waldorfsalat": [], "Coleslaw": ["kuehlschrank"], "Salade Niçoise": ["topf"], "Poke Bowl": ["topf"],
+  "Sushi (Maki)": ["topf", "spezial"], "Onigiri": ["topf"], "Tiramisu": ["handmixer", "kuehlschrank"],
+  "Toast Hawaii": ["ofen", "blech"], "Pizza-Toast": ["ofen", "blech"], "Pizza Margherita": ["ofen", "blech"],
+  "Flammkuchen": ["ofen", "blech"], "Focaccia": ["ofen", "blech"], "Granola": ["ofen", "blech"], "Laugenbrezeln": ["topf", "ofen", "blech"],
+  "Ofen-Pommes": ["ofen", "blech"], "Süßkartoffel-Pommes": ["ofen", "blech"], "Blumenkohl-Steaks": ["ofen", "blech"],
+  "Ofengemüse mit Feta": ["ofen", "auflaufform"], "Hähnchen mit Ofengemüse": ["ofen", "blech"], "Ofenkartoffeln mit Kräuterquark": ["ofen", "blech"],
+  "Chicken Wings": ["ofen", "blech", "topf"], "Knoblauchbrot": ["ofen"], "Bratapfel": ["ofen", "auflaufform"],
+  "Hähnchen-Satay": ["pfanne", "spezial"], "Köfte": ["pfanne"], "Ćevapčići": ["pfanne"], "Burger": ["pfanne"],
+  "Waffeln": ["waffeleisen", "handmixer"], "Käsespätzle": ["topf", "auflaufform", "spezial", "pfanne"],
+  "Heiße Schokolade": ["topf"], "Chai Latte": ["topf"], "Milchreis": ["topf"], "Porridge": ["topf"], "Schokoladenpudding": ["topf"],
+  "Rote Grütze": ["topf"], "Panna Cotta": ["topf", "kuehlschrank"],
+  "Shakshuka": ["pfanne"], "Gambas al Ajillo": ["pfanne"], "Lasagne": ["pfanne", "topf", "ofen", "auflaufform"],
+  "Melanzane alla Parmigiana": ["pfanne", "topf", "ofen", "auflaufform"], "Moussaka": ["pfanne", "topf", "ofen", "auflaufform"],
+  "Gemüse-Lasagne": ["pfanne", "topf", "ofen", "auflaufform"], "Quiche Lorraine": ["pfanne", "ofen", "backform", "kuehlschrank"],
+  "Crème brûlée": ["topf", "ofen", "backform", "kuehlschrank", "spezial"], "Falafel": ["mixer", "fritteuse"],
+  "Börek mit Spinat & Feta": ["pfanne", "ofen", "blech"], "Wiener Schnitzel": ["pfanne"], "Scones": ["ofen", "blech", "spezial"],
+  "Mango Sticky Rice": ["topf"], "Sommerrollen": ["topf"], "Hähnchen süß-sauer": ["pfanne", "topf"], "Frühlingsrollen": ["pfanne", "fritteuse"],
+  "Zimtschnecken": ["ofen", "blech"], "Apfelstrudel": ["ofen", "blech"], "Hefezopf": ["ofen", "blech"], "Baklava": ["ofen", "auflaufform", "topf"],
+  "Gefüllte Paprika": ["topf", "ofen", "auflaufform"], "Kartoffelgratin": ["ofen", "auflaufform"], "Saag Aloo": ["topf", "pfanne"],
+  "Fisch-Tacos": ["pfanne"], "Lomo Saltado": ["fritteuse", "wok", "topf"], "Hackbraten": ["ofen", "auflaufform"], "Jambalaya": ["pfanne", "topf"],
+};
+const toolCache = {};
+function recipeTools(r) {
+  const base = r.id && r.id[0] === "r" ? R[+r.id.slice(1)] : null;
+  if (base && TOOLS_FIX[base[1]]) return TOOLS_FIX[base[1]];
+  const key = r.id + "|" + (base ? "" : r.steps.join("|"));
+  if (toolCache[key]) return toolCache[key];
+  const txt = (base ? base[6] : r.steps).join(" ").toLowerCase();
+  let ids = Object.keys(TOOLS).filter(id => TOOLS[id][2].test(txt));
+  if (ids.includes("wok")) ids = ids.filter(x => x !== "pfanne");           // Wok ersetzt die Pfanne
+  if (ids.includes("backform")) ids = ids.filter(x => x !== "auflaufform");
+  if (ids.includes("fritteuse") && !/pfanne/.test(txt)) ids = ids.filter(x => x !== "pfanne");
+  return toolCache[key] = ids;
+}
+const toolName = id => TOOLS[id][1][lang] || TOOLS[id][1].de;
+const toolIcons = r => recipeTools(r).map(id => `<span title="${esc(toolName(id))}">${TOOLS[id][0]}</span>`).join("");
+
 // ---------- Rezeptsuche ----------
 const normText = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ß/g, "ss");
 function searchScore(r, words) {
@@ -1057,6 +1139,10 @@ function openRecipe(id) {
     <div class="meta"><span>⏱ ${fmtTime(r.time)}</span>${r.land ? `<span>🌍 ${esc(landName(r.land))}</span>` : ""}<span>${esc(catName(r.cat))}</span>${diffBadge(r.diff)}</div></div></div>
     ${r.ai ? `<p class="hint">✨ ${t("aiNote")}</p>` : ""}
     ${recipeKey(r) ? `<div class="r-img big" data-wiki="${esc(recipeKey(r))}" data-credit></div>` : ""}
+    <h3>${t("toolsTitle")}</h3>
+    <div class="tool-list">${recipeTools(r).length
+      ? recipeTools(r).map(id => `<span class="tool-chip">${TOOLS[id][0]} ${esc(toolName(id))}</span>`).join("")
+      : `<span class="tool-chip">🔪 ${t("toolsNone")}</span>`}</div>
     <h3>${t("ingredients")}</h3>
     <ul class="ing">${ev.req.map(x => ev.have.includes(x) ? li(x, "have", "✓") : li(x, "miss", "!")).join("")}</ul>
     ${ev.opt.length ? `<h3>${t("optional")}</h3><ul class="ing">${ev.opt.map(x => ev.optHave.includes(x) ? li(x, "have", "✓") : li(x, "opt", "·")).join("")}</ul>` : ""}
@@ -2172,6 +2258,17 @@ const STYLE_UI = {
   tr: { design: "Tasarım", styleSleek: "Modern", styleClassic: "Klasik" },
 };
 for (const l in STYLE_UI) Object.assign(AI_UI[l], STYLE_UI[l]);
+
+const TOOLS_UI = {
+  de: { toolsTitle: "Du brauchst", toolsNone: "Nur Messer, Brett und Schüssel" },
+  en: { toolsTitle: "You'll need", toolsNone: "Just a knife, board and bowl" },
+  fr: { toolsTitle: "Il te faut", toolsNone: "Juste un couteau, une planche et un bol" },
+  es: { toolsTitle: "Necesitas", toolsNone: "Solo cuchillo, tabla y bol" },
+  it: { toolsTitle: "Ti serve", toolsNone: "Solo coltello, tagliere e ciotola" },
+  pt: { toolsTitle: "Precisas de", toolsNone: "Só faca, tábua e taça" },
+  tr: { toolsTitle: "Gerekenler", toolsNone: "Sadece bıçak, kesme tahtası ve kase" },
+};
+for (const l in TOOLS_UI) Object.assign(AI_UI[l], TOOLS_UI[l]);
 // Überall "OpenRouter" mit aufzählen
 for (const l in AI_UI) for (const k of ["aiNoKey", "tutAiText"]) AI_UI[l][k] = AI_UI[l][k].replace("DeepSeek", "DeepSeek, OpenRouter");
 
