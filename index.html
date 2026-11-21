@@ -131,7 +131,7 @@
   a.btn { text-decoration: none; display: inline-flex; align-items: center; }
   .egg { position: fixed; inset: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.35); animation: eggFade .25s ease-out; transition: opacity .45s; cursor: pointer; }
   .egg.out { opacity: 0; }
-  .egg img { width: min(62vw, 280px); border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.45); animation: eggPop .7s cubic-bezier(.2,1.5,.4,1) both, eggWiggle .5s ease-in-out .75s 2; }
+  .egg img { width: min(50vw, 220px); border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.45); animation: eggPop .7s cubic-bezier(.2,1.5,.4,1) both, eggWiggle .5s ease-in-out .75s 2; }
   @keyframes eggFade { from { opacity: 0; } }
   @keyframes eggPop { 0% { transform: scale(.15) rotate(-30deg); opacity: 0; } 70% { transform: scale(1.08) rotate(5deg); opacity: 1; } 100% { transform: scale(1) rotate(0); } }
   @keyframes eggWiggle { 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
@@ -153,6 +153,13 @@
   .scan-item { border: 1px solid var(--line); background: var(--bg); color: var(--muted); border-radius: 999px; padding: 7px 12px; font-size: 14px; text-decoration: line-through; }
   .scan-item.on { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); font-weight: 600; text-decoration: none; }
   .scan-item.had { opacity: .6; }
+  .search-row { position: relative; margin-bottom: 12px; }
+  .search-row input { width: 100%; padding: 12px 14px 12px 42px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; font-size: 16px; box-shadow: var(--shadow); }
+  .search-row input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .search-ic { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
+  .prov-seg { display: flex; flex-wrap: wrap; width: 100%; margin-bottom: 12px; }
+  .prov-seg button { flex: 1; padding: 9px 6px; font-size: 13px; }
+  .model-sel { width: 100%; margin-bottom: 8px; }
   .lbl { display: block; font-size: 13px; font-weight: 600; margin: 4px 0 6px; }
   .chk { display: flex; gap: 8px; align-items: center; margin-top: 12px; font-size: 14px; }
   .key-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
@@ -241,6 +248,10 @@
     </aside>
 
     <main>
+      <div class="search-row">
+        <span class="search-ic">🔎</span>
+        <input id="searchInput" type="search" autocomplete="off" enterkeyhint="search">
+      </div>
       <div class="toolbar">
         <div class="seg" id="catSeg"></div>
         <select id="timeSel"></select>
@@ -743,7 +754,7 @@ const store = {
 };
 let pantry = new Set(store.get("kb_pantry", []));
 let own = store.get("kb_own", []);
-let state = { cat: "Alle", maxTime: 999, showAll: false, diff: 0, land: "Alle" };
+let state = { cat: "Alle", maxTime: 999, showAll: false, diff: 0, land: "Alle", q: "" };
 
 const autoLang = () => {
   const langs = (navigator.languages || [navigator.language || "de"]).map(l => String(l).slice(0, 2).toLowerCase());
@@ -816,6 +827,7 @@ function renderStatic() {
   document.title = "Second Brain Cookbook";
   document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
   $("#ingInput").placeholder = t("placeholder");
+  $("#searchInput").placeholder = t("searchPh"); $("#searchInput").setAttribute("aria-label", t("searchPh"));
   $("#camBtn").title = t("camHint"); $("#camBtn").setAttribute("aria-label", t("camHint"));
   $("#timeSel").innerHTML = `<option value="999">${t("anyTime")}</option>` +
     [15, 30, 45, 60, 120].map(m => `<option value="${m}">${t("upTo", { t: fmtTime(m) })}</option>`).join("");
@@ -878,7 +890,16 @@ function renderResults() {
   const rest = list.filter(x => !ready.includes(x) && !almost.includes(x));
   const out = [];
 
-  if (!pantry.size && !state.showAll) {
+  if (state.q.trim()) {
+    // Rezeptsuche: Name, Land, Kategorie oder Zutat (alle Suchwörter müssen passen)
+    const words = normText(state.q).split(/\s+/).filter(Boolean);
+    const hits = list.map(x => ({ ...x, score: searchScore(x.r, words) })).filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score || a.ev.missing.length - b.ev.missing.length || a.r.name.localeCompare(b.r.name));
+    out.push(hits.length
+      ? section(`🔎 ${esc(t("searchTitle", { q: state.q.trim() }))}`, t("count", { n: hits.length }), hits)
+      : `<div class="section-title"><h2>🔎 ${esc(t("searchTitle", { q: state.q.trim() }))}</h2></div><div class="placeholder"><div class="big">🔍</div><p>${t("searchNone")}</p></div>`);
+    out.push(netQSection());
+  } else if (!pantry.size && !state.showAll) {
     out.push(`<div class="placeholder"><div class="big">🧺</div><p><b>${t("startTitle")}</b><br>${t("startText")}</p></div>`);
   } else {
     if (ready.length) out.push(section(t("ready"), t("count", { n: ready.length }), ready));
@@ -893,6 +914,53 @@ function renderResults() {
   observeImgs($("#results"));
   $("#jumpBtn").textContent = "🍽️ " + (pantry.size ? t("jumpCount", { a: ready.length, b: almost.length }) : t("jump"));
 }
+// ---------- Rezeptsuche ----------
+const normText = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ß/g, "ss");
+function searchScore(r, words) {
+  const base = r.id[0] === "r" ? R[+r.id.slice(1)][1] : "";
+  const name = normText(r.name + " " + base);
+  const rest = normText([landName(r.land), r.land, catName(r.cat), ...r.req.map(nameOf), ...(r.opt || []).map(nameOf),
+    ...r.req, ...(r.opt || [])].join(" "));
+  let score = 0;
+  for (const w of words) {
+    if (name.includes(w)) score += name.startsWith(w) ? 3 : 2;
+    else if (rest.includes(w)) score += 1;
+    else return 0; // jedes Suchwort muss irgendwo vorkommen
+  }
+  return score;
+}
+
+// Suche zusätzlich bei TheMealDB nach dem Rezeptnamen
+let netQ = { q: "", status: "idle", meals: [] };
+let netQTimer = null;
+function scheduleNetQ() {
+  clearTimeout(netQTimer);
+  const q = state.q.trim();
+  if (q.length < 3) { netQ = { q, status: "idle", meals: [] }; return; }
+  if (netQ.q === q) return;
+  netQ = { q, status: "loading", meals: [] };
+  netQTimer = setTimeout(async () => {
+    try {
+      const data = await netFetch(MEALDB + "search.php?s=" + encodeURIComponent(q));
+      if (netQ.q === q) netQ = { q, status: "done", meals: (data.meals || []).slice(0, 9) };
+    } catch { if (netQ.q === q) netQ = { q, status: "error", meals: [] }; }
+    if (state.q.trim() === q) renderResults();
+  }, 500);
+}
+function netQSection() {
+  if (netQ.status === "idle" || netQ.q !== state.q.trim()) return "";
+  const head = `<div class="section-title"><h2>🌐 ${t("netTitle")}</h2><span><a href="https://www.themealdb.com/" target="_blank" rel="noopener">${t("netSource")}</a></span></div>`;
+  if (netQ.status === "loading") return head + `<div class="ai-box"><span class="spinner"></span><p>${t("netLoading")}</p></div>`;
+  if (netQ.status === "error") return head + `<div class="ai-box err"><p>${t("netError")}</p></div>`;
+  if (!netQ.meals.length) return "";
+  return head + `<div class="grid">${netQ.meals.map(m => `
+    <button class="card net-card" data-net="${esc(m.idMeal)}">
+      ${safeUrl(m.strMealThumb) ? `<img class="net-img" loading="lazy" src="${esc(safeUrl(m.strMealThumb))}" alt="">` : ""}
+      <h3>${esc(m.strMeal)}</h3>
+      <div class="meta">${m.strArea ? `<span>🌍 ${esc(m.strArea)}</span>` : ""}<span>🌐 TheMealDB</span></div>
+    </button>`).join("")}</div>`;
+}
+
 const section = (title, sub, arr) => `<div class="section-title"><h2>${title}</h2><span>${sub}</span></div><div class="grid">${arr.map(x => card(x.r, x.ev)).join("")}</div>`;
 
 function renderCats() {
@@ -943,7 +1011,7 @@ function openRecipe(id) {
 function quesadillaEgg() {
   const egg = document.createElement("div");
   egg.className = "egg";
-  egg.innerHTML = `<img src="quesadilla-guy.jpg" alt="More like a quesadilla guy – 100% accuracy">`;
+  egg.innerHTML = `<img src="quesadilla-guy.jpg?v=2" alt="😱">`;
   egg.addEventListener("click", () => egg.remove());
   document.body.appendChild(egg);
   setTimeout(() => egg.classList.add("out"), 1900);
@@ -994,23 +1062,11 @@ function openSettings() {
       ${LANG_ORDER.map(c => `<button data-lang="${c}" class="${c === lang ? "on" : ""}"><span>${LANGS[c].flag}</span>${esc(LANGS[c].name)}</button>`).join("")}
     </div>
     <h3>✨ ${t("aiSection")}</h3>
-    ${aiKey()
-      ? `<div class="key-row"><span>✅ ${t("aiKeySaved")}</span><button class="btn ghost small" data-ai-remove="1">${t("aiKeyRemove")}</button></div>`
-      : `<label class="lbl" for="aiKeyInput">${t("aiKeyLabel")}</label>
-         <form class="addrow" id="aiKeyForm" autocomplete="off"><input id="aiKeyInput" type="password" spellcheck="false" autocapitalize="off" placeholder="sk-ant-…"><button class="btn">${t("save")}</button></form>`}
+    ${aiSettingsHTML()}
     <label class="chk"><input type="checkbox" id="aiAutoChk" ${aiAuto() ? "checked" : ""}> ${t("aiAuto")}</label>
-    <p class="hint">${t("aiKeyHint")}</p>
     <div class="actions"><button class="btn ghost small" data-tut-restart="1">🎓 ${t("tutAgain")}</button><button class="btn small" data-close>${t("done")}</button></div>`;
   $("#overlay").classList.add("open");
-  const form = $("#aiKeyForm");
-  if (form) form.addEventListener("submit", e => {
-    e.preventDefault();
-    const v = $("#aiKeyInput").value.trim();
-    if (!v) return;
-    store.set("kb_ai_key", v); toast(t("aiKeySaved"));
-    openSettings(); scheduleAI(); renderResults();
-  });
-  $("#aiAutoChk").addEventListener("change", e => { store.set("kb_ai_auto", e.target.checked); scheduleAI(); renderResults(); });
+  bindAiSettings(openSettings);
 }
 
 function switchLang(code) {
@@ -1050,8 +1106,197 @@ const AI_MODEL = "claude-opus-5-5";
 const AI_SDK_URL = "https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@1.6.0/+esm";
 let AnthropicSDK = null;
 const loadSDK = async () => AnthropicSDK || (AnthropicSDK = (await import(AI_SDK_URL)).default);
-const aiKey = () => store.get("kb_ai_key", "");
 const aiAuto = () => store.get("kb_ai_auto", true);
+
+// ---------- KI-Anbieter: Claude, ChatGPT, DeepSeek, Gemini ----------
+// Jeder Anbieter hat seinen eigenen Schlüssel; alle bleiben nur im Browser dieses Geräts.
+const AI_PROVIDERS = {
+  anthropic: { name: "Claude", ph: "sk-ant-…", url: "https://console.anthropic.com/settings/keys", vision: true },
+  openai: { name: "ChatGPT", ph: "sk-…", url: "https://platform.openai.com/api-keys", vision: true },
+  deepseek: { name: "DeepSeek", ph: "sk-…", url: "https://platform.deepseek.com/api_keys", vision: false },
+  gemini: { name: "Gemini", ph: "AIza…", url: "https://aistudio.google.com/apikey", vision: true },
+  // OpenRouter: ein Schlüssel für viele Modelle (auch ChatGPT); funktioniert zuverlässig direkt aus dem Browser
+  openrouter: { name: "OpenRouter", ph: "sk-or-…", url: "https://openrouter.ai/settings/keys", vision: true },
+};
+(() => { // alten (Claude-)Schlüssel aus früheren Versionen übernehmen
+  const old = store.get("kb_ai_key", "");
+  if (old) { const k = store.get("kb_ai_keys", {}); if (!k.anthropic) k.anthropic = old; store.set("kb_ai_keys", k); store.set("kb_ai_key", ""); }
+})();
+const aiProvider = () => { const p = store.get("kb_ai_provider", "anthropic"); return AI_PROVIDERS[p] ? p : "anthropic"; };
+const aiKeys = () => store.get("kb_ai_keys", {});
+const aiKey = () => aiKeys()[aiProvider()] || "";
+function setAiKey(v) { const k = aiKeys(); if (v) k[aiProvider()] = v; else delete k[aiProvider()]; store.set("kb_ai_keys", k); }
+const aiModel = () => store.get("kb_ai_models", {})[aiProvider()] || "";
+function setAiModel(m) { const x = store.get("kb_ai_models", {}); x[aiProvider()] = m; store.set("kb_ai_models", x); }
+const aiModelsCache = {};
+
+// Anfrage an einen Anbieter; Fehler werden in verständliche Meldungen übersetzt
+async function provFetch(url, opts) {
+  let r;
+  try { r = await fetch(url, opts); }
+  catch { throw { aiMessage: navigator.onLine ? t("aiError", { x: "Netzwerk" }) : t("aiOffline") }; }
+  let j = null;
+  try { j = await r.json(); } catch {}
+  if (!r.ok) {
+    const msg = String((j && j.error && (j.error.message || j.error)) || r.statusText || "");
+    if (r.status === 401 || r.status === 403 || (r.status === 400 && /api key/i.test(msg))) throw { aiMessage: t("aiBadKey") };
+    if (r.status === 402 || /quota|billing|credit|balance/i.test(msg)) throw { aiMessage: t("aiNoCredit") };
+    if (r.status === 429) throw { aiMessage: t("aiRate") };
+    throw { aiMessage: t("aiError", { x: `${r.status} ${msg.slice(0, 160)}` }) };
+  }
+  return j;
+}
+
+// Verfügbare Modelle des Anbieters abrufen (für die Auswahl in den Einstellungen)
+async function listModels(p, key) {
+  if (p === "anthropic") return [AI_MODEL];
+  if (aiModelsCache[p]) return aiModelsCache[p];
+  let ids = [];
+  if (p === "openai") {
+    const j = await provFetch("https://api.openai.com/v1/models", { headers: { Authorization: "Bearer " + key } });
+    ids = (j.data || []).map(m => m.id).filter(id => /^(gpt-|o\d|chatgpt-)/.test(id)
+      && !/(audio|realtime|transcribe|tts|image|search|embedding|instruct|codex|moderation|preview)/.test(id));
+  } else if (p === "deepseek") {
+    const j = await provFetch("https://api.deepseek.com/models", { headers: { Authorization: "Bearer " + key } });
+    ids = (j.data || []).map(m => m.id);
+  } else if (p === "openrouter") {
+    const j = await provFetch("https://openrouter.ai/api/v1/models");
+    // nur Modelle, die Text ausgeben und Text + Bilder lesen (für Rezept- und Foto-Suche)
+    ids = (j.data || []).filter(m => {
+      const a = m.architecture || {};
+      return (a.output_modalities || ["text"]).join() === "text" && (a.input_modalities || []).includes("image") && !/:batch$/.test(m.id);
+    }).map(m => m.id);
+  } else if (p === "gemini") {
+    const j = await provFetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": key } });
+    ids = (j.models || []).filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
+      .map(m => m.name.replace(/^models\//, "")).filter(id => /^gemini/.test(id) && !/(tts|image|embedding|live|audio)/.test(id));
+  }
+  ids.sort().reverse(); // grob: neuere Versionen zuerst
+  return aiModelsCache[p] = ids;
+}
+function defaultModel(p, ids) {
+  const pick = res => { for (const re of res) { const m = ids.find(id => re.test(id)); if (m) return m; } return ids[0] || ""; };
+  if (p === "openai") return pick([/^gpt-[\d.]+o?-mini$/, /^gpt-[\d.]+o?$/, /^gpt-/]);
+  if (p === "deepseek") return pick([/^deepseek-chat$/, /chat/]);
+  if (p === "gemini") return pick([/^gemini-[\d.]+-flash$/, /flash(?!.*(lite|preview|exp))/, /flash/, /pro/]);
+  if (p === "openrouter") return pick([/^openai\/gpt-[^:]*mini$/, /^openai\/gpt-(?!.*pro)[^:]*$/, /^openai\/gpt-/, /^anthropic\//]);
+  return AI_MODEL;
+}
+async function currentModel(p, key) {
+  const m = aiModel();
+  if (m) return m;
+  const d = defaultModel(p, await listModels(p, key));
+  if (!d) throw { aiMessage: t("aiError", { x: "no model" }) };
+  return d;
+}
+const parseJSON = s => {
+  try { return JSON.parse(s); }
+  catch { const m = String(s || "").match(/\{[\s\S]*\}/); if (m) { try { return JSON.parse(m[0]); } catch {} } throw { aiMessage: t("aiError", { x: "JSON" }) }; }
+};
+
+// Gemeinsame KI-Anfrage: liefert ein JSON-Objekt nach Schema, egal welcher Anbieter
+async function aiJSON({ system, text, image, schema, effort }) {
+  const p = aiProvider(), key = aiKey();
+  if (p === "anthropic") {
+    const Anthropic = await loadSDK();
+    const client = new Anthropic({ apiKey: key, dangerouslyAllowBrowser: true });
+    const content = image
+      ? [{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: image.split(",")[1] } }, { type: "text", text }]
+      : text;
+    const response = await client.beta.messages.create({
+      model: AI_MODEL,
+      max_tokens: 16000,
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      output_config: { effort, format: { type: "json_schema", schema } },
+      system,
+      messages: [{ role: "user", content }],
+    });
+    if (response.stop_reason === "refusal") throw { aiMessage: t("aiNothing") };
+    if (response.stop_reason === "max_tokens") throw { aiMessage: t("aiError", { x: "max_tokens" }) };
+    const textBlock = response.content.find(b => b.type === "text");
+    return parseJSON(textBlock ? textBlock.text : "{}");
+  }
+  const model = await currentModel(p, key);
+  const schemaHint = "\n\nAnswer only with a JSON object that matches this JSON schema:\n" + JSON.stringify(schema);
+  if (p === "openai" || p === "deepseek" || p === "openrouter") {
+    const url = { openai: "https://api.openai.com/v1/chat/completions", deepseek: "https://api.deepseek.com/chat/completions",
+      openrouter: "https://openrouter.ai/api/v1/chat/completions" }[p];
+    const user = image ? [{ type: "text", text }, { type: "image_url", image_url: { url: image } }] : text;
+    const headers = { "Content-Type": "application/json", Authorization: "Bearer " + key };
+    if (p === "openrouter") headers["X-Title"] = "Second Brain Cookbook";
+    const j = await provFetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "system", content: system + (p === "deepseek" ? schemaHint : "") }, { role: "user", content: user }],
+        response_format: p !== "deepseek"
+          ? { type: "json_schema", json_schema: { name: "result", strict: true, schema } }
+          : { type: "json_object" },
+      }),
+    });
+    const c = j && j.choices && j.choices[0];
+    if (!c || c.message.refusal) throw { aiMessage: t("aiNothing") };
+    if (c.finish_reason === "length") throw { aiMessage: t("aiError", { x: "max_tokens" }) };
+    return parseJSON(c.message.content);
+  }
+  // Gemini
+  const parts = [{ text }];
+  if (image) parts.push({ inline_data: { mime_type: "image/jpeg", data: image.split(",")[1] } });
+  const j = await provFetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: system + schemaHint }] },
+      contents: [{ role: "user", parts }],
+      generationConfig: { responseMimeType: "application/json" },
+    }),
+  });
+  const cand = j && j.candidates && j.candidates[0];
+  if (!cand || !cand.content) throw { aiMessage: t("aiNothing") };
+  return parseJSON((cand.content.parts || []).map(x => x.text || "").join(""));
+}
+
+// Einstellungsbereich für die KI (Einstellungen + Tutorial)
+function aiSettingsHTML() {
+  const p = aiProvider(), P = AI_PROVIDERS[p], keys = aiKeys();
+  return `
+    <div class="seg prov-seg">${Object.entries(AI_PROVIDERS).map(([id, x]) =>
+      `<button data-ai-prov="${id}" class="${id === p ? "on" : ""}">${x.name}${keys[id] ? " ✓" : ""}</button>`).join("")}</div>
+    ${keys[p]
+      ? `<div class="key-row"><span>✅ ${t("aiKeySaved")}</span><button class="btn ghost small" data-ai-remove="1">${t("aiKeyRemove")}</button></div>
+         ${p === "anthropic"
+           ? `<p class="hint">${t("aiModel")}: Claude Opus 5.5</p>`
+           : `<label class="lbl" for="aiModelSel">${t("aiModel")}</label><select id="aiModelSel" class="model-sel"><option>${t("aiModelLoading")}</option></select>`}`
+      : `<label class="lbl" for="aiKeyInput">${t("aiKeyLabel", { p: P.name })}</label>
+         <form class="addrow" id="aiKeyForm" autocomplete="off"><input id="aiKeyInput" type="password" spellcheck="false" autocapitalize="off" placeholder="${P.ph}"><button class="btn">${t("save")}</button></form>`}
+    ${P.vision ? "" : `<p class="hint">📷 ${t("aiNoVision", { p: P.name })}</p>`}
+    ${p === "openai" ? `<p class="hint">⚠️ ${t("aiOpenAINote")}</p>` : ""}
+    <p class="hint">${t("aiKeyHint")} <a href="${P.url}" target="_blank" rel="noopener">${t("aiGetKey", { p: P.name })}</a></p>`;
+}
+function resetAI() { ai = { key: "", status: "idle", recipes: [], error: "" }; }
+function bindAiSettings(rerender) {
+  const form = $("#aiKeyForm");
+  if (form) form.addEventListener("submit", e => {
+    e.preventDefault();
+    const v = $("#aiKeyInput").value.trim();
+    if (!v) return;
+    setAiKey(v); toast(t("aiKeySaved")); resetAI(); rerender(); scheduleAI(); renderResults();
+  });
+  const sel = $("#aiModelSel");
+  if (sel) {
+    const p = aiProvider();
+    listModels(p, aiKey()).then(ids => {
+      if (!document.body.contains(sel)) return;
+      const cur = aiModel() || defaultModel(p, ids);
+      sel.innerHTML = ids.length ? ids.map(id => `<option ${id === cur ? "selected" : ""}>${esc(id)}</option>`).join("") : "<option>—</option>";
+    }).catch(err => { if (document.body.contains(sel)) sel.innerHTML = `<option>${esc(aiErrorText(err))}</option>`; });
+    sel.addEventListener("change", () => setAiModel(sel.value));
+  }
+  const auto = $("#aiAutoChk");
+  if (auto) auto.addEventListener("change", e => { store.set("kb_ai_auto", e.target.checked); scheduleAI(); renderResults(); });
+}
 let ai = { key: "", status: "idle", recipes: [], error: "" };
 const aiCache = store.get("kb_ai_cache", {});
 let aiTimer = null;
@@ -1151,16 +1396,11 @@ async function runAI(more) {
   ai = { key: k, status: "loading", recipes: prev, error: "" };
   renderResults();
   try {
-    const Anthropic = await loadSDK();
-    const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
     const items = [...pantry].map(nameOf);
     const avoid = prev.map(r => r.name);
-    const response = await client.beta.messages.create({
-      model: AI_MODEL,
-      max_tokens: 16000,
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-      output_config: { effort: "medium", format: { type: "json_schema", schema: AI_SCHEMA } },
+    const data = await aiJSON({
+      schema: AI_SCHEMA,
+      effort: "medium",
       system:
         "You are the recipe assistant inside a home cookbook app. The user lists what they have at home. " +
         "Suggest real, tasty dishes that mainly use those ingredients. Salt, pepper, cooking oil and water are always available: never list them. " +
@@ -1168,16 +1408,9 @@ async function runAI(more) {
         "Mark garnishes and extras as optional. difficulty: 1 easy, 2 medium, 3 hard. " +
         `Write every text field (name, cuisine, ingredient names, steps) in ${LANGS[lang].name}. ` +
         "Give 3 to 6 short, concrete steps with amounts, times and temperatures.",
-      messages: [{
-        role: "user",
-        content: `My ingredients: ${items.join(", ")}\nSuggest 3 recipes.` +
-          (avoid.length ? `\nDo not repeat these dishes: ${avoid.join(", ")}` : ""),
-      }],
+      text: `My ingredients: ${items.join(", ")}\nSuggest 3 recipes.` +
+        (avoid.length ? `\nDo not repeat these dishes: ${avoid.join(", ")}` : ""),
     });
-    if (response.stop_reason === "refusal") throw { aiMessage: t("aiNothing") };
-    if (response.stop_reason === "max_tokens") throw { aiMessage: t("aiError", { x: "max_tokens" }) };
-    const textBlock = response.content.find(b => b.type === "text");
-    const data = JSON.parse(textBlock ? textBlock.text : "{}");
     const all = prev.concat((data.recipes || []).map((x, i) => toAIRecipe(x, prev.length + i)));
     aiCache[k] = all;
     const keys = Object.keys(aiCache); // nur die letzten 10 Suchen behalten
@@ -1243,46 +1476,30 @@ function renderScanResult(dataUrl) {
 async function scanPhoto(file) {
   const apiKey = aiKey();
   if (!apiKey) { toast(t("camNeedKey")); openSettings(); return; }
+  if (!AI_PROVIDERS[aiProvider()].vision) { toast(t("aiNoVision", { p: AI_PROVIDERS[aiProvider()].name })); openSettings(); return; }
   let dataUrl;
   try { dataUrl = await fileToJpeg(file); }
   catch { scanModal("", `<div class="ai-box err"><p>${t("camImgError")}</p></div><div class="actions"><button class="btn small" data-close>${t("close")}</button></div>`); return; }
   scanModal(dataUrl, `<div class="ai-box"><span class="spinner"></span><p>${t("camLoading")}</p></div>`);
   try {
-    const Anthropic = await loadSDK();
-    const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
     const catalog = Object.keys(ING).map(id => `${id} = ${ING[id][0]}${L.ing && L.ing[id] ? " / " + L.ing[id] : ""}`).join("\n");
-    const response = await client.beta.messages.create({
-      model: AI_MODEL,
-      max_tokens: 16000,
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-      output_config: {
-        effort: "low",
-        format: { type: "json_schema", schema: {
-          type: "object", additionalProperties: false, required: ["items"],
-          properties: { items: { type: "array", items: {
-            type: "object", additionalProperties: false, required: ["catalog_id", "name"],
-            properties: { catalog_id: { type: "string", enum: [...Object.keys(ING), "other"] }, name: { type: "string" } },
-          } } },
-        } },
+    const data = await aiJSON({
+      effort: "low",
+      image: dataUrl,
+      schema: {
+        type: "object", additionalProperties: false, required: ["items"],
+        properties: { items: { type: "array", items: {
+          type: "object", additionalProperties: false, required: ["catalog_id", "name"],
+          properties: { catalog_id: { type: "string", enum: [...Object.keys(ING), "other"] }, name: { type: "string" } },
+        } } },
       },
       system:
         "You identify food ingredients visible in a photo (fridge, pantry shelf, groceries, kitchen counter). " +
         "List each distinct food item once and only what you can actually see. Ignore non-food items and ignore salt, pepper, cooking oil and water. " +
         "If an item matches an entry of this catalog, use its id as catalog_id; otherwise use \"other\". " +
         `Always give a short ingredient name in ${LANGS[lang].name}.\n\nCatalog (id = name):\n${catalog}`,
-      messages: [{
-        role: "user",
-        content: [
-          { type: "image", source: { type: "base64", media_type: "image/jpeg", data: dataUrl.split(",")[1] } },
-          { type: "text", text: "Which ingredients can you see in this photo?" },
-        ],
-      }],
+      text: "Which ingredients can you see in this photo?",
     });
-    if (response.stop_reason === "refusal") throw { aiMessage: t("camNone") };
-    if (response.stop_reason === "max_tokens") throw { aiMessage: t("aiError", { x: "max_tokens" }) };
-    const textBlock = response.content.find(b => b.type === "text");
-    const data = JSON.parse(textBlock ? textBlock.text : "{}");
     const seen = new Set();
     scan.items = [];
     for (const it of data.items || []) {
@@ -1707,11 +1924,7 @@ function openTutorial(step) {
     <div class="tut-hero">✨</div>
     <h2>${t("tutAiTitle")}</h2>
     <p>${t("tutAiText")}</p>
-    ${aiKey()
-      ? `<div class="key-row"><span>✅ ${t("aiKeySaved")}</span></div>`
-      : `<label class="lbl" for="tutKeyInput">${t("aiKeyLabel")}</label>
-         <form class="addrow" id="tutKeyForm" autocomplete="off"><input id="tutKeyInput" type="password" spellcheck="false" autocapitalize="off" placeholder="sk-ant-…"><button class="btn">${t("save")}</button></form>`}
-    <p class="hint">${t("aiKeyHint")}</p>`;
+    ${aiSettingsHTML()}`;
   else body = `
     <div class="tut-hero">🎉</div>
     <h2>${t("tutDoneTitle")}</h2>
@@ -1731,14 +1944,7 @@ function openTutorial(step) {
              : `<button class="btn ghost small" data-tut="next">${t("tutSkip")}</button><button class="btn small" data-tut="next">${t("tutNext")} →</button>`}
     </div>`;
   $("#overlay").classList.add("open");
-  const form = $("#tutKeyForm");
-  if (form) form.addEventListener("submit", e => {
-    e.preventDefault();
-    const v = $("#tutKeyInput").value.trim();
-    if (!v) return;
-    store.set("kb_ai_key", v); toast(t("aiKeySaved")); scheduleAI(); renderResults();
-    openTutorial(tut.step + 1);
-  });
+  bindAiSettings(() => openTutorial(tut.step));
 }
 
 function endTutorial() { tut.active = false; store.set("kb_onboarded", true); $("#overlay").classList.remove("open"); }
@@ -1803,6 +2009,78 @@ const TUT_UI = {
 };
 for (const l in TUT_UI) Object.assign(AI_UI[l], TUT_UI[l]);
 
+// Mehrere KI-Anbieter: neue und angepasste Texte (überschreiben die alten "Claude-Schlüssel"-Texte)
+const PROV_UI = {
+  de: { aiKeyLabel: "API-Schlüssel für {p}", aiModel: "Modell", aiModelLoading: "Modelle werden geladen …", aiGetKey: "Schlüssel für {p} holen",
+    aiNoVision: "Die Foto-Suche geht mit {p} nicht. Wähle dafür Claude, ChatGPT oder Gemini.", aiNoCredit: "Beim KI-Anbieter ist kein Guthaben mehr vorhanden.",
+    aiNoKey: "Nichts Passendes dabei? Mit einem KI-Schlüssel (Claude, ChatGPT, DeepSeek oder Gemini) sucht die KI automatisch Rezepte für dich.",
+    camNeedKey: "Für die Foto-Suche brauchst du einen KI-Schlüssel (Claude, ChatGPT oder Gemini).",
+    aiKeyHint: "Der Schlüssel bleibt nur auf diesem Gerät. Jede Suche kostet meist nur ein paar Cent beim jeweiligen Anbieter.",
+    tutAiText: "Mit einem Schlüssel von Claude, ChatGPT, DeepSeek oder Gemini sucht die KI Rezepte, wenn das Kochbuch nichts findet, und erkennt Zutaten auf Fotos. Das kannst du auch später machen." },
+  en: { aiKeyLabel: "API key for {p}", aiModel: "Model", aiModelLoading: "Loading models …", aiGetKey: "Get a {p} key",
+    aiNoVision: "Photo search doesn't work with {p}. Choose Claude, ChatGPT or Gemini for it.", aiNoCredit: "Your AI provider account has no credit left.",
+    aiNoKey: "Nothing fitting? With an AI key (Claude, ChatGPT, DeepSeek or Gemini) the AI searches recipes for you automatically.",
+    camNeedKey: "Photo search needs an AI key (Claude, ChatGPT or Gemini).",
+    aiKeyHint: "The key stays on this device only. Each search usually costs just a few cents with the provider.",
+    tutAiText: "With a key from Claude, ChatGPT, DeepSeek or Gemini, the AI finds recipes when the cookbook has nothing and recognizes ingredients in photos. You can also do this later." },
+  fr: { aiKeyLabel: "Clé API pour {p}", aiModel: "Modèle", aiModelLoading: "Chargement des modèles …", aiGetKey: "Obtenir une clé {p}",
+    aiNoVision: "La recherche photo ne fonctionne pas avec {p}. Choisis Claude, ChatGPT ou Gemini.", aiNoCredit: "Ton compte chez le fournisseur d'IA n'a plus de crédit.",
+    aiNoKey: "Rien ne convient ? Avec une clé IA (Claude, ChatGPT, DeepSeek ou Gemini), l'IA cherche des recettes automatiquement.",
+    camNeedKey: "La recherche photo nécessite une clé IA (Claude, ChatGPT ou Gemini).",
+    aiKeyHint: "La clé reste uniquement sur cet appareil. Chaque recherche coûte en général quelques centimes chez le fournisseur.",
+    tutAiText: "Avec une clé Claude, ChatGPT, DeepSeek ou Gemini, l'IA trouve des recettes quand le livre n'a rien et reconnaît les ingrédients sur les photos. Tu peux aussi le faire plus tard." },
+  es: { aiKeyLabel: "Clave API de {p}", aiModel: "Modelo", aiModelLoading: "Cargando modelos …", aiGetKey: "Conseguir clave de {p}",
+    aiNoVision: "La búsqueda por foto no funciona con {p}. Elige Claude, ChatGPT o Gemini.", aiNoCredit: "Tu cuenta del proveedor de IA no tiene saldo.",
+    aiNoKey: "¿Nada adecuado? Con una clave de IA (Claude, ChatGPT, DeepSeek o Gemini), la IA busca recetas automáticamente.",
+    camNeedKey: "La búsqueda por foto necesita una clave de IA (Claude, ChatGPT o Gemini).",
+    aiKeyHint: "La clave solo se guarda en este dispositivo. Cada búsqueda suele costar unos céntimos con el proveedor.",
+    tutAiText: "Con una clave de Claude, ChatGPT, DeepSeek o Gemini, la IA busca recetas cuando el recetario no encuentra nada y reconoce ingredientes en fotos. También puedes hacerlo más tarde." },
+  it: { aiKeyLabel: "Chiave API per {p}", aiModel: "Modello", aiModelLoading: "Caricamento modelli …", aiGetKey: "Ottieni una chiave {p}",
+    aiNoVision: "La ricerca con foto non funziona con {p}. Scegli Claude, ChatGPT o Gemini.", aiNoCredit: "Sul tuo account del fornitore IA non c'è più credito.",
+    aiNoKey: "Niente di adatto? Con una chiave IA (Claude, ChatGPT, DeepSeek o Gemini) l'IA cerca ricette in automatico.",
+    camNeedKey: "La ricerca con foto richiede una chiave IA (Claude, ChatGPT o Gemini).",
+    aiKeyHint: "La chiave resta solo su questo dispositivo. Ogni ricerca costa di solito pochi centesimi presso il fornitore.",
+    tutAiText: "Con una chiave di Claude, ChatGPT, DeepSeek o Gemini l'IA trova ricette quando il ricettario non ha nulla e riconosce gli ingredienti nelle foto. Puoi farlo anche dopo." },
+  pt: { aiKeyLabel: "Chave API para {p}", aiModel: "Modelo", aiModelLoading: "A carregar modelos …", aiGetKey: "Obter chave {p}",
+    aiNoVision: "A pesquisa por foto não funciona com {p}. Escolhe Claude, ChatGPT ou Gemini.", aiNoCredit: "A tua conta no fornecedor de IA não tem saldo.",
+    aiNoKey: "Nada adequado? Com uma chave de IA (Claude, ChatGPT, DeepSeek ou Gemini), a IA procura receitas automaticamente.",
+    camNeedKey: "A pesquisa por foto precisa de uma chave de IA (Claude, ChatGPT ou Gemini).",
+    aiKeyHint: "A chave fica só neste dispositivo. Cada pesquisa custa normalmente poucos cêntimos no fornecedor.",
+    tutAiText: "Com uma chave do Claude, ChatGPT, DeepSeek ou Gemini, a IA encontra receitas quando o livro não tem nada e reconhece ingredientes em fotos. Também podes fazer isto mais tarde." },
+  tr: { aiKeyLabel: "{p} için API anahtarı", aiModel: "Model", aiModelLoading: "Modeller yükleniyor …", aiGetKey: "{p} anahtarı al",
+    aiNoVision: "Fotoğrafla arama {p} ile çalışmaz. Bunun için Claude, ChatGPT veya Gemini seç.", aiNoCredit: "Yapay zekâ sağlayıcısındaki bakiyen bitti.",
+    aiNoKey: "Uygun bir şey yok mu? Bir yapay zekâ anahtarıyla (Claude, ChatGPT, DeepSeek veya Gemini) senin için otomatik tarif aranır.",
+    camNeedKey: "Fotoğrafla arama için bir yapay zekâ anahtarı gerekir (Claude, ChatGPT veya Gemini).",
+    aiKeyHint: "Anahtar yalnızca bu cihazda kalır. Her arama sağlayıcıda genellikle birkaç kuruşa mal olur.",
+    tutAiText: "Claude, ChatGPT, DeepSeek veya Gemini anahtarıyla yapay zekâ, yemek kitabı bir şey bulamazsa tarif bulur ve fotoğraflardaki malzemeleri tanır. Bunu sonra da yapabilirsin." },
+};
+for (const l in PROV_UI) Object.assign(AI_UI[l], PROV_UI[l]);
+
+const SEARCH_UI = {
+  de: { searchPh: "Rezept suchen – z. B. Lasagne, Indien, Spinat …", searchTitle: "Suche: „{q}“", searchNone: "Kein Rezept gefunden. Probier ein anderes Wort." },
+  en: { searchPh: "Search recipes – e.g. lasagna, India, spinach …", searchTitle: "Search: “{q}”", searchNone: "No recipe found. Try another word." },
+  fr: { searchPh: "Chercher une recette – ex. lasagnes, Inde, épinards …", searchTitle: "Recherche : « {q} »", searchNone: "Aucune recette trouvée. Essaie un autre mot." },
+  es: { searchPh: "Buscar recetas – p. ej. lasaña, India, espinacas …", searchTitle: "Búsqueda: «{q}»", searchNone: "No se encontró ninguna receta. Prueba otra palabra." },
+  it: { searchPh: "Cerca ricette – es. lasagne, India, spinaci …", searchTitle: "Ricerca: «{q}»", searchNone: "Nessuna ricetta trovata. Prova un'altra parola." },
+  pt: { searchPh: "Procurar receitas – ex. lasanha, Índia, espinafres …", searchTitle: "Pesquisa: «{q}»", searchNone: "Nenhuma receita encontrada. Tenta outra palavra." },
+  tr: { searchPh: "Tarif ara – örn. lazanya, Hindistan, ıspanak …", searchTitle: "Arama: „{q}“", searchNone: "Tarif bulunamadı. Başka bir kelime dene." },
+};
+for (const l in SEARCH_UI) Object.assign(AI_UI[l], SEARCH_UI[l]);
+
+// OpenAI blockiert Anfragen direkt aus dem Browser teilweise (im Test: ja) – Hinweis auf OpenRouter
+const OAI_NOTE = {
+  de: "OpenAI blockiert Anfragen direkt aus dem Browser teilweise. Klappt es nicht, nimm OpenRouter und wähle dort ein GPT-Modell.",
+  en: "OpenAI sometimes blocks requests made directly from the browser. If it doesn't work, use OpenRouter and pick a GPT model there.",
+  fr: "OpenAI bloque parfois les requêtes faites directement depuis le navigateur. Si ça ne marche pas, utilise OpenRouter avec un modèle GPT.",
+  es: "OpenAI a veces bloquea las solicitudes hechas directamente desde el navegador. Si no funciona, usa OpenRouter y elige un modelo GPT.",
+  it: "OpenAI a volte blocca le richieste fatte direttamente dal browser. Se non funziona, usa OpenRouter e scegli un modello GPT.",
+  pt: "A OpenAI por vezes bloqueia pedidos feitos diretamente do navegador. Se não funcionar, usa o OpenRouter e escolhe um modelo GPT.",
+  tr: "OpenAI, doğrudan tarayıcıdan yapılan istekleri bazen engeller. Çalışmazsa OpenRouter'ı kullan ve orada bir GPT modeli seç.",
+};
+for (const l in OAI_NOTE) AI_UI[l].aiOpenAINote = OAI_NOTE[l];
+// Überall "OpenRouter" mit aufzählen
+for (const l in AI_UI) for (const k of ["aiNoKey", "tutAiText"]) AI_UI[l][k] = AI_UI[l][k].replace("DeepSeek", "DeepSeek, OpenRouter");
+
 // ---------- Events ----------
 $("#addForm").addEventListener("submit", e => {
   e.preventDefault();
@@ -1822,6 +2100,8 @@ $("#timeSel").addEventListener("change", e => { state.maxTime = +e.target.value;
 $("#diffSel").addEventListener("change", e => { state.diff = +e.target.value; renderResults(); });
 $("#landSel").addEventListener("change", e => { state.land = e.target.value; renderResults(); });
 $("#showAll").addEventListener("change", e => { state.showAll = e.target.checked; renderResults(); });
+$("#searchInput").addEventListener("input", e => { state.q = e.target.value; scheduleNetQ(); renderResults(); });
+$("#searchInput").addEventListener("keydown", e => { if (e.key === "Enter") e.target.blur(); });
 $("#results").addEventListener("click", e => {
   const a = e.target.closest("[data-ai]");
   if (a) {
@@ -1835,6 +2115,7 @@ $("#results").addEventListener("click", e => {
 $("#ownBtn").addEventListener("click", openOwnForm);
 $("#camBtn").addEventListener("click", () => {
   if (!aiKey()) { toast(t("camNeedKey")); openSettings(); return; }
+  if (!AI_PROVIDERS[aiProvider()].vision) { toast(t("aiNoVision", { p: AI_PROVIDERS[aiProvider()].name })); openSettings(); return; }
   $("#camInput").value = ""; $("#camInput").click();
 });
 $("#camInput").addEventListener("change", e => { const f = e.target.files && e.target.files[0]; if (f) scanPhoto(f); });
@@ -1880,7 +2161,13 @@ $("#overlay").addEventListener("click", e => {
     add.forEach(x => pantry.add(x.id));
     closeModal(); render(); toast(t("camAdded", { n: add.length }));
   }
-  if (btn.dataset.aiRemove) { store.set("kb_ai_key", ""); openSettings(); renderResults(); }
+  if (btn.dataset.aiRemove || btn.dataset.aiProv) {
+    if (btn.dataset.aiRemove) setAiKey("");
+    else store.set("kb_ai_provider", btn.dataset.aiProv);
+    resetAI();
+    tut.active ? openTutorial(tut.step) : openSettings();
+    scheduleAI(); renderResults();
+  }
   if (btn.dataset.saveAi) {
     const r = ai.recipes.find(x => x.id === btn.dataset.saveAi);
     if (r) {

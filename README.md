@@ -5,8 +5,9 @@ Gib ein, was du zuhause hast, und das Kochbuch schlägt dir passende Rezepte vor
 ## Funktionen
 
 - **256 Rezepte aus 38 Küchen**, jeweils mit Schwierigkeit (leicht / mittel / schwer), Zeit und Zubereitung
+- **🔎 Rezeptsuche:** nach Name, Land, Kategorie oder Zutat suchen (auch ohne Umlaute), dazu passende Treffer aus dem Internet
 - **Vorrat eintragen** per Text oder durch Antippen; die App zeigt, was du sofort kochen kannst und wo nur 1–2 Zutaten fehlen
-- **✨ KI-Suche:** Findet das Kochbuch nichts Passendes, sucht Claude Rezepte mit genau deinen Zutaten
+- **✨ KI-Suche:** Findet das Kochbuch nichts Passendes, sucht eine KI Rezepte mit genau deinen Zutaten – wahlweise Claude, ChatGPT, DeepSeek, Gemini oder OpenRouter
 - **📷 Foto-Suche:** Foto vom Kühlschrank oder Einkauf machen, die KI erkennt die Zutaten
 - **📸 Beispielbilder:** zu fast jedem Rezept (248 von 256) ein Foto von Wikipedia, wie das Gericht ungefähr aussieht (frei lizenziert, mit Link zur Quelle)
 - **🌐 Internet-Suche:** sucht zusätzlich live in der offenen Rezept-Datenbank [TheMealDB](https://www.themealdb.com/) (ohne Schlüssel, Rezepte auf Englisch)
@@ -27,7 +28,17 @@ Dann `http://localhost:8080` öffnen. Für die Installation auf dem iPhone muss 
 
 ## KI-Funktionen
 
-KI-Suche und Foto-Suche nutzen die Claude API. Dafür trägst du in den Einstellungen einen eigenen API-Schlüssel ein (erhältlich auf [console.anthropic.com](https://console.anthropic.com)). Der Schlüssel wird nur im Browser des jeweiligen Geräts gespeichert und nie in diesem Repository. Jede Anfrage kostet ein paar Cent.
+KI-Suche und Foto-Suche funktionieren mit einem eigenen API-Schlüssel eines dieser Anbieter, einzutragen unter ⚙️ Einstellungen → KI-Suche:
+
+| Anbieter | Schlüssel | Foto-Suche | Hinweis |
+|---|---|---|---|
+| Claude | [console.anthropic.com](https://console.anthropic.com/settings/keys) | ✓ | Modell: Claude Opus 5.5 |
+| ChatGPT (OpenAI) | [platform.openai.com](https://platform.openai.com/api-keys) | ✓ | OpenAI blockiert Anfragen direkt aus dem Browser teilweise – im Zweifel OpenRouter nehmen |
+| DeepSeek | [platform.deepseek.com](https://platform.deepseek.com/api_keys) | – | kann keine Fotos lesen |
+| Gemini | [aistudio.google.com](https://aistudio.google.com/apikey) | ✓ | |
+| OpenRouter | [openrouter.ai](https://openrouter.ai/settings/keys) | ✓ | ein Schlüssel für viele Modelle (auch GPT), teils kostenlose Modelle |
+
+Bei allen außer Claude lässt sich das Modell auswählen. Die Schlüssel werden nur im Browser des jeweiligen Geräts gespeichert und nie in diesem Repository. Jede Anfrage kostet meist nur ein paar Cent beim jeweiligen Anbieter.
 
 ## Internet-Suche (TheMealDB)
 
