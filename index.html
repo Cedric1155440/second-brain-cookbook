@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Second Brain Cookbook</title>
+<!-- Web-App / iPhone Home-Bildschirm -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Second Brain">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#faf6ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1c1916" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf6ef;
+    --surface: #ffffff;
+    --surface-2: #f3ece0;
+    --text: #2b2420;
+    --muted: #7a6d62;
+    --line: #e6dccd;
+    --accent: #c0532b;
+    --accent-soft: #f7e1d5;
+    --ok: #3d7a4a;
+    --ok-soft: #e1f0e3;
+    --warn: #a86b12;
+    --warn-soft: #f8ebd2;
+    --shadow: 0 1px 2px rgba(60,40,20,.06), 0 4px 16px rgba(60,40,20,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1916; --surface: #262220; --surface-2: #302a26; --text: #f1e9df; --muted: #a8998b;
+      --line: #3d3530; --accent: #e9845c; --accent-soft: #46291d; --ok: #7cc48a; --ok-soft: #1f3424;
+      --warn: #e2b05a; --warn-soft: #3d2f17; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1916; --surface: #262220; --surface-2: #302a26; --text: #f1e9df; --muted: #a8998b;
+    --line: #3d3530; --accent: #e9845c; --accent-soft: #46291d; --ok: #7cc48a; --ok-soft: #1f3424;
+    --warn: #e2b05a; --warn-soft: #3d2f17; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+  }
+  * { box-sizing: border-box; }
+  html { color-scheme: light; }
+  :root[data-theme="dark"] { color-scheme: dark; }
+  body { transition: background .2s, color .2s; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 Inter, system-ui, sans-serif; }
+  h1, h2, h3 { font-family: Fraunces, Georgia, serif; font-weight: 700; margin: 0; letter-spacing: -.01em; }
+  button { font: inherit; cursor: pointer; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 16px 64px; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  header h1 { font-size: clamp(28px, 5vw, 40px); }
+  header p { margin: 4px 0 0; color: var(--muted); }
+  .layout { display: grid; grid-template-columns: 360px 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
+  .side { position: sticky; top: 16px; }
+  @media (max-width: 860px) { .side { position: static; } }
+  .panel h2 { font-size: 20px; margin-bottom: 12px; }
+  .addrow { display: flex; gap: 8px; }
+  .addrow input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; }
+  .addrow input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .btn { padding: 10px 14px; border-radius: 10px; border: 1px solid transparent; background: var(--accent); color: #fff; font-weight: 600; }
+  .btn.ghost { background: transparent; color: var(--text); border-color: var(--line); }
+  .btn.small { padding: 6px 10px; font-size: 13px; }
+  .hint { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 4px; min-height: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 6px 5px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--text); font-size: 13px; font-weight: 500; }
+  .chip button { border: 0; background: transparent; color: var(--muted); width: 20px; height: 20px; border-radius: 50%; line-height: 1; padding: 0; font-size: 15px; }
+  .chip button:hover { background: rgba(0,0,0,.08); color: var(--text); }
+  .chip.unknown { background: var(--surface-2); border: 1px dashed var(--line); }
+  .empty-pantry { color: var(--muted); font-size: 13px; font-style: italic; }
+  details.group { border-top: 1px solid var(--line); padding: 8px 0; }
+  details.group summary { cursor: pointer; font-weight: 600; font-size: 14px; list-style: none; display: flex; justify-content: space-between; }
+  details.group summary::-webkit-details-marker { display: none; }
+  details.group summary::after { content: "+"; color: var(--muted); }
+  details.group[open] summary::after { content: "−"; }
+  .quick { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 8px; }
+  .quick button { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 999px; padding: 4px 10px; font-size: 13px; }
+  .quick button.on { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); font-weight: 600; }
+  .basics { font-size: 13px; color: var(--muted); background: var(--surface-2); border-radius: 10px; padding: 8px 10px; margin-top: 12px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+  .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 3px; flex-wrap: wrap; }
+  .seg button { border: 0; background: transparent; color: var(--muted); padding: 6px 10px; border-radius: 7px; font-size: 13px; font-weight: 500; }
+  .seg button.on { background: var(--accent); color: #fff; }
+  select { padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; font-size: 13px; }
+  .section-title { display: flex; align-items: baseline; gap: 10px; margin: 8px 0 12px; }
+  .section-title h2 { font-size: 22px; }
+  .section-title span { color: var(--muted); font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .card { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); color: var(--text); display: flex; flex-direction: column; gap: 8px; transition: transform .12s, border-color .12s; }
+  .card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .card .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .card .emoji { font-size: 30px; line-height: 1; }
+  .card h3 { font-size: 17px; }
+  .meta { color: var(--muted); font-size: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .badge.ok { background: var(--ok-soft); color: var(--ok); }
+  .badge.warn { background: var(--warn-soft); color: var(--warn); }
+  .badge.no { background: var(--surface-2); color: var(--muted); }
+  .bar { height: 5px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--ok); border-radius: 99px; }
+  .missing { font-size: 12px; color: var(--warn); }
+  .theme-seg { display: flex; width: 100%; }
+  .theme-seg button { flex: 1; padding: 10px 8px; font-size: 14px; }
+  .lang-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .lang-list button { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 15px; text-align: left; }
+  .lang-list button span { font-size: 20px; }
+  .lang-list button.on { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .ai-box { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: var(--surface); border: 1px dashed var(--accent); border-radius: 14px; padding: 16px; margin-bottom: 24px; color: var(--muted); }
+  .ai-box p { margin: 0; flex: 1; min-width: 200px; }
+  .ai-box.err { border-color: var(--warn); color: var(--warn); }
+  .ai-more { margin: -8px 0 24px; }
+  .ai-tag { color: var(--accent); font-weight: 600; }
+  .spinner { width: 18px; height: 18px; flex: none; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .cam { padding: 10px 12px; font-size: 18px; line-height: 1; }
+  .scan-img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 12px; margin: 8px 0 12px; }
+  .scan-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .scan-item { border: 1px solid var(--line); background: var(--bg); color: var(--muted); border-radius: 999px; padding: 7px 12px; font-size: 14px; text-decoration: line-through; }
+  .scan-item.on { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); font-weight: 600; text-decoration: none; }
+  .scan-item.had { opacity: .6; }
+  .lbl { display: block; font-size: 13px; font-weight: 600; margin: 4px 0 6px; }
+  .chk { display: flex; gap: 8px; align-items: center; margin-top: 12px; font-size: 14px; }
+  .key-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .jump { display: none; width: 100%; margin-top: 12px; padding: 12px; }
+  @media (max-width: 860px) { .jump { display: block; } }
+  .diff { font-weight: 600; letter-spacing: .02em; }
+  .diff.d1 { color: var(--ok); }
+  .diff.d2 { color: var(--warn); }
+  .diff.d3 { color: var(--accent); }
+  .placeholder { text-align: center; padding: 48px 16px; color: var(--muted); border: 2px dashed var(--line); border-radius: 16px; }
+  .placeholder .big { font-size: 44px; }
+  /* Modal */
+  .overlay { position: fixed; inset: 0; background: rgba(20,12,6,.5); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+  .overlay.open { display: flex; }
+  .modal { background: var(--surface); color: var(--text); border-radius: 18px; max-width: 620px; width: 100%; max-height: 90vh; overflow: auto; padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  .modal .head { display: flex; gap: 14px; align-items: center; margin-bottom: 8px; }
+  .modal .head .emoji { font-size: 44px; }
+  .modal h2 { font-size: 26px; }
+  .modal h3 { font-size: 17px; margin: 18px 0 8px; }
+  .ing { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 4px 12px; }
+  .ing li { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+  .ing .dot { width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; flex: none; }
+  .ing .have .dot { background: var(--ok-soft); color: var(--ok); }
+  .ing .miss .dot { background: var(--warn-soft); color: var(--warn); }
+  .ing .miss { color: var(--warn); }
+  .ing .opt { color: var(--muted); }
+  ol.steps { padding-left: 20px; margin: 0; }
+  ol.steps li { margin-bottom: 8px; }
+  .modal .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; justify-content: flex-end; }
+  form.own label { display: block; font-size: 13px; font-weight: 600; margin: 12px 0 4px; }
+  form.own input, form.own textarea, form.own select { width: 100%; padding: 9px 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; }
+  form.own textarea { min-height: 90px; resize: vertical; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 20; }
+  .toast.show { opacity: 1; }
+  /* iPhone: Notch/Home-Balken, kein Zoom beim Tippen, kein grauer Tipp-Blitz */
+  html { -webkit-text-size-adjust: 100%; }
+  body { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+  .wrap { padding-top: max(28px, calc(env(safe-area-inset-top) + 12px)); padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); padding-bottom: max(64px, calc(env(safe-area-inset-bottom) + 32px)); }
+  .overlay { padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
+  .modal { max-height: 90dvh; -webkit-overflow-scrolling: touch; }
+  .toast { bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px)); }
+  @media (max-width: 600px) {
+    .addrow input, select, form.own input, form.own textarea, form.own select { font-size: 16px; }
+    .modal { padding: 20px 18px; border-radius: 16px; }
+    .modal h2 { font-size: 22px; }
+    .quick button { padding: 6px 12px; font-size: 14px; }
+    .chip { font-size: 14px; }
+    .chip button { width: 26px; height: 26px; }
+    .grid { grid-template-columns: 1fr; }
+    header .btn.small { padding: 8px 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>🧠 Second Brain Cookbook</h1>
+      <p id="subtitle"></p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn ghost small" id="randomBtn">🎲 <span data-i18n="random"></span></button>
+      <button class="btn ghost small" id="ownBtn">＋ <span data-i18n="ownRecipe"></span></button>
+      <button class="btn ghost small" id="settingsBtn">⚙️ <span data-i18n="settings"></span></button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="side panel">
+      <h2 data-i18n="pantry"></h2>
+      <form class="addrow" id="addForm" autocomplete="off">
+        <input id="ingInput" list="ingList">
+        <button class="btn" type="submit" data-i18n="add"></button>
+        <button class="btn ghost cam" type="button" id="camBtn">📷</button>
+      </form>
+      <input type="file" id="camInput" accept="image/*" hidden>
+      <datalist id="ingList"></datalist>
+      <p class="hint" data-i18n="hint"></p>
+      <div class="chips" id="pantry"></div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+        <button class="btn ghost small" id="clearBtn" data-i18n="clear"></button>
+      </div>
+      <div id="groups"></div>
+      <div class="basics">🧂 <span data-i18n="basics"></span></div>
+      <button class="btn jump" id="jumpBtn"></button>
+    </aside>
+
+    <main>
+      <div class="toolbar">
+        <div class="seg" id="catSeg"></div>
+        <select id="timeSel"></select>
+        <select id="diffSel"></select>
+        <select id="landSel"></select>
+        <label style="font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center">
+          <input type="checkbox" id="showAll"> <span data-i18n="showAll"></span>
+        </label>
+      </div>
+      <div id="results"></div>
+    </main>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>window.LANGS = window.LANGS || {};</script>
+<script src="lang/en.js"></script>
+<script src="lang/fr.js"></script>
+<script src="lang/es.js"></script>
+<script src="lang/it.js"></script>
+<script src="lang/pt.js"></script>
+<script src="lang/tr.js"></script>
+
+<script>
+// ---------- Zutaten-Katalog ----------
+const GROUPS = ["Gemüse", "Obst", "Kühlschrank", "Fleisch & Fisch", "Vorrat", "Kräuter & Würze"];
+const ING = {
+  zwiebeln: ["Zwiebeln", 0, ["zwiebel"]],
+  knoblauch: ["Knoblauch", 0, []],
+  tomaten: ["Tomaten", 0, ["tomate", "cherrytomaten", "kirschtomaten"]],
+  paprika: ["Paprika", 0, ["paprikaschote"]],
+  zucchini: ["Zucchini", 0, []],
+  karotten: ["Karotten", 0, ["karotte", "möhren", "möhre", "rüebli"]],
+  kartoffeln: ["Kartoffeln", 0, ["kartoffel", "erdäpfel"]],
+  brokkoli: ["Brokkoli", 0, ["broccoli"]],
+  spinat: ["Spinat", 0, ["blattspinat"]],
+  champignons: ["Champignons", 0, ["pilze", "champignon"]],
+  gurke: ["Gurke", 0, ["salatgurke"]],
+  salat: ["Salat", 0, ["eisbergsalat", "kopfsalat", "rucola", "blattsalat"]],
+  lauch: ["Lauch", 0, ["porree"]],
+  kuerbis: ["Kürbis", 0, ["hokkaido"]],
+  avocado: ["Avocado", 0, []],
+  zitrone: ["Zitrone", 1, ["limette"]],
+  bananen: ["Bananen", 1, ["banane"]],
+  aepfel: ["Äpfel", 1, ["apfel"]],
+  ananas: ["Ananas", 1, []],
+  eier: ["Eier", 2, ["ei"]],
+  milch: ["Milch", 2, ["hafermilch"]],
+  butter: ["Butter", 2, []],
+  kaese: ["Käse", 2, ["gouda", "emmentaler", "cheddar", "reibekäse", "geriebener käse"]],
+  parmesan: ["Parmesan", 2, ["grana padano", "pecorino"]],
+  mozzarella: ["Mozzarella", 2, []],
+  feta: ["Feta", 2, ["schafskäse", "hirtenkäse"]],
+  sahne: ["Sahne", 2, ["schlagsahne", "kochsahne", "schmand", "crème fraîche", "creme fraiche"]],
+  quark: ["Quark", 2, ["magerquark"]],
+  joghurt: ["Joghurt", 2, ["naturjoghurt", "griechischer joghurt"]],
+  mayo: ["Mayonnaise", 2, ["mayo"]],
+  hack: ["Hackfleisch", 3, ["hack", "rinderhack", "gehacktes", "faschiertes"]],
+  haehnchen: ["Hähnchen", 3, ["hähnchenbrust", "hühnchen", "huhn", "chicken", "pute", "putenbrust"]],
+  speck: ["Speck", 3, ["bacon", "pancetta", "guanciale", "schinkenwürfel"]],
+  schinken: ["Schinken", 3, ["kochschinken"]],
+  wuerstchen: ["Würstchen", 3, ["wiener", "bockwurst", "würstel", "wurst"]],
+  thunfisch: ["Thunfisch", 3, []],
+  lachs: ["Lachs", 3, ["lachsfilet"]],
+  nudeln: ["Nudeln", 4, ["pasta", "spaghetti", "penne", "fusilli", "makkaroni", "tagliatelle"]],
+  reis: ["Reis", 4, ["basmati", "jasminreis", "risottoreis"]],
+  mehl: ["Mehl", 4, []],
+  zucker: ["Zucker", 4, []],
+  haferflocken: ["Haferflocken", 4, ["hafer", "oats"]],
+  brot: ["Brot", 4, ["baguette", "brötchen", "semmel"]],
+  toast: ["Toastbrot", 4, ["toast"]],
+  tortillas: ["Tortillas", 4, ["wraps", "wrap", "tortilla"]],
+  dosentomaten: ["Dosentomaten", 4, ["passierte tomaten", "gehackte tomaten", "passata", "tomatendose", "tomatensauce"]],
+  tomatenmark: ["Tomatenmark", 4, []],
+  kichererbsen: ["Kichererbsen", 4, []],
+  linsen: ["Linsen", 4, ["rote linsen"]],
+  bohnen: ["Bohnen", 4, ["kidneybohnen", "weiße bohnen", "schwarze bohnen"]],
+  mais: ["Mais", 4, []],
+  erbsen: ["Erbsen", 4, ["tiefkühlerbsen"]],
+  kokosmilch: ["Kokosmilch", 4, []],
+  bruehe: ["Brühe", 4, ["gemüsebrühe", "hühnerbrühe", "fond", "bouillon"]],
+  pesto: ["Pesto", 4, []],
+  honig: ["Honig", 4, []],
+  oliven: ["Oliven", 4, []],
+  sojasauce: ["Sojasauce", 5, ["sojasoße", "soja"]],
+  currypaste: ["Curry", 5, ["currypaste", "currypulver"]],
+  ingwer: ["Ingwer", 5, []],
+  chili: ["Chili", 5, ["chilischote", "chiliflocken", "peperoni"]],
+  petersilie: ["Petersilie", 5, []],
+  basilikum: ["Basilikum", 5, []],
+  fruehlingszwiebeln: ["Frühlingszwiebeln", 5, ["frühlingszwiebel", "lauchzwiebeln", "schnittlauch"]],
+  zimt: ["Zimt", 5, []],
+  senf: ["Senf", 5, []],
+  // --- Erweiterung für Weltküche ---
+  aubergine: ["Aubergine", 0, ["melanzani"]],
+  blumenkohl: ["Blumenkohl", 0, ["karfiol"]],
+  kohl: ["Kohl", 0, ["weißkohl", "chinakohl", "spitzkohl", "rotkohl", "wirsing"]],
+  rotebete: ["Rote Bete", 0, ["rote beete", "rote rübe"]],
+  suesskartoffel: ["Süßkartoffel", 0, ["süßkartoffeln", "batate"]],
+  mango: ["Mango", 1, []],
+  beeren: ["Beeren", 1, ["erdbeeren", "himbeeren", "heidelbeeren", "blaubeeren", "beere"]],
+  mascarpone: ["Mascarpone", 2, []],
+  paneer: ["Paneer", 2, ["halloumi", "grillkäse"]],
+  tofu: ["Tofu", 2, []],
+  rind: ["Rindfleisch", 3, ["rind", "steak", "gulaschfleisch", "rinderhüfte", "rinderfilet", "beef"]],
+  schwein: ["Schweinefleisch", 3, ["schwein", "schweineschnitzel", "schnitzel", "schweinenacken", "kotelett", "schweinefilet"]],
+  lamm: ["Lammfleisch", 3, ["lamm", "lammkeule", "lammkotelett"]],
+  garnelen: ["Garnelen", 3, ["shrimps", "krabben", "gambas", "scampi", "garnele"]],
+  fisch: ["Weißer Fisch", 3, ["fisch", "kabeljau", "seelachs", "dorsch", "pangasius", "fischfilet", "zander"]],
+  hefe: ["Hefe", 4, ["trockenhefe"]],
+  backpulver: ["Backpulver", 4, ["natron"]],
+  paniermehl: ["Paniermehl", 4, ["semmelbrösel", "panko"]],
+  schokolade: ["Schokolade", 4, ["kuvertüre", "zartbitterschokolade", "schoko"]],
+  kakao: ["Kakao", 4, ["kakaopulver"]],
+  blaetterteig: ["Blätterteig", 4, ["strudelteig", "filoteig", "yufka", "yufkateig"]],
+  asianudeln: ["Asia-Nudeln", 4, ["reisnudeln", "mie-nudeln", "mienudeln", "udon", "ramen", "glasnudeln", "soba", "eiernudeln"]],
+  couscous: ["Couscous", 4, []],
+  bulgur: ["Bulgur", 4, []],
+  maismehl: ["Maismehl", 4, ["polenta", "masa harina", "maisgrieß"]],
+  essig: ["Essig", 4, ["reisessig", "weißweinessig", "balsamico", "apfelessig"]],
+  rotwein: ["Wein", 4, ["rotwein", "weißwein"]],
+  tahini: ["Tahini", 4, ["sesampaste", "tahin"]],
+  erdnuesse: ["Erdnüsse", 4, ["erdnuss", "erdnussbutter", "erdnussmus"]],
+  nori: ["Nori-Algen", 4, ["nori", "algen", "seetang"]],
+  reispapier: ["Reispapier", 4, []],
+  kapern: ["Kapern", 4, []],
+  gelatine: ["Gelatine", 4, ["agar-agar", "agar"]],
+  loeffelbiskuit: ["Löffelbiskuits", 4, ["löffelbiskuit"]],
+  kaffee: ["Kaffee", 4, ["espresso"]],
+  vanille: ["Vanille", 5, ["vanillezucker", "vanilleschote", "vanilleextrakt"]],
+  koriander: ["Koriander", 5, []],
+  paprikapulver: ["Paprikapulver", 5, ["edelsüß", "rosenpaprika", "geräuchertes paprikapulver"]],
+  fischsauce: ["Fischsauce", 5, ["fischsoße"]],
+  miso: ["Miso", 5, ["misopaste"]],
+};
+
+// ---------- Rezepte ----------
+// [emoji, name, kategorie, minuten, pflicht, optional, schritte]
+const R = [
+  ["🍝","Spaghetti Aglio e Olio","Hauptgericht",15,["nudeln","knoblauch"],["chili","petersilie","parmesan"],["Nudeln in reichlich Salzwasser al dente kochen.","Knoblauch in Scheiben schneiden und in viel Olivenöl langsam goldgelb anschwitzen, optional mit Chili.","Nudeln abgießen (etwas Nudelwasser aufheben) und im Knoblauchöl schwenken.","Mit Petersilie, Salz und Parmesan servieren."]],
+  ["🥞","Pfannkuchen","Frühstück",20,["mehl","eier","milch"],["zucker","butter","aepfel","zimt"],["200 g Mehl, 2 Eier, 300 ml Milch und eine Prise Salz glatt rühren, 5 Min. quellen lassen.","Etwas Butter oder Öl in einer Pfanne erhitzen.","Dünn Teig hineingeben, von beiden Seiten goldbraun backen.","Mit Zucker, Zimt oder Apfelscheiben servieren."]],
+  ["🍳","Rührei","Frühstück",10,["eier"],["milch","butter","fruehlingszwiebeln","kaese","schinken"],["Eier mit einem Schuss Milch, Salz und Pfeffer verquirlen.","Butter in der Pfanne bei mittlerer Hitze schmelzen.","Eier hineingeben und langsam mit einem Spatel zusammenschieben, bis sie gerade gestockt sind.","Mit Frühlingszwiebeln oder Käse bestreuen."]],
+  ["🥚","Gemüse-Omelett","Frühstück",15,["eier","paprika","zwiebeln"],["kaese","champignons","spinat","tomaten"],["Zwiebel und Paprika klein schneiden und in Öl anbraten.","3 Eier verquirlen, salzen und über das Gemüse gießen.","Bei kleiner Hitze stocken lassen, optional Käse darüber.","Zusammenklappen und servieren."]],
+  ["🍅","Nudeln mit Tomatensauce","Hauptgericht",25,["nudeln","dosentomaten","zwiebeln"],["knoblauch","basilikum","parmesan","tomatenmark"],["Zwiebel (und Knoblauch) fein hacken und in Olivenöl glasig dünsten.","Dosentomaten dazugeben, mit Salz, Pfeffer und einer Prise Zucker 15 Min. köcheln.","Nudeln kochen und abgießen.","Sauce mit Nudeln mischen, mit Basilikum und Parmesan servieren."]],
+  ["🍝","Spaghetti Bolognese","Hauptgericht",40,["nudeln","hack","dosentomaten","zwiebeln"],["karotten","knoblauch","tomatenmark","parmesan"],["Zwiebel und Karotte fein würfeln.","Hackfleisch in Öl krümelig braun anbraten, Gemüse dazu.","Tomatenmark kurz mitrösten, Dosentomaten zugeben.","Mind. 25 Min. leise köcheln lassen, würzen.","Mit Nudeln und Parmesan servieren."]],
+  ["🥓","Spaghetti Carbonara","Hauptgericht",20,["nudeln","eier","speck","parmesan"],[],["Nudeln kochen.","Speck in einer Pfanne knusprig auslassen.","2 Eigelb + 1 Ei mit viel geriebenem Parmesan und Pfeffer verrühren.","Nudeln abgießen, zum Speck geben, Pfanne vom Herd nehmen.","Eiermasse und etwas Nudelwasser unterrühren, bis es cremig ist – nicht mehr kochen!"]],
+  ["🥔","Bratkartoffeln","Hauptgericht",30,["kartoffeln","zwiebeln"],["speck","petersilie","eier"],["Kartoffeln (am besten vorgekocht) in Scheiben schneiden.","In einer großen Pfanne mit Öl goldbraun braten, nicht zu oft wenden.","Zwiebeln (und Speck) dazugeben und mitbraten.","Mit Salz, Pfeffer und Petersilie würzen. Dazu passt ein Spiegelei."]],
+  ["🥣","Kartoffelpüree","Beilage",25,["kartoffeln","milch","butter"],["fruehlingszwiebeln"],["Kartoffeln schälen, würfeln und in Salzwasser weich kochen.","Abgießen und ausdampfen lassen.","Warme Milch und Butter dazugeben und stampfen.","Mit Salz und etwas Muskat abschmecken."]],
+  ["🍲","Kartoffelsuppe","Suppe",35,["kartoffeln","karotten","zwiebeln","bruehe"],["lauch","wuerstchen","sahne","petersilie"],["Gemüse schälen und würfeln.","Zwiebel in Butter/Öl andünsten, restliches Gemüse kurz mitdünsten.","Mit Brühe auffüllen und 20 Min. köcheln.","Teilweise pürieren, mit Sahne verfeinern.","Optional Würstchen in Scheiben darin erwärmen."]],
+  ["🍚","Gebratener Reis","Hauptgericht",20,["reis","eier","sojasauce"],["erbsen","karotten","fruehlingszwiebeln","haehnchen","knoblauch"],["Am besten Reis vom Vortag verwenden (oder gekochten Reis gut abkühlen).","Gemüse klein schneiden und in heißem Öl anbraten.","Reis dazugeben und kräftig braten.","Reis zur Seite schieben, Eier hineinschlagen, verrühren und untermischen.","Mit Sojasauce und Frühlingszwiebeln abschmecken."]],
+  ["🍛","Hähnchen-Curry","Hauptgericht",35,["haehnchen","kokosmilch","currypaste"],["reis","paprika","zwiebeln","ingwer","spinat"],["Hähnchen in Stücke schneiden und in Öl anbraten.","Zwiebel, Ingwer und Paprika dazugeben.","Curry kurz mitrösten, mit Kokosmilch ablöschen.","15 Min. köcheln, abschmecken.","Mit Reis servieren."]],
+  ["🫘","Linsen-Dal","Hauptgericht",30,["linsen","zwiebeln","knoblauch"],["dosentomaten","kokosmilch","ingwer","currypaste","reis","spinat"],["Zwiebel, Knoblauch und Ingwer fein hacken und in Öl andünsten.","Curry/Gewürze kurz mitrösten.","Rote Linsen, Tomaten und Wasser (ca. doppelte Menge) zugeben.","15–20 Min. köcheln, bis die Linsen zerfallen. Mit Kokosmilch verfeinern.","Mit Reis oder Brot servieren."]],
+  ["🌶️","Chili con Carne","Hauptgericht",45,["hack","bohnen","dosentomaten","zwiebeln"],["mais","paprika","chili","knoblauch","reis","tomatenmark"],["Hackfleisch mit Zwiebeln kräftig anbraten.","Paprika, Knoblauch und Chili dazugeben.","Tomaten zufügen und 20 Min. köcheln.","Bohnen und Mais untermischen, weitere 10 Min. ziehen lassen.","Mit Reis oder Brot servieren."]],
+  ["🌶️","Chili sin Carne","Vegetarisch",35,["bohnen","mais","dosentomaten","zwiebeln"],["paprika","chili","reis","knoblauch","avocado"],["Zwiebel, Paprika und Knoblauch in Öl anbraten.","Tomaten zugeben, mit Chili, Salz würzen, 15 Min. köcheln.","Bohnen und Mais unterrühren und erhitzen.","Mit Reis oder Avocado servieren."]],
+  ["🍳","Shakshuka","Vegetarisch",25,["eier","dosentomaten","zwiebeln"],["paprika","knoblauch","feta","chili","brot","petersilie"],["Zwiebel, Paprika und Knoblauch in Öl weich dünsten.","Tomaten dazu, würzen und 10 Min. einkochen.","Mulden in die Sauce drücken, Eier hineinschlagen.","Deckel drauf, 5–8 Min. stocken lassen.","Mit Feta, Petersilie und Brot servieren."]],
+  ["🥗","Griechischer Salat","Salat",10,["gurke","tomaten","feta"],["zwiebeln","paprika","oliven"],["Gurke, Tomaten, Paprika und Zwiebel grob schneiden.","Mit Olivenöl, Salz, Pfeffer (und Oregano) mischen.","Feta in Würfeln oder als Block obendrauf, Oliven dazu."]],
+  ["🍅","Tomate-Mozzarella","Salat",5,["tomaten","mozzarella"],["basilikum","brot"],["Tomaten und Mozzarella in Scheiben schneiden.","Abwechselnd auf einem Teller anrichten.","Mit Olivenöl, Salz, Pfeffer und Basilikum beträufeln."]],
+  ["🌮","Quesadillas","Snack",15,["tortillas","kaese"],["bohnen","mais","paprika","haehnchen","avocado"],["Eine Tortilla halbseitig mit Käse und Füllung belegen.","Zuklappen und in einer trockenen Pfanne von beiden Seiten goldbraun braten.","In Stücke schneiden und servieren."]],
+  ["🍍","Toast Hawaii","Snack",15,["toast","schinken","kaese","ananas"],["butter"],["Ofen auf 200 °C vorheizen.","Toast buttern, mit Schinken, Ananas und Käse belegen.","8–10 Min. überbacken, bis der Käse schmilzt."]],
+  ["🍕","Pizza-Toast","Snack",15,["toast","kaese"],["schinken","tomatenmark","dosentomaten","paprika","champignons","mais"],["Ofen auf 200 °C vorheizen.","Toast mit Tomatenmark oder Tomatensauce bestreichen.","Nach Lust belegen und mit Käse bestreuen.","8–10 Min. backen."]],
+  ["🍞","Arme Ritter","Frühstück",15,["toast","eier","milch"],["zucker","zimt","butter","honig"],["Eier mit Milch und einer Prise Zucker/Zimt verquirlen.","Brotscheiben darin kurz einweichen.","In Butter von beiden Seiten goldbraun braten.","Mit Zimtzucker oder Honig servieren."]],
+  ["🥖","Bruschetta","Snack",15,["brot","tomaten","knoblauch"],["basilikum","zwiebeln"],["Tomaten fein würfeln, mit Olivenöl, Salz und Basilikum mischen.","Brotscheiben im Ofen oder in der Pfanne rösten.","Mit einer Knoblauchzehe einreiben.","Tomaten darauf verteilen."]],
+  ["🥘","Gemüsepfanne mit Reis","Vegetarisch",30,["reis","zwiebeln"],["paprika","zucchini","karotten","brokkoli","sojasauce","champignons"],["Reis nach Packung kochen.","Gemüse in mundgerechte Stücke schneiden.","Im Wok/Pfanne mit Öl von hart nach weich anbraten.","Mit Sojasauce oder Salz und Pfeffer würzen und mit Reis servieren."]],
+  ["🌿","Pesto-Nudeln","Hauptgericht",12,["nudeln","pesto"],["parmesan","tomaten"],["Nudeln kochen.","Abgießen, dabei etwas Nudelwasser aufheben.","Mit Pesto und einem Schuss Nudelwasser mischen.","Mit Parmesan und Tomaten servieren."]],
+  ["🧀","Nudelauflauf","Hauptgericht",40,["nudeln","sahne","kaese"],["schinken","brokkoli","eier","erbsen"],["Ofen auf 200 °C vorheizen. Nudeln knapp bissfest kochen.","Mit Schinken/Gemüse in eine Auflaufform geben.","Sahne (mit 1 Ei verquirlt) salzen, pfeffern, darübergießen.","Mit Käse bestreuen und 20 Min. goldbraun backen."]],
+  ["🥦","Brokkoli-Sahne-Nudeln","Hauptgericht",20,["nudeln","brokkoli","sahne"],["parmesan","knoblauch","schinken"],["Nudeln kochen, Brokkoli die letzten 4 Min. mitkochen.","Knoblauch in Butter anschwitzen, Sahne zugeben und kurz einköcheln.","Mit Parmesan, Salz, Pfeffer abschmecken.","Nudeln und Brokkoli unterheben."]],
+  ["🍄","Champignon-Rahmnudeln","Hauptgericht",20,["nudeln","champignons","sahne"],["zwiebeln","petersilie","parmesan","knoblauch"],["Champignons in Scheiben schneiden und scharf anbraten.","Zwiebel dazu, kurz dünsten.","Sahne angießen, einköcheln lassen, würzen.","Mit den gekochten Nudeln und Petersilie mischen."]],
+  ["🥔","Ofenkartoffeln mit Kräuterquark","Vegetarisch",45,["kartoffeln","quark"],["fruehlingszwiebeln","knoblauch","petersilie"],["Ofen auf 200 °C vorheizen.","Kartoffeln halbieren, mit Öl und Salz mischen, 35 Min. backen.","Quark mit etwas Milch/Wasser, Salz, Kräutern und Knoblauch verrühren.","Zusammen servieren."]],
+  ["🐟","Lachs mit Reis & Brokkoli","Hauptgericht",25,["lachs","reis"],["brokkoli","zitrone","sojasauce","butter"],["Reis kochen.","Brokkoli in Salzwasser 4 Min. garen.","Lachs salzen und auf der Hautseite 4 Min. braten, wenden, 2 Min. weiter.","Mit Zitrone beträufeln und servieren."]],
+  ["🐟","Thunfisch-Tomaten-Nudeln","Hauptgericht",20,["nudeln","thunfisch","dosentomaten"],["zwiebeln","knoblauch","oliven","chili"],["Zwiebel/Knoblauch in Öl andünsten.","Tomaten dazu, 10 Min. köcheln.","Thunfisch zerpflücken und unterrühren, würzen.","Mit den gekochten Nudeln mischen."]],
+  ["🥗","Thunfischsalat","Salat",10,["thunfisch","salat"],["mais","gurke","tomaten","eier","zwiebeln"],["Salat waschen und zupfen.","Gemüse klein schneiden.","Thunfisch und Mais dazugeben.","Mit Öl, Essig/Zitrone, Salz und Pfeffer anmachen."]],
+  ["🥣","Porridge","Frühstück",10,["haferflocken","milch"],["bananen","honig","aepfel","zimt"],["50 g Haferflocken mit 250 ml Milch und einer Prise Salz aufkochen.","3–5 Min. unter Rühren köcheln, bis es cremig ist.","Mit Banane, Apfel, Zimt oder Honig toppen."]],
+  ["🍌","Bananen-Pancakes","Frühstück",15,["bananen","eier"],["haferflocken","honig","zimt"],["1 reife Banane zerdrücken und mit 2 Eiern verrühren (optional 2 EL Haferflocken).","Kleine Taler in einer Pfanne mit etwas Öl bei mittlerer Hitze braten.","Vorsichtig wenden und mit Honig servieren."]],
+  ["🎃","Kürbissuppe","Suppe",35,["kuerbis","zwiebeln","bruehe"],["kokosmilch","ingwer","sahne","karotten","kartoffeln"],["Kürbis (Hokkaido mit Schale) und Zwiebel würfeln.","In Öl andünsten, Ingwer dazu.","Mit Brühe bedecken und 20 Min. weich kochen.","Pürieren, mit Kokosmilch oder Sahne verfeinern und abschmecken."]],
+  ["🍅","Tomatensuppe","Suppe",25,["dosentomaten","zwiebeln","bruehe"],["sahne","basilikum","knoblauch","karotten"],["Zwiebel und Knoblauch in Öl andünsten.","Tomaten und Brühe zugeben, 15 Min. köcheln.","Pürieren, mit Salz, Pfeffer, Zucker abschmecken.","Mit Sahne und Basilikum servieren."]],
+  ["🍚","Pilzrisotto","Hauptgericht",35,["reis","bruehe","zwiebeln","parmesan"],["champignons","butter","knoblauch","petersilie"],["Pilze anbraten und beiseitestellen.","Zwiebel in Butter glasig dünsten, Reis kurz mitdünsten.","Nach und nach heiße Brühe angießen und rühren, ca. 18 Min.","Pilze, Butter und Parmesan unterrühren."]],
+  ["🍛","Kichererbsen-Curry","Vegetarisch",25,["kichererbsen","kokosmilch","zwiebeln"],["dosentomaten","spinat","reis","currypaste","ingwer","knoblauch"],["Zwiebel, Knoblauch, Ingwer andünsten, Curry kurz mitrösten.","Tomaten und Kokosmilch dazugeben.","Kichererbsen hinzufügen und 10 Min. köcheln.","Spinat unterheben und mit Reis servieren."]],
+  ["🥑","Avocado-Toast","Frühstück",10,["brot","avocado"],["eier","zitrone","tomaten","chili"],["Brot toasten.","Avocado zerdrücken, mit Zitrone, Salz und Pfeffer würzen.","Aufs Brot streichen, optional mit Ei oder Tomate toppen."]],
+  ["🍗","Hähnchen mit Ofengemüse","Hauptgericht",50,["haehnchen","kartoffeln"],["karotten","zwiebeln","paprika","zucchini","knoblauch"],["Ofen auf 200 °C vorheizen.","Kartoffeln und Gemüse in Stücke schneiden, mit Öl, Salz, Gewürzen mischen.","Hähnchen würzen und auf das Gemüse legen.","40 Min. backen, bis alles goldbraun ist."]],
+  ["🍔","Frikadellen","Hauptgericht",30,["hack","eier","zwiebeln"],["brot","senf","petersilie"],["Altes Brötchen einweichen und ausdrücken.","Mit Hack, Ei, gehackter Zwiebel, Senf, Salz und Pfeffer verkneten.","Flache Bällchen formen.","In Öl von jeder Seite 4–5 Min. braten."]],
+  ["🥒","Gurkensalat","Salat",10,["gurke"],["joghurt","sahne","zwiebeln","knoblauch"],["Gurke in dünne Scheiben hobeln.","Leicht salzen und 5 Min. ziehen lassen.","Mit Joghurt/Schmand oder Essig-Öl-Dressing mischen."]],
+  ["🌯","Hähnchen-Wraps","Hauptgericht",20,["tortillas","haehnchen"],["salat","tomaten","joghurt","kaese","gurke","paprika"],["Hähnchen in Streifen schneiden, würzen und braten.","Gemüse klein schneiden.","Tortillas kurz erwärmen, mit Joghurt bestreichen.","Füllen, aufrollen und genießen."]],
+  ["🥗","Nudelsalat","Salat",20,["nudeln","mayo"],["mais","erbsen","schinken","gurke","eier","joghurt"],["Nudeln kochen und kalt abschrecken.","Mayonnaise mit etwas Joghurt, Salz und Pfeffer verrühren.","Alle Zutaten mischen und kurz durchziehen lassen."]],
+  ["🍚","Milchreis","Dessert",35,["reis","milch","zucker"],["zimt","aepfel","butter"],["1 l Milch mit 125 g Milchreis, Zucker und einer Prise Salz aufkochen.","Bei kleinster Hitze 30 Min. quellen lassen, öfter umrühren.","Mit Zimtzucker oder Apfelmus servieren."]],
+  ["🍎","Apfel-Crumble","Dessert",35,["aepfel","mehl","butter","zucker"],["haferflocken","zimt"],["Ofen auf 180 °C vorheizen.","Äpfel in Stücke schneiden, mit Zimt in eine Form geben.","Mehl, Butter, Zucker (und Haferflocken) zu Streuseln verkneten.","Darüber verteilen und 25 Min. backen."]],
+  ["🌭","Würstchen mit Kartoffelsalat","Hauptgericht",35,["wuerstchen","kartoffeln","zwiebeln"],["bruehe","gurke","senf","mayo"],["Kartoffeln kochen, pellen und in Scheiben schneiden.","Zwiebel fein hacken, mit warmer Brühe, Essig, Öl, Salz und Senf verrühren.","Über die warmen Kartoffeln gießen und ziehen lassen.","Würstchen in heißem Wasser erwärmen."]],
+  ["🍲","Linsensuppe","Suppe",40,["linsen","karotten","zwiebeln","bruehe"],["kartoffeln","wuerstchen","lauch","speck"],["Gemüse würfeln und in Öl andünsten.","Linsen und Brühe dazugeben, 25–30 Min. köcheln.","Mit Essig, Salz und Pfeffer abschmecken.","Optional Würstchen darin erwärmen."]],
+];
+
+// Schwierigkeit (1 leicht, 2 mittel, 3 schwer) + Küche für die Grundrezepte
+const META = {
+  "Spaghetti Aglio e Olio":[1,"Italien"],"Pfannkuchen":[1,"Deutschland"],"Rührei":[1,"International"],"Gemüse-Omelett":[1,"Frankreich"],
+  "Nudeln mit Tomatensauce":[1,"Italien"],"Spaghetti Bolognese":[2,"Italien"],"Spaghetti Carbonara":[2,"Italien"],"Bratkartoffeln":[1,"Deutschland"],
+  "Kartoffelpüree":[1,"Deutschland"],"Kartoffelsuppe":[1,"Deutschland"],"Gebratener Reis":[1,"China"],"Hähnchen-Curry":[1,"Thailand"],
+  "Linsen-Dal":[1,"Indien"],"Chili con Carne":[2,"Mexiko"],"Chili sin Carne":[1,"Mexiko"],"Shakshuka":[1,"Nahost"],
+  "Griechischer Salat":[1,"Griechenland"],"Tomate-Mozzarella":[1,"Italien"],"Quesadillas":[1,"Mexiko"],"Toast Hawaii":[1,"Deutschland"],
+  "Pizza-Toast":[1,"Deutschland"],"Arme Ritter":[1,"Deutschland"],"Bruschetta":[1,"Italien"],"Gemüsepfanne mit Reis":[1,"International"],
+  "Pesto-Nudeln":[1,"Italien"],"Nudelauflauf":[1,"Deutschland"],"Brokkoli-Sahne-Nudeln":[1,"International"],"Champignon-Rahmnudeln":[1,"International"],
+  "Ofenkartoffeln mit Kräuterquark":[1,"Deutschland"],"Lachs mit Reis & Brokkoli":[1,"International"],"Thunfisch-Tomaten-Nudeln":[1,"Italien"],
+  "Thunfischsalat":[1,"International"],"Porridge":[1,"Großbritannien"],"Bananen-Pancakes":[1,"USA"],"Kürbissuppe":[1,"Deutschland"],
+  "Tomatensuppe":[1,"International"],"Pilzrisotto":[2,"Italien"],"Kichererbsen-Curry":[1,"Indien"],"Avocado-Toast":[1,"USA"],
+  "Hähnchen mit Ofengemüse":[1,"International"],"Frikadellen":[2,"Deutschland"],"Gurkensalat":[1,"Deutschland"],"Hähnchen-Wraps":[1,"USA"],
+  "Nudelsalat":[1,"Deutschland"],"Milchreis":[1,"Deutschland"],"Apfel-Crumble":[1,"Großbritannien"],"Würstchen mit Kartoffelsalat":[1,"Deutschland"],
+  "Linsensuppe":[1,"Deutschland"],
+};
+
+// Weltküche: [emoji, name, kategorie, minuten, pflicht, optional, schritte, schwierigkeit, küche]
+R.push(
+  // Italien
+  ["🍝","Lasagne","Hauptgericht",90,["nudeln","hack","dosentomaten","milch","butter","mehl","kaese"],["zwiebeln","karotten","parmesan","rotwein"],["Bolognese-Sauce aus Hack, Zwiebeln und Tomaten 30 Min. kochen.","Béchamel: Butter schmelzen, Mehl anschwitzen, Milch einrühren, würzen.","Lasagneplatten, Bolognese und Béchamel abwechselnd schichten.","Mit Käse bestreuen und bei 180 °C 40 Min. backen."],3,"Italien"],
+  ["🍕","Pizza Margherita","Hauptgericht",90,["mehl","hefe","dosentomaten","mozzarella"],["basilikum","knoblauch","parmesan"],["Mehl, Hefe, Wasser, Salz, Öl zu einem glatten Teig kneten, 1 Std. gehen lassen.","Tomaten mit Salz und Knoblauch würzen.","Teig dünn ausrollen, Sauce und Mozzarella verteilen.","Bei maximaler Hitze (250 °C) 8–12 Min. backen, Basilikum drauf."],2,"Italien"],
+  ["🌶️","Penne all'Arrabbiata","Hauptgericht",20,["nudeln","dosentomaten","knoblauch","chili"],["petersilie","parmesan"],["Knoblauch und Chili in Olivenöl anschwitzen.","Tomaten dazu, 10 Min. einkochen, salzen.","Mit den gekochten Penne mischen."],1,"Italien"],
+  ["🥣","Minestrone","Suppe",45,["zwiebeln","karotten","zucchini","dosentomaten","bruehe"],["nudeln","bohnen","kartoffeln","parmesan","lauch"],["Gemüse klein würfeln und in Olivenöl andünsten.","Tomaten und Brühe zugeben, 20 Min. köcheln.","Bohnen und kleine Nudeln zufügen und garen.","Mit Parmesan servieren."],1,"Italien"],
+  ["🥔","Gnocchi selbstgemacht","Hauptgericht",60,["kartoffeln","mehl","eier"],["butter","parmesan","basilikum"],["Mehlige Kartoffeln kochen, pellen und heiß durchpressen.","Mit Mehl, Ei und Salz zu einem Teig verkneten.","Rollen formen, in Stücke schneiden.","In siedendem Salzwasser garen, bis sie oben schwimmen. In Butter schwenken."],2,"Italien"],
+  ["🍆","Melanzane alla Parmigiana","Hauptgericht",75,["aubergine","dosentomaten","mozzarella","parmesan"],["basilikum","knoblauch"],["Auberginen in Scheiben schneiden, salzen, abtupfen und in Öl braten.","Tomatensauce kochen.","Auberginen, Sauce, Mozzarella und Parmesan schichten.","Bei 200 °C 30 Min. backen."],2,"Italien"],
+  ["☕","Tiramisu","Dessert",30,["mascarpone","eier","zucker","loeffelbiskuit","kaffee"],["kakao","sahne"],["Eigelb mit Zucker schaumig schlagen, Mascarpone unterrühren.","Eiweiß steif schlagen und unterheben.","Löffelbiskuits kurz in kaltem Kaffee tränken.","Abwechselnd mit Creme schichten, mind. 4 Std. kühlen, mit Kakao bestäuben."],2,"Italien"],
+  ["🍮","Panna Cotta","Dessert",20,["sahne","zucker","gelatine"],["vanille","beeren"],["Gelatine einweichen.","Sahne mit Zucker und Vanille aufkochen, 5 Min. köcheln.","Gelatine darin auflösen, in Förmchen füllen.","Mind. 4 Std. kühlen, mit Beeren servieren."],2,"Italien"],
+  ["🫓","Focaccia","Beilage",120,["mehl","hefe"],["oliven","tomaten","knoblauch"],["Mehl, Hefe, Wasser, Salz und reichlich Olivenöl zu weichem Teig verrühren.","1–2 Std. gehen lassen.","Aufs Blech drücken, mit Fingern Mulden machen, Öl und Salz drauf.","Bei 220 °C ca. 20 Min. backen."],2,"Italien"],
+  // Frankreich
+  ["🫑","Ratatouille","Vegetarisch",60,["aubergine","zucchini","paprika","tomaten","zwiebeln"],["knoblauch","basilikum"],["Gemüse würfeln.","Zwiebeln und Knoblauch andünsten.","Aubergine, Paprika, Zucchini nacheinander anbraten.","Tomaten zugeben und 30 Min. sanft schmoren."],2,"Frankreich"],
+  ["🥧","Quiche Lorraine","Hauptgericht",75,["mehl","butter","eier","sahne","speck"],["kaese","zwiebeln"],["Mehl, Butter, 1 Ei und Salz zu Mürbeteig kneten, 30 Min. kühlen.","In eine Form drücken, 10 Min. bei 200 °C blind backen.","Speck anbraten, Eier mit Sahne verquirlen, würzen.","Alles in die Form geben und 30 Min. bei 180 °C backen."],2,"Frankreich"],
+  ["🥞","Crêpes","Dessert",30,["mehl","eier","milch"],["zucker","butter","schokolade","beeren","zitrone"],["Mehl, Eier, Milch und Prise Salz zu sehr dünnem Teig rühren, 20 Min. ruhen.","Pfanne mit Butter dünn auspinseln.","Hauchdünn Teig hineinschwenken, kurz von beiden Seiten backen.","Mit Zucker & Zitrone oder Schokolade füllen."],1,"Frankreich"],
+  ["🥪","Croque Monsieur","Snack",20,["toast","schinken","kaese"],["butter","milch","mehl","senf"],["Toast mit Schinken und Käse belegen.","Optional mit Béchamel bestreichen.","In Butter braten oder bei 200 °C überbacken."],1,"Frankreich"],
+  ["🧅","Französische Zwiebelsuppe","Suppe",70,["zwiebeln","bruehe","brot","kaese"],["butter","rotwein"],["Viele Zwiebeln in Ringe schneiden und in Butter 40 Min. langsam karamellisieren.","Mit Wein ablöschen, Brühe zugeben, 15 Min. köcheln.","In ofenfeste Schalen füllen, Brot und Käse drauf.","Unter dem Grill überbacken."],2,"Frankreich"],
+  ["🍷","Coq au Vin","Hauptgericht",120,["haehnchen","rotwein","speck","champignons","zwiebeln"],["karotten","knoblauch","tomatenmark"],["Hähnchenteile kräftig anbraten, herausnehmen.","Speck, Zwiebeln, Pilze anbraten.","Mit Rotwein ablöschen, Hähnchen zurück in den Topf.","1,5 Std. sanft schmoren."],3,"Frankreich"],
+  ["🥩","Boeuf Bourguignon","Hauptgericht",180,["rind","rotwein","karotten","zwiebeln","speck"],["champignons","tomatenmark","knoblauch"],["Rindfleisch würfeln und portionsweise scharf anbraten.","Speck und Gemüse anbraten, Tomatenmark mitrösten.","Mit Rotwein ablöschen, Fleisch zurück.","2,5 Std. im Ofen bei 160 °C schmoren."],3,"Frankreich"],
+  ["🍫","Mousse au Chocolat","Dessert",30,["schokolade","eier","zucker"],["sahne","vanille"],["Schokolade schmelzen und leicht abkühlen lassen.","Eigelb mit Zucker schaumig schlagen, Schokolade einrühren.","Eiweiß steif schlagen und vorsichtig unterheben.","Mind. 4 Std. kühlen."],2,"Frankreich"],
+  ["🍮","Crème brûlée","Dessert",60,["sahne","eier","zucker"],["vanille"],["Sahne mit Vanille erhitzen.","Eigelb mit Zucker verrühren, Sahne langsam einrühren.","In Förmchen im Wasserbad bei 150 °C 40 Min. stocken lassen, kühlen.","Mit Zucker bestreuen und mit dem Brenner karamellisieren."],3,"Frankreich"],
+  // Spanien
+  ["🥘","Paella","Hauptgericht",60,["reis","haehnchen","garnelen","paprika","bruehe"],["erbsen","zwiebeln","knoblauch","zitrone","paprikapulver","tomaten"],["Hähnchen in einer großen Pfanne anbraten.","Zwiebel, Paprika, Knoblauch dazu, Reis kurz mitbraten.","Heiße Brühe (mit Safran/Paprikapulver) aufgießen, nicht mehr rühren.","Nach 15 Min. Garnelen und Erbsen drauflegen, fertig garen, bis unten eine Kruste entsteht."],3,"Spanien"],
+  ["🥔","Tortilla de Patatas","Hauptgericht",45,["kartoffeln","eier","zwiebeln"],[],["Kartoffeln und Zwiebeln in dünne Scheiben schneiden.","In viel Olivenöl langsam weich garen, abtropfen.","Mit verquirlten Eiern mischen, in der Pfanne stocken lassen.","Mit einem Teller wenden und fertig braten."],2,"Spanien"],
+  ["🍅","Gazpacho","Suppe",15,["tomaten","gurke","paprika","knoblauch"],["brot","zwiebeln","essig"],["Gemüse grob schneiden.","Mit Brot, Olivenöl, Essig und Salz fein pürieren.","Mind. 1 Std. kalt stellen und eiskalt servieren."],1,"Spanien"],
+  ["🍟","Patatas Bravas","Snack",40,["kartoffeln","dosentomaten","paprikapulver"],["knoblauch","chili","mayo"],["Kartoffeln würfeln und im Ofen oder in Öl knusprig garen.","Tomaten mit Paprikapulver, Chili und Knoblauch zu scharfer Sauce kochen.","Sauce über die Kartoffeln geben, optional mit Knoblauch-Mayo."],2,"Spanien"],
+  ["🦐","Gambas al Ajillo","Snack",15,["garnelen","knoblauch"],["chili","petersilie","brot"],["Reichlich Olivenöl mit Knoblauch und Chili erhitzen.","Garnelen 2–3 Min. darin garen.","Mit Petersilie und Brot zum Tunken servieren."],1,"Spanien"],
+  // Griechenland / Türkei / Nahost
+  ["🍆","Moussaka","Hauptgericht",120,["aubergine","hack","dosentomaten","milch","mehl","butter"],["kartoffeln","zwiebeln","zimt","kaese"],["Auberginen in Scheiben braten.","Hack mit Zwiebeln, Tomaten und Zimt schmoren.","Béchamel aus Butter, Mehl, Milch kochen.","Schichten und bei 180 °C 45 Min. backen."],3,"Griechenland"],
+  ["🥒","Tzatziki","Snack",10,["joghurt","gurke","knoblauch"],[],["Gurke raspeln und gut ausdrücken.","Mit Joghurt, gepresstem Knoblauch, Salz und Olivenöl verrühren.","Kurz durchziehen lassen."],1,"Griechenland"],
+  ["🍢","Gyros-Pfanne","Hauptgericht",30,["schwein","zwiebeln"],["paprikapulver","knoblauch","joghurt","gurke","tomaten","reis"],["Fleisch in dünne Streifen schneiden, mit Paprikapulver, Oregano, Knoblauch würzen.","Mit Zwiebeln scharf anbraten.","Mit Tzatziki, Tomaten und Reis oder Pita servieren."],1,"Griechenland"],
+  ["🫘","Hummus","Snack",10,["kichererbsen","tahini","zitrone","knoblauch"],["paprikapulver","petersilie"],["Kichererbsen abgießen, etwas Wasser auffangen.","Mit Tahini, Zitrone, Knoblauch, Salz und Olivenöl fein pürieren.","Mit Olivenöl und Paprikapulver servieren."],1,"Nahost"],
+  ["🧆","Falafel","Hauptgericht",45,["kichererbsen","zwiebeln","knoblauch","petersilie"],["koriander","mehl","tahini","salat","tomaten"],["Kichererbsen (eingeweicht, nicht gekocht) mit Zwiebel, Knoblauch und Kräutern fein hacken.","Würzen, eventuell etwas Mehl zugeben.","Bällchen formen und in heißem Öl goldbraun frittieren.","Mit Tahini-Sauce und Salat servieren."],2,"Nahost"],
+  ["🍳","Menemen","Frühstück",15,["eier","tomaten","paprika"],["zwiebeln","feta","chili","brot"],["Paprika und Zwiebel in Butter/Öl weich dünsten.","Tomaten zugeben und einkochen.","Eier hineingeben und locker verrühren, bis sie gestockt sind.","Mit Brot servieren."],1,"Türkei"],
+  ["🥣","Mercimek (Rote-Linsen-Suppe)","Suppe",30,["linsen","zwiebeln","karotten","bruehe"],["tomatenmark","zitrone","paprikapulver","kartoffeln"],["Zwiebeln und Karotten andünsten, Tomatenmark mitrösten.","Linsen und Brühe zugeben, 20 Min. köcheln.","Pürieren, mit Zitrone und Paprikabutter servieren."],1,"Türkei"],
+  ["🥗","Tabouleh","Salat",20,["bulgur","petersilie","tomaten","zitrone"],["gurke","fruehlingszwiebeln"],["Bulgur mit heißem Wasser übergießen und quellen lassen.","Viel Petersilie fein hacken, Tomaten würfeln.","Alles mit Zitrone, Olivenöl und Salz mischen."],1,"Nahost"],
+  ["🍢","Köfte","Hauptgericht",30,["hack","zwiebeln","petersilie"],["brot","eier","paprikapulver","knoblauch","joghurt"],["Hack mit geriebener Zwiebel, Petersilie und Gewürzen kräftig kneten.","Längliche Röllchen formen.","In der Pfanne oder auf dem Grill braten."],2,"Türkei"],
+  ["🥟","Börek mit Spinat & Feta","Hauptgericht",50,["blaetterteig","feta","spinat","eier"],["zwiebeln","joghurt"],["Spinat mit Zwiebel andünsten, mit Feta mischen.","Teigblätter mit Ei-Joghurt-Mischung bestreichen, Füllung drauf.","Aufrollen, zur Schnecke legen.","Bei 200 °C 30 Min. goldbraun backen."],2,"Türkei"],
+  // Deutschland / Österreich
+  ["🥩","Wiener Schnitzel","Hauptgericht",30,["schwein","eier","mehl","paniermehl"],["zitrone","kartoffeln"],["Fleisch dünn klopfen, salzen.","In Mehl, verquirltem Ei und Paniermehl wenden.","In reichlich heißem Fett schwimmend goldbraun braten.","Mit Zitrone servieren."],2,"Österreich"],
+  ["🧀","Käsespätzle","Hauptgericht",45,["mehl","eier","kaese","zwiebeln"],["butter"],["Mehl, Eier, Salz und etwas Wasser zu zähem Teig schlagen.","Durch Spätzlehobel in kochendes Salzwasser geben.","Abwechselnd mit Käse in eine Form schichten.","Mit gerösteten Zwiebeln servieren."],2,"Deutschland"],
+  ["🥩","Rinderrouladen","Hauptgericht",150,["rind","speck","senf","zwiebeln","gurke"],["rotwein","karotten","tomatenmark"],["Fleisch mit Senf bestreichen, mit Speck, Zwiebel und Gurke belegen.","Aufrollen und feststecken.","Rundherum anbraten, mit Wein und Wasser ablöschen.","2 Std. schmoren, Sauce abbinden."],3,"Deutschland"],
+  ["🍲","Gulasch","Hauptgericht",120,["rind","zwiebeln","paprikapulver"],["tomatenmark","paprika","knoblauch","rotwein","kartoffeln"],["Gleich viel Zwiebeln wie Fleisch – Zwiebeln goldbraun braten.","Fleisch zugeben und anbraten.","Paprikapulver und Tomatenmark kurz mitrösten, ablöschen.","1,5–2 Std. schmoren."],2,"Ungarn"],
+  ["🥞","Kaiserschmarrn","Dessert",30,["mehl","eier","milch","zucker"],["butter","aepfel"],["Eigelb, Mehl, Milch verrühren, Eiweiß mit Zucker steif schlagen und unterheben.","In Butter backen, wenden.","Mit zwei Gabeln zerreißen und mit Zucker karamellisieren.","Mit Puderzucker und Apfelmus servieren."],2,"Österreich"],
+  ["🥔","Kartoffelpuffer","Hauptgericht",40,["kartoffeln","eier","mehl"],["zwiebeln","aepfel"],["Kartoffeln und Zwiebel reiben, gut ausdrücken.","Mit Ei, Mehl und Salz mischen.","Flache Puffer in reichlich Öl knusprig braten.","Mit Apfelmus servieren."],2,"Deutschland"],
+  ["🌭","Currywurst","Snack",20,["wuerstchen","tomatenmark","currypaste"],["zwiebeln","honig","kartoffeln"],["Würstchen braten.","Tomatenmark mit Wasser, Curry, etwas Zucker/Honig zur Sauce kochen.","Würstchen in Stücke schneiden, Sauce drüber, mit Curry bestäuben."],1,"Deutschland"],
+  ["🫛","Erbsensuppe","Suppe",45,["erbsen","kartoffeln","karotten","bruehe"],["wuerstchen","speck","zwiebeln","lauch"],["Gemüse würfeln und andünsten.","Erbsen und Brühe zugeben, 30 Min. köcheln.","Teilweise pürieren, Würstchen darin erwärmen."],1,"Deutschland"],
+  ["🍕","Flammkuchen","Hauptgericht",30,["mehl","sahne","speck","zwiebeln"],["kaese"],["Mehl, Wasser, Öl und Salz zu dünnem Teig kneten.","Sehr dünn ausrollen, mit Schmand/Sahne bestreichen.","Speck und Zwiebelringe verteilen.","Bei maximaler Hitze 10 Min. backen."],1,"Frankreich"],
+  ["🧆","Königsberger Klopse","Hauptgericht",60,["hack","eier","zwiebeln","bruehe","sahne","kapern"],["brot","zitrone","mehl","kartoffeln"],["Hack mit Ei, eingeweichtem Brot und Zwiebel zu Klößen formen.","In Brühe 15 Min. gar ziehen lassen.","Sauce aus Mehlschwitze, Brühe, Sahne und Kapern kochen.","Klopse in der Sauce servieren."],3,"Deutschland"],
+  ["🍖","Schweinebraten","Hauptgericht",150,["schwein","zwiebeln","karotten"],["bruehe","senf","knoblauch","kartoffeln"],["Fleisch salzen, mit Senf und Knoblauch einreiben.","Mit Gemüse in einen Bräter legen, etwas Wasser angießen.","Bei 180 °C 2 Std. braten, öfter begießen.","Aus dem Bratensaft eine Sauce kochen."],3,"Deutschland"],
+  ["🧇","Waffeln","Dessert",25,["mehl","eier","milch","butter","zucker"],["backpulver","vanille","beeren"],["Butter mit Zucker schaumig rühren, Eier zugeben.","Mehl, Backpulver und Milch unterrühren.","Im heißen Waffeleisen goldbraun backen."],1,"Belgien"],
+  // Großbritannien / Irland
+  ["🐟","Fish & Chips","Hauptgericht",50,["fisch","kartoffeln","mehl"],["zitrone","erbsen","backpulver","essig"],["Kartoffeln in Stäbchen schneiden und zweimal frittieren.","Mehl mit kaltem Wasser (oder Bier) und Backpulver zu Teig rühren.","Fisch durch den Teig ziehen und goldbraun frittieren.","Mit Salz, Essig und Erbsen servieren."],3,"Großbritannien"],
+  ["🥧","Shepherd's Pie","Hauptgericht",75,["hack","kartoffeln","karotten","zwiebeln"],["erbsen","tomatenmark","butter","milch","lamm"],["Kartoffelpüree zubereiten.","Hack mit Zwiebeln, Karotten und Erbsen schmoren.","In eine Form geben, Püree darauf verteilen.","Bei 200 °C 25 Min. goldbraun backen."],2,"Großbritannien"],
+  ["🍳","Full English Breakfast","Frühstück",30,["eier","speck","wuerstchen","bohnen","toast"],["champignons","tomaten"],["Würstchen und Speck braten.","Pilze und Tomatenhälften in der Pfanne mitbraten.","Bohnen in Tomatensauce erwärmen.","Spiegeleier braten und mit Toast servieren."],1,"Großbritannien"],
+  ["🫓","Scones","Dessert",30,["mehl","butter","milch","backpulver"],["zucker","beeren","sahne"],["Mehl, Backpulver, Zucker und kalte Butter zu Krümeln reiben.","Milch zugeben und kurz zu Teig verkneten.","2–3 cm dick ausstechen.","Bei 220 °C 12 Min. backen, mit Marmelade und Sahne servieren."],2,"Großbritannien"],
+  ["🍲","Irish Stew","Hauptgericht",120,["lamm","kartoffeln","karotten","zwiebeln"],["bruehe","petersilie","kohl"],["Lammfleisch würfeln und anbraten.","Gemüse in Stücke schneiden.","Alles mit Brühe bedecken und 1,5 Std. leise köcheln.","Mit Petersilie servieren."],2,"Irland"],
+  // USA / Mexiko / Südamerika
+  ["🍔","Burger","Hauptgericht",30,["hack","brot","kaese"],["salat","tomaten","zwiebeln","gurke","speck","senf","mayo"],["Hack salzen, pfeffern und zu flachen Patties formen.","In der Pfanne oder auf dem Grill 3 Min. pro Seite braten, Käse drauf schmelzen.","Brötchen anrösten.","Mit Salat, Tomate, Zwiebel und Sauce belegen."],1,"USA"],
+  ["🧀","Mac & Cheese","Hauptgericht",30,["nudeln","kaese","milch","butter","mehl"],["paniermehl","senf"],["Makkaroni kochen.","Butter schmelzen, Mehl anschwitzen, Milch einrühren.","Viel Käse in der Sauce schmelzen.","Mit Nudeln mischen, optional mit Paniermehl überbacken."],1,"USA"],
+  ["🥞","American Pancakes","Frühstück",20,["mehl","eier","milch","backpulver"],["zucker","butter","honig","beeren","bananen"],["Mehl, Backpulver, Zucker, Salz mischen.","Milch, Ei und geschmolzene Butter unterrühren – kurz, Klümpchen sind ok.","Kleine dicke Pancakes in der Pfanne backen.","Mit Sirup und Beeren servieren."],1,"USA"],
+  ["🍫","Brownies","Dessert",45,["schokolade","butter","zucker","eier","mehl"],["kakao","vanille"],["Schokolade mit Butter schmelzen.","Zucker und Eier unterrühren, dann Mehl.","In eine Form geben.","Bei 180 °C 20–25 Min. backen – innen soll es noch saftig sein."],2,"USA"],
+  ["🍪","Chocolate Chip Cookies","Dessert",30,["mehl","butter","zucker","eier","schokolade"],["backpulver","vanille"],["Butter und Zucker cremig rühren, Ei zugeben.","Mehl, Backpulver und gehackte Schokolade unterrühren.","Teigkugeln mit Abstand aufs Blech setzen.","Bei 180 °C 10–12 Min. backen."],1,"USA"],
+  ["🍗","Chicken Wings","Snack",50,["haehnchen","honig","sojasauce"],["knoblauch","chili","paprikapulver","butter"],["Flügel würzen und bei 220 °C 35 Min. knusprig backen.","Honig, Sojasauce, Knoblauch und Chili aufkochen.","Wings in der Sauce schwenken."],2,"USA"],
+  ["🐖","Pulled Pork","Hauptgericht",360,["schwein","paprikapulver","zucker"],["brot","kohl","essig","knoblauch","senf"],["Fleisch mit Paprikapulver, Zucker, Salz und Gewürzen einreiben.","Bei 120 °C 5–6 Std. im Ofen garen.","Mit zwei Gabeln zerzupfen, mit BBQ-Sauce mischen.","In Brötchen mit Krautsalat servieren."],3,"USA"],
+  ["🥗","Caesar Salad","Salat",20,["salat","parmesan","brot"],["haehnchen","eier","zitrone","knoblauch","senf"],["Brot würfeln und in Öl zu Croutons rösten.","Dressing aus Eigelb, Zitrone, Senf, Knoblauch, Parmesan und Öl rühren.","Salat mit Dressing, Croutons und Parmesan mischen.","Optional mit gebratenem Hähnchen."],1,"USA"],
+  ["🌮","Tacos","Hauptgericht",25,["tortillas","hack"],["salat","tomaten","kaese","zwiebeln","avocado","paprikapulver","koriander"],["Hack mit Zwiebeln und Gewürzen (Paprika, Kreuzkümmel) braten.","Tortillas erwärmen.","Mit Hack, Salat, Tomaten, Käse und Avocado füllen."],1,"Mexiko"],
+  ["🥑","Guacamole","Snack",10,["avocado","zitrone"],["tomaten","zwiebeln","koriander","chili","knoblauch"],["Avocados zerdrücken.","Mit Limette/Zitrone, Salz, Zwiebel, Tomate und Koriander mischen.","Mit Tortilla-Chips servieren."],1,"Mexiko"],
+  ["🌯","Burrito","Hauptgericht",35,["tortillas","reis","bohnen"],["hack","haehnchen","kaese","mais","avocado","tomaten","salat"],["Reis kochen, Bohnen und Fleisch würzen und erhitzen.","Große Tortilla erwärmen.","Füllung in die Mitte, Seiten einschlagen und fest aufrollen.","Optional kurz in der Pfanne anrösten."],2,"Mexiko"],
+  ["🫔","Enchiladas","Hauptgericht",50,["tortillas","haehnchen","dosentomaten","kaese"],["bohnen","zwiebeln","chili","sahne","mais"],["Tomatensauce mit Chili kochen.","Hähnchen braten und zerzupfen.","Tortillas füllen, aufrollen und in eine Form legen.","Mit Sauce und Käse bedecken, bei 200 °C 20 Min. backen."],2,"Mexiko"],
+  ["🍳","Huevos Rancheros","Frühstück",20,["eier","tortillas","dosentomaten"],["bohnen","chili","avocado","zwiebeln","kaese"],["Schnelle scharfe Tomatensauce kochen.","Tortillas kurz anbraten.","Spiegeleier braten.","Tortilla mit Bohnen, Ei und Sauce belegen."],1,"Mexiko"],
+  ["🥟","Empanadas","Snack",90,["mehl","butter","hack","zwiebeln"],["eier","oliven","paprikapulver","paprika"],["Mehl, Butter, Wasser, Salz zu Teig kneten und kühlen.","Hack mit Zwiebeln und Gewürzen braten.","Teig ausstechen, füllen, zuklappen und Rand eindrehen.","Mit Ei bestreichen, bei 200 °C 20 Min. backen."],3,"Argentinien"],
+  ["🐟","Ceviche","Salat",30,["fisch","zitrone","zwiebeln"],["chili","koriander","avocado","mais","suesskartoffel"],["Sehr frischen Fisch in Würfel schneiden.","Mit viel Limettensaft, Salz und Chili mischen.","15–20 Min. ziehen lassen, bis der Fisch weiß wird.","Mit roten Zwiebeln und Koriander servieren."],2,"Peru"],
+  ["🫓","Arepas","Hauptgericht",30,["maismehl"],["kaese","bohnen","avocado","haehnchen"],["Maismehl mit warmem Wasser und Salz zu Teig kneten.","Flache Fladen formen.","In der Pfanne von beiden Seiten braten.","Aufschneiden und füllen."],2,"Venezuela"],
+  // Indien
+  ["🍛","Butter Chicken","Hauptgericht",50,["haehnchen","joghurt","dosentomaten","sahne","butter"],["ingwer","knoblauch","currypaste","reis","zwiebeln"],["Hähnchen in Joghurt und Gewürzen marinieren.","Hähnchen anbraten.","Tomaten, Ingwer, Knoblauch und Gewürze in Butter einkochen, pürieren.","Sahne und Hähnchen zugeben, 10 Min. köcheln. Mit Reis oder Naan."],2,"Indien"],
+  ["🫘","Chana Masala","Vegetarisch",30,["kichererbsen","dosentomaten","zwiebeln"],["ingwer","knoblauch","currypaste","koriander","reis"],["Zwiebeln dunkelgolden braten, Ingwer und Knoblauch dazu.","Gewürze kurz rösten, Tomaten zugeben.","Kichererbsen 15 Min. darin köcheln.","Mit Koriander und Reis servieren."],1,"Indien"],
+  ["🥬","Palak Paneer","Vegetarisch",35,["spinat","paneer","zwiebeln"],["sahne","ingwer","knoblauch","currypaste","reis"],["Spinat blanchieren und pürieren.","Zwiebeln, Ingwer, Knoblauch und Gewürze andünsten.","Spinat und Sahne zugeben.","Gebratene Paneer-Würfel unterheben."],2,"Indien"],
+  ["🫓","Naan","Beilage",90,["mehl","joghurt","hefe"],["butter","knoblauch"],["Mehl, Hefe, Joghurt, Salz und Wasser zu weichem Teig kneten, 1 Std. gehen lassen.","Fladen formen.","In einer sehr heißen Pfanne backen, bis sie Blasen werfen.","Mit Knoblauchbutter bestreichen."],2,"Indien"],
+  ["🍚","Chicken Biryani","Hauptgericht",90,["reis","haehnchen","joghurt","zwiebeln","currypaste"],["ingwer","knoblauch","koriander","tomaten"],["Hähnchen in Joghurt und Gewürzen marinieren.","Zwiebeln knusprig braten.","Reis halb gar kochen.","Hähnchen, Reis und Zwiebeln schichten, abgedeckt 30 Min. sanft garen."],3,"Indien"],
+  ["🥔","Aloo Gobi","Vegetarisch",35,["kartoffeln","blumenkohl","currypaste"],["zwiebeln","tomaten","ingwer","koriander"],["Kartoffeln und Blumenkohl in Stücke schneiden.","Zwiebel und Gewürze anrösten.","Gemüse zugeben, mit etwas Wasser abgedeckt garen.","Mit Koriander servieren."],1,"Indien"],
+  ["🥭","Mango Lassi","Getränk",5,["mango","joghurt"],["milch","honig"],["Mango, Joghurt und etwas Milch fein pürieren.","Mit Honig süßen, eiskalt servieren."],1,"Indien"],
+  // Thailand / Vietnam
+  ["🍜","Pad Thai","Hauptgericht",30,["asianudeln","eier","erdnuesse"],["garnelen","tofu","fischsauce","sojasauce","zitrone","fruehlingszwiebeln","zucker"],["Reisnudeln einweichen.","Garnelen/Tofu im Wok anbraten, Ei verrühren.","Nudeln und Sauce (Fischsauce, Zucker, Limette) zugeben.","Mit Erdnüssen und Frühlingszwiebeln servieren."],2,"Thailand"],
+  ["🍛","Grünes Thai-Curry","Hauptgericht",30,["haehnchen","kokosmilch","currypaste"],["paprika","zucchini","basilikum","fischsauce","reis","aubergine"],["Currypaste in etwas Kokosmilch anrösten.","Hähnchen zugeben und anbraten.","Restliche Kokosmilch und Gemüse dazu, 10 Min. köcheln.","Mit Fischsauce und Basilikum abschmecken."],2,"Thailand"],
+  ["🍲","Tom Kha Gai","Suppe",30,["haehnchen","kokosmilch","ingwer"],["champignons","zitrone","fischsauce","chili","koriander"],["Kokosmilch mit Brühe, Ingwer und Zitronengras erhitzen.","Hähnchen und Pilze darin garen.","Mit Limette, Fischsauce und Chili abschmecken."],2,"Thailand"],
+  ["🥭","Mango Sticky Rice","Dessert",50,["reis","kokosmilch","mango","zucker"],[],["Klebreis einweichen und dämpfen.","Kokosmilch mit Zucker und Salz erwärmen, über den Reis gießen.","Ziehen lassen und mit Mango servieren."],2,"Thailand"],
+  ["🌿","Pad Kra Pao","Hauptgericht",20,["hack","knoblauch","chili","basilikum"],["sojasauce","fischsauce","reis","eier"],["Knoblauch und Chili im Wok anbraten.","Hack zugeben und krümelig braten.","Mit Soja- und Fischsauce würzen, Basilikum unterheben.","Mit Reis und Spiegelei servieren."],1,"Thailand"],
+  ["🍜","Pho","Suppe",180,["asianudeln","rind","bruehe","ingwer","zwiebeln"],["koriander","zitrone","chili","fischsauce","fruehlingszwiebeln"],["Zwiebel und Ingwer anrösten, mit Brühe und Gewürzen (Sternanis, Zimt) 2 Std. köcheln.","Reisnudeln garen.","Rindfleisch hauchdünn schneiden und roh in die Schale legen.","Mit kochender Brühe übergießen, mit Kräutern servieren."],3,"Vietnam"],
+  ["🥬","Sommerrollen","Snack",40,["reispapier","asianudeln","salat"],["garnelen","gurke","karotten","koriander","erdnuesse"],["Glasnudeln garen, Gemüse in Streifen schneiden.","Reispapier kurz in Wasser tauchen.","Füllung auflegen und fest aufrollen.","Mit Erdnuss-Dip servieren."],2,"Vietnam"],
+  // China
+  ["🍜","Gebratene Nudeln","Hauptgericht",20,["asianudeln","sojasauce"],["eier","karotten","paprika","haehnchen","fruehlingszwiebeln","kohl"],["Nudeln kochen und abgießen.","Gemüse und Fleisch im Wok scharf anbraten.","Nudeln und Sojasauce zugeben und durchschwenken."],1,"China"],
+  ["🍍","Hähnchen süß-sauer","Hauptgericht",35,["haehnchen","ananas","paprika","essig","zucker"],["tomatenmark","zwiebeln","sojasauce","reis","mehl"],["Hähnchen in Stärke/Mehl wenden und knusprig braten.","Paprika, Zwiebel und Ananas anbraten.","Sauce aus Essig, Zucker, Tomatenmark und Sojasauce zugeben.","Hähnchen unterheben, mit Reis servieren."],2,"China"],
+  ["🥜","Kung Pao Chicken","Hauptgericht",30,["haehnchen","erdnuesse","chili","sojasauce"],["fruehlingszwiebeln","knoblauch","ingwer","essig","reis"],["Hähnchen würfeln und marinieren.","Getrocknete Chilis im Wok anrösten, Hähnchen anbraten.","Knoblauch, Ingwer und Sauce zugeben.","Erdnüsse und Frühlingszwiebeln unterheben."],2,"China"],
+  ["🌶️","Mapo Tofu","Hauptgericht",25,["tofu","hack","chili","sojasauce"],["knoblauch","ingwer","fruehlingszwiebeln","reis"],["Hack knusprig braten.","Chili(-paste), Knoblauch und Ingwer mitbraten.","Mit Wasser ablöschen, Tofuwürfel vorsichtig zugeben.","Kurz köcheln, mit Frühlingszwiebeln servieren."],2,"China"],
+  ["🥟","Jiaozi (Teigtaschen)","Hauptgericht",90,["mehl","hack","kohl"],["ingwer","sojasauce","fruehlingszwiebeln","knoblauch","essig"],["Mehl und Wasser zu glattem Teig kneten, ruhen lassen.","Hack mit fein gehacktem Kohl, Ingwer und Sojasauce mischen.","Teig dünn ausrollen, Kreise füllen und falten.","Kochen oder braten, mit Soja-Essig-Dip servieren."],3,"China"],
+  ["🥢","Frühlingsrollen","Snack",60,["blaetterteig","kohl","karotten"],["asianudeln","hack","sojasauce","ingwer"],["Gemüse in feine Streifen schneiden und kurz anbraten, würzen.","Füllung auf Teigblätter geben und fest aufrollen.","In heißem Öl goldbraun frittieren."],3,"China"],
+  // Japan / Korea
+  ["🍣","Sushi (Maki)","Hauptgericht",90,["reis","nori","essig"],["lachs","gurke","avocado","sojasauce","zucker"],["Sushireis kochen, mit Essig, Zucker und Salz würzen, abkühlen.","Nori auf eine Bambusmatte legen, dünn mit Reis bestreichen.","Füllung in einer Linie auflegen und fest aufrollen.","Mit nassem Messer schneiden."],3,"Japan"],
+  ["🍜","Ramen","Suppe",120,["asianudeln","bruehe","eier","sojasauce"],["schwein","fruehlingszwiebeln","nori","miso","ingwer","knoblauch","champignons"],["Eier 6,5 Min. kochen und in Sojasauce marinieren.","Kräftige Brühe mit Ingwer, Knoblauch und Sojasauce/Miso würzen.","Nudeln separat kochen.","Alles in Schalen anrichten, mit Toppings belegen."],3,"Japan"],
+  ["🍗","Teriyaki-Hähnchen","Hauptgericht",25,["haehnchen","sojasauce","honig"],["ingwer","knoblauch","reis","fruehlingszwiebeln"],["Hähnchen in Stücken goldbraun braten.","Sojasauce, Honig, Ingwer und etwas Wasser zugeben.","Einkochen, bis die Sauce glänzt und klebt.","Mit Reis servieren."],1,"Japan"],
+  ["🥣","Miso-Suppe","Suppe",15,["miso","tofu"],["fruehlingszwiebeln","nori","champignons"],["Wasser oder Dashi erhitzen (nicht kochen).","Miso in etwas Brühe glatt rühren und einrühren.","Tofuwürfel und Algen zugeben, mit Frühlingszwiebeln servieren."],1,"Japan"],
+  ["🥞","Okonomiyaki","Hauptgericht",30,["mehl","eier","kohl"],["speck","fruehlingszwiebeln","mayo","garnelen"],["Mehl, Eier und Wasser verrühren, viel fein geschnittenen Kohl unterheben.","Dicke Pfannkuchen in der Pfanne braten, Speck obendrauf.","Wenden und fertig braten.","Mit Sauce und Mayo servieren."],2,"Japan"],
+  ["🍙","Onigiri","Snack",40,["reis","nori"],["lachs","thunfisch","mayo","sojasauce"],["Klebreis kochen, leicht salzen.","Mit nassen Händen eine Portion Reis nehmen, Füllung in die Mitte.","Zu einem Dreieck formen und mit Nori umwickeln."],2,"Japan"],
+  ["🍚","Bibimbap","Hauptgericht",45,["reis","eier","spinat","karotten"],["hack","rind","sojasauce","chili","champignons","gurke"],["Reis kochen.","Gemüse einzeln kurz anbraten und würzen.","Fleisch mit Sojasauce braten.","Alles auf dem Reis anrichten, Spiegelei und Chilipaste drauf, vermischen."],2,"Korea"],
+  ["🥩","Bulgogi","Hauptgericht",40,["rind","sojasauce","zucker","knoblauch"],["zwiebeln","fruehlingszwiebeln","reis","ingwer","aepfel"],["Rindfleisch hauchdünn schneiden.","In Sojasauce, Zucker, Knoblauch (und geriebenem Apfel) 30 Min. marinieren.","Sehr heiß portionsweise braten.","Mit Reis servieren."],2,"Korea"],
+  ["🍜","Japchae","Hauptgericht",35,["asianudeln","spinat","karotten","sojasauce"],["rind","champignons","zwiebeln","zucker","eier"],["Glasnudeln kochen und abschrecken.","Gemüse und Fleisch einzeln anbraten.","Alles mit Sojasauce, Zucker und Sesamöl mischen."],2,"Korea"],
+  ["🐟","Poke Bowl","Hauptgericht",25,["reis","lachs","sojasauce"],["avocado","gurke","mango","karotten","fruehlingszwiebeln","nori"],["Reis kochen und leicht abkühlen lassen.","Lachs (Sushiqualität) würfeln und in Sojasauce marinieren.","Alles in einer Schüssel anrichten."],1,"Hawaii"],
+  // Afrika
+  ["🥘","Gemüse-Couscous","Vegetarisch",25,["couscous","zucchini","karotten"],["kichererbsen","paprika","zwiebeln","zimt","bruehe"],["Couscous mit heißer Brühe übergießen und quellen lassen.","Gemüse anbraten und würzen.","Kichererbsen zugeben und alles mischen."],1,"Marokko"],
+  ["🍲","Hähnchen-Tajine","Hauptgericht",90,["haehnchen","zwiebeln","zitrone","oliven"],["ingwer","knoblauch","koriander","couscous","zimt"],["Hähnchen mit Gewürzen anbraten.","Zwiebeln dazugeben.","Mit Wasser angießen, Zitrone und Oliven zugeben.","Zugedeckt 1 Std. schmoren, mit Couscous servieren."],3,"Marokko"],
+  ["🍚","Jollof-Reis","Hauptgericht",60,["reis","dosentomaten","paprika","zwiebeln"],["tomatenmark","chili","haehnchen","bruehe"],["Tomaten, Paprika, Zwiebel und Chili pürieren.","Mit Tomatenmark in Öl einkochen.","Reis und Brühe zugeben, abgedeckt garen, bis alles aufgesogen ist."],2,"Nigeria"],
+  ["🥜","Maafe (Erdnuss-Eintopf)","Hauptgericht",60,["haehnchen","erdnuesse","dosentomaten","zwiebeln"],["suesskartoffel","karotten","chili","ingwer","reis"],["Hähnchen anbraten, Zwiebeln dazu.","Tomaten, Erdnussbutter und Wasser einrühren.","Süßkartoffeln zugeben und 40 Min. schmoren.","Mit Reis servieren."],2,"Senegal"],
+  // Osteuropa / Skandinavien
+  ["🥣","Borschtsch","Suppe",75,["rotebete","kohl","kartoffeln","zwiebeln","bruehe"],["karotten","tomatenmark","sahne","essig"],["Rote Bete, Karotte, Zwiebel raspeln und andünsten.","Brühe, Kartoffeln und Kohl zugeben, 40 Min. köcheln.","Mit Essig abschmecken.","Mit Schmand servieren."],2,"Ukraine"],
+  ["🥟","Pierogi","Hauptgericht",90,["mehl","eier","kartoffeln","quark"],["zwiebeln","speck","butter","sahne"],["Mehl, Ei, Wasser zu Teig kneten.","Kartoffeln kochen, mit Quark und Röstzwiebeln mischen.","Teig ausstechen, füllen, verschließen.","Kochen und in Butter mit Zwiebeln schwenken."],3,"Polen"],
+  ["🍄","Bœuf Stroganoff","Hauptgericht",35,["rind","champignons","sahne","zwiebeln"],["senf","gurke","paprikapulver","reis","nudeln"],["Rindfleisch in Streifen scharf anbraten, herausnehmen.","Zwiebeln und Pilze anbraten.","Sahne und Senf einrühren, kurz köcheln.","Fleisch wieder zugeben, nicht mehr kochen."],2,"Russland"],
+  ["🧆","Köttbullar","Hauptgericht",45,["hack","zwiebeln","eier","sahne"],["paniermehl","brot","bruehe","kartoffeln","beeren"],["Hack mit Ei, Paniermehl, Zwiebel mischen, kleine Bällchen formen.","Rundherum braten.","Bratensatz mit Brühe und Sahne zu Sauce kochen.","Mit Kartoffeln und Preiselbeeren servieren."],2,"Schweden"],
+  ["🌀","Zimtschnecken","Dessert",150,["mehl","hefe","milch","butter","zucker","zimt"],["eier"],["Hefeteig aus Mehl, Hefe, Milch, Butter und Zucker kneten, 1 Std. gehen lassen.","Ausrollen, mit Zimtbutter bestreichen und aufrollen.","In Scheiben schneiden, noch 30 Min. gehen lassen.","Bei 200 °C 12–15 Min. backen."],3,"Schweden"],
+  // Sonstiges
+  ["🍰","Pavlova","Dessert",150,["eier","zucker","sahne","beeren"],["mango","zitrone"],["Eiweiß steif schlagen, Zucker langsam einrieseln lassen.","Zu einem Kreis aufs Blech streichen.","Bei 120 °C 1,5 Std. trocknen, im Ofen abkühlen.","Mit Schlagsahne und Früchten belegen."],3,"Australien"],
+  ["🍌","Bananenbrot","Dessert",70,["bananen","mehl","eier","zucker","butter"],["backpulver","zimt","schokolade"],["Reife Bananen zerdrücken.","Mit Butter, Zucker, Eiern verrühren.","Mehl und Backpulver unterheben, in eine Kastenform füllen.","Bei 175 °C ca. 55 Min. backen."],1,"USA"],
+  ["🍎","Apfelstrudel","Dessert",60,["blaetterteig","aepfel","zucker","zimt"],["butter","paniermehl","vanille"],["Äpfel schälen, in dünne Scheiben schneiden, mit Zucker und Zimt mischen.","Teig ausrollen, mit Butter bestreichen und Paniermehl bestreuen.","Äpfel verteilen und aufrollen.","Bei 190 °C 35 Min. backen, mit Vanillesauce servieren."],2,"Österreich"],
+);
+
+const CATS = ["Alle", "Hauptgericht", "Vegetarisch", "Frühstück", "Suppe", "Salat", "Snack", "Beilage", "Dessert", "Getränk"];
+const OWN_LAND = "Eigene Küche";
+
+// ---------- Sprachen ----------
+// Deutsch ist die Grundsprache. Andere Sprachen liegen in lang/*.js; fehlt dort etwas, wird Deutsch angezeigt.
+LANGS.de = {
+  name: "Deutsch", flag: "🇩🇪", locale: "de",
+  ui: {
+    title: "Was koche ich heute?",
+    tagline: "Sag mir, was du zuhause hast – ich sag dir, was du daraus kochen kannst.",
+    stats: "{n} Rezepte aus {k} Küchen.",
+    settings: "Einstellungen", random: "Zufallsrezept", ownRecipe: "Eigenes Rezept",
+    pantry: "Mein Vorrat", placeholder: "z. B. Eier, Nudeln, Tomaten", add: "Hinzu",
+    hint: "Mehrere mit Komma trennen. Oder unten antippen.", empty: "Noch nichts eingetragen.", clear: "Alles leeren",
+    basics: "Salz, Pfeffer, Öl und Wasser setze ich als vorhanden voraus.",
+    jump: "Rezepte ansehen", jumpCount: "{a} kochbar · {b} fast – ansehen",
+    unknown: "Kenne ich nicht – zählt nur für eigene Rezepte", remove: "entfernen",
+    groups: ["Gemüse", "Obst", "Kühlschrank", "Fleisch & Fisch", "Vorrat", "Kräuter & Würze"],
+    anyTime: "Jede Dauer", upTo: "bis {t}", anyDiff: "Jede Schwierigkeit", difficulty: "Schwierigkeit",
+    diff: ["", "Leicht", "Mittel", "Schwer"], allCuisines: "Alle Küchen", showAll: "alle Rezepte zeigen",
+    min: "Min.", hours: "Std.",
+    startTitle: "Trag ein, was du zuhause hast.", startText: "Dann zeige ich dir sofort passende Rezepte.",
+    noneTitle: "Mit diesen Zutaten finde ich noch nichts Passendes.", noneText: "Füg ein paar Basics wie Nudeln, Eier oder Zwiebeln hinzu.",
+    ready: "Kannst du jetzt kochen", almost: "Fast – nur 1–2 Zutaten fehlen", more: "Weitere Rezepte", count: "{n} Rezepte",
+    allThere: "Alles da", missingN: "Fehlt: {n}", needStill: "Brauchst noch:", goesWith: "passt dazu:", ownTag: "eigenes",
+    ingredients: "Zutaten", optional: "Optional / passt dazu", plusBasics: "Plus Salz, Pfeffer, Öl & Wasser.", preparation: "Zubereitung",
+    deleteRecipe: "Rezept löschen", copyMissing: "Fehlendes kopieren", close: "Schließen",
+    fName: "Name", fNamePh: "z. B. Omas Gulasch", fReq: "Zutaten (mit Komma getrennt)", fReqPh: "Hackfleisch, Zwiebeln, Paprika",
+    fOpt: "Optionale Zutaten", fOptPh: "Sahne, Petersilie", fTime: "Dauer (Minuten)", fCat: "Kategorie", fLand: "Küche / Land",
+    fLandPh: "z. B. Italien", fSteps: "Schritte (eine Zeile pro Schritt)", cancel: "Abbrechen", save: "Speichern",
+    saved: "Rezept gespeichert", deleted: "Rezept gelöscht", copied: "Einkaufsliste kopiert", missingList: "Fehlt: {x}",
+    language: "Sprache", appearance: "Darstellung", system: "System", light: "Hell", dark: "Dunkel",
+    systemHint: "„System“ folgt automatisch der Einstellung deines Geräts.", done: "Fertig",
+  },
+  ing: {}, cat: {}, land: {}, r: {},
+};
+const LANG_ORDER = ["de", "en", "fr", "es", "it", "pt", "tr"].filter(c => LANGS[c]);
+
+// ---------- Speicher ----------
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+let pantry = new Set(store.get("kb_pantry", []));
+let own = store.get("kb_own", []);
+let state = { cat: "Alle", maxTime: 999, showAll: false, diff: 0, land: "Alle" };
+
+const autoLang = () => {
+  const langs = (navigator.languages || [navigator.language || "de"]).map(l => String(l).slice(0, 2).toLowerCase());
+  return langs.find(l => LANGS[l]) || "de";
+};
+let lang = store.get("kb_lang", null);
+if (!LANGS[lang]) lang = autoLang();
+let L = LANGS[lang];
+
+function t(key, vars) {
+  let s = (L.ui && L.ui[key] != null) ? L.ui[key]
+    : (AI_UI[lang] && AI_UI[lang][key] != null) ? AI_UI[lang][key]
+    : LANGS.de.ui[key] != null ? LANGS.de.ui[key] : AI_UI.de[key];
+  if (vars && typeof s === "string") for (const k in vars) s = s.split("{" + k + "}").join(vars[k]);
+  return s;
+}
+const nameOf = id => (L.ing && L.ing[id]) || (ING[id] ? ING[id][0] : String(id).charAt(0).toUpperCase() + String(id).slice(1));
+const catName = c => (L.cat && L.cat[c]) || c;
+const landName = l => (L.land && L.land[l]) || l;
+
+function allRecipes() {
+  const base = R.map((r, i) => {
+    const m = META[r[1]] || [1, "International"];
+    const tr = L.r && L.r[r[1]];
+    return { id: "r" + i, emoji: r[0], name: tr ? tr[0] : r[1], cat: r[2], time: r[3], req: r[4], opt: r[5],
+      steps: tr && tr[1] && tr[1].length ? tr[1] : r[6], diff: r[7] || m[0], land: r[8] || m[1] };
+  });
+  return base.concat(own.map((o, i) => ({ diff: 1, land: OWN_LAND, ...o, id: "o" + i, own: true })));
+}
+const diffBadge = d => `<span class="diff d${d}" title="${t("difficulty")}">${"●".repeat(d)}${"○".repeat(3 - d)} ${t("diff")[d]}</span>`;
+const fmtTime = m => m >= 60 ? `${Math.floor(m / 60)} ${t("hours")}${m % 60 ? " " + (m % 60) + " " + t("min") : ""}` : `${m} ${t("min")}`;
+
+// ---------- Zutaten erkennen ----------
+const stem = s => s.toLowerCase().trim().replace(/\s+/g, " ").replace(/(en|es|n|e|s)$/, "");
+let lookup = new Map();
+function buildLookup() {
+  lookup = new Map();
+  const put = (w, id) => { lookup.set(w.toLowerCase(), id); lookup.set(stem(w), id); };
+  for (const [id, [n, , al]] of Object.entries(ING)) [n, id, ...al].forEach(w => put(w, id));
+  // Namen der gewählten Sprache haben Vorrang (z. B. engl. "paprika" = Paprikapulver)
+  for (const [id, n] of Object.entries(L.ing || {})) String(n).split("/").forEach(w => put(w.trim(), id));
+}
+function resolve(text) {
+  const s = text.toLowerCase().trim();
+  if (!s) return null;
+  return lookup.get(s) || lookup.get(stem(s)) || s; // unbekannt → als freier Text behalten
+}
+
+// ---------- Matching ----------
+function evaluate(r) {
+  // Rezept-Zutaten sind schon IDs – nur freie Texte (eigene Rezepte) werden übersetzt
+  // KI-Rezepte sind schon aufgelöst; ihr "hat"-Hinweis zählt für Zutaten, die das Kochbuch nicht kennt
+  const norm = x => (ING[x] || r.resolved) ? x : resolve(x);
+  const has = x => pantry.has(x) || (r.aiHave ? r.aiHave.includes(x) : false);
+  const req = r.req.map(norm);
+  const opt = (r.opt || []).map(norm);
+  const have = req.filter(has);
+  const missing = req.filter(x => !has(x));
+  const optHave = opt.filter(has);
+  return { req, opt, have, missing, optHave, ratio: req.length ? have.length / req.length : 0 };
+}
+
+// ---------- Rendern ----------
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const sortLoc = (a, b) => a.localeCompare(b, L.locale || lang);
+
+function renderStatic() {
+  document.documentElement.lang = lang;
+  document.title = "Second Brain Cookbook";
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  $("#ingInput").placeholder = t("placeholder");
+  $("#camBtn").title = t("camHint"); $("#camBtn").setAttribute("aria-label", t("camHint"));
+  $("#timeSel").innerHTML = `<option value="999">${t("anyTime")}</option>` +
+    [15, 30, 45, 60, 120].map(m => `<option value="${m}">${t("upTo", { t: fmtTime(m) })}</option>`).join("");
+  $("#timeSel").value = String(state.maxTime);
+  $("#diffSel").innerHTML = `<option value="0">${t("anyDiff")}</option>` +
+    [1, 2, 3].map(d => `<option value="${d}">${"●".repeat(d)}${"○".repeat(3 - d)} ${t("diff")[d]}</option>`).join("");
+  $("#diffSel").value = String(state.diff);
+}
+
+function renderPantry() {
+  const el = $("#pantry");
+  if (!pantry.size) { el.innerHTML = `<span class="empty-pantry">${t("empty")}</span>`; }
+  else el.innerHTML = [...pantry].map(id =>
+    `<span class="chip ${ING[id] ? "" : "unknown"}" title="${ING[id] ? "" : esc(t("unknown"))}">${esc(nameOf(id))}<button data-rm="${esc(id)}" aria-label="${esc(t("remove"))}">×</button></span>`).join("");
+  document.querySelectorAll(".quick button").forEach(b => b.classList.toggle("on", pantry.has(b.dataset.id)));
+  store.set("kb_pantry", [...pantry]);
+}
+
+function renderGroups() {
+  const open = [...document.querySelectorAll("details.group")].map(d => d.open);
+  const names = t("groups");
+  $("#groups").innerHTML = names.map((g, gi) => {
+    const items = Object.keys(ING).filter(id => ING[id][1] === gi).sort((a, b) => sortLoc(nameOf(a), nameOf(b)));
+    const isOpen = open.length ? open[gi] : (gi < 2 && innerWidth > 860);
+    return `<details class="group" ${isOpen ? "open" : ""}><summary>${esc(g)}</summary><div class="quick">${
+      items.map(id => `<button data-id="${id}">${esc(nameOf(id))}</button>`).join("")}</div></details>`;
+  }).join("");
+  $("#ingList").innerHTML = Object.keys(ING).map(id => `<option value="${esc(nameOf(id))}">`).join("");
+}
+
+function card(r, ev) {
+  let badge;
+  if (!ev.missing.length) badge = `<span class="badge ok">✓ ${t("allThere")}</span>`;
+  else if (ev.missing.length <= 2) badge = `<span class="badge warn">${t("missingN", { n: ev.missing.length })}</span>`;
+  else badge = `<span class="badge no">${ev.have.length}/${ev.req.length}</span>`;
+  return `<button class="card" data-open="${r.id}">
+    <div class="top"><span class="emoji">${r.emoji || "🍽️"}</span>${badge}</div>
+    <h3>${esc(r.name)}</h3>
+    <div class="meta"><span>⏱ ${fmtTime(r.time)}</span>${r.land ? `<span>🌍 ${esc(landName(r.land))}</span>` : ""}${r.own ? `<span>★ ${t("ownTag")}</span>` : ""}${r.ai ? `<span class="ai-tag">✨ ${t("aiTag")}</span>` : ""}</div>
+    <div class="meta">${diffBadge(r.diff)}<span>${esc(catName(r.cat))}</span></div>
+    <div class="bar"><i style="width:${Math.round(ev.ratio * 100)}%"></i></div>
+    ${ev.missing.length && ev.missing.length <= 3 ? `<div class="missing">${t("needStill")} ${ev.missing.map(nameOf).map(esc).join(", ")}</div>` : ""}
+    ${ev.optHave.length ? `<div class="meta">+ ${t("goesWith")} ${ev.optHave.map(nameOf).map(esc).join(", ")}</div>` : ""}
+  </button>`;
+}
+
+function renderResults() {
+  const list = allRecipes()
+    .filter(r => state.cat === "Alle" || r.cat === state.cat)
+    .filter(r => r.time <= state.maxTime)
+    .filter(r => !state.diff || r.diff === state.diff)
+    .filter(r => state.land === "Alle" || r.land === state.land)
+    .map(r => ({ r, ev: evaluate(r) }))
+    .sort((a, b) => a.ev.missing.length - b.ev.missing.length || b.ev.optHave.length - a.ev.optHave.length || a.r.time - b.r.time);
+
+  const ready = list.filter(x => !x.ev.missing.length);
+  const almost = list.filter(x => x.ev.missing.length > 0 && x.ev.missing.length <= 2 && x.ev.have.length > 0);
+  const rest = list.filter(x => !ready.includes(x) && !almost.includes(x));
+  const out = [];
+
+  if (!pantry.size && !state.showAll) {
+    out.push(`<div class="placeholder"><div class="big">🧺</div><p><b>${t("startTitle")}</b><br>${t("startText")}</p></div>`);
+  } else {
+    if (ready.length) out.push(section(t("ready"), t("count", { n: ready.length }), ready));
+    if (almost.length) out.push(section(t("almost"), t("count", { n: almost.length }), almost));
+    if (!ready.length && !almost.length && pantry.size)
+      out.push(`<div class="placeholder"><div class="big">🤔</div><p>${t("noneTitle")}<br>${t("noneText")}</p></div>`);
+    out.push(aiSection(needsAI()));
+    if (state.showAll && rest.length) out.push(section(t("more"), t("count", { n: rest.length }), rest));
+  }
+  $("#results").innerHTML = out.join("");
+  $("#jumpBtn").textContent = "🍽️ " + (pantry.size ? t("jumpCount", { a: ready.length, b: almost.length }) : t("jump"));
+}
+const section = (title, sub, arr) => `<div class="section-title"><h2>${title}</h2><span>${sub}</span></div><div class="grid">${arr.map(x => card(x.r, x.ev)).join("")}</div>`;
+
+function renderCats() {
+  $("#catSeg").innerHTML = CATS.map(c => `<button class="${c === state.cat ? "on" : ""}" data-cat="${c}">${esc(c === "Alle" ? (L.cat && L.cat.Alle) || "Alle" : catName(c))}</button>`).join("");
+}
+
+function renderLands() {
+  const all = allRecipes();
+  const lands = [...new Set(all.map(r => r.land))].sort((a, b) => sortLoc(landName(a), landName(b)));
+  if (!lands.includes(state.land)) state.land = "Alle";
+  $("#landSel").innerHTML = `<option value="Alle">🌍 ${t("allCuisines")}</option>` +
+    lands.map(l => `<option value="${esc(l)}" ${l === state.land ? "selected" : ""}>${esc(landName(l))}</option>`).join("");
+  $("#subtitle").textContent = `${t("tagline")} ${t("stats", { n: all.length, k: lands.length })}`;
+}
+
+function render() { renderPantry(); scheduleAI(); renderResults(); }
+function renderAll() { buildLookup(); renderStatic(); renderGroups(); renderCats(); renderLands(); render(); }
+
+// ---------- Rezept-Detail ----------
+function openRecipe(id) {
+  const r = id.startsWith("a") ? ai.recipes.find(x => x.id === id) : allRecipes().find(x => x.id === id);
+  if (!r) return;
+  const ev = evaluate(r);
+  const li = (x, cls, sym) => `<li class="${cls}"><span class="dot">${sym}</span>${esc(nameOf(x))}</li>`;
+  $("#modal").innerHTML = `
+    <div class="head"><span class="emoji">${r.emoji || "🍽️"}</span><div><h2>${esc(r.name)}</h2>
+    <div class="meta"><span>⏱ ${fmtTime(r.time)}</span>${r.land ? `<span>🌍 ${esc(landName(r.land))}</span>` : ""}<span>${esc(catName(r.cat))}</span>${diffBadge(r.diff)}</div></div></div>
+    ${r.ai ? `<p class="hint">✨ ${t("aiNote")}</p>` : ""}
+    <h3>${t("ingredients")}</h3>
+    <ul class="ing">${ev.req.map(x => ev.have.includes(x) ? li(x, "have", "✓") : li(x, "miss", "!")).join("")}</ul>
+    ${ev.opt.length ? `<h3>${t("optional")}</h3><ul class="ing">${ev.opt.map(x => ev.optHave.includes(x) ? li(x, "have", "✓") : li(x, "opt", "·")).join("")}</ul>` : ""}
+    <p class="hint">${t("plusBasics")}</p>
+    <h3>${t("preparation")}</h3>
+    <ol class="steps">${r.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
+    <div class="actions">
+      ${r.own ? `<button class="btn ghost small" data-del="${r.id}">${t("deleteRecipe")}</button>` : ""}
+      ${r.ai ? `<button class="btn ghost small" data-save-ai="${r.id}">⭐ ${t("aiSave")}</button>` : ""}
+      ${ev.missing.length ? `<button class="btn ghost small" data-copy="${esc(ev.missing.map(nameOf).join(", "))}">📋 ${t("copyMissing")}</button>` : ""}
+      <button class="btn small" data-close>${t("close")}</button>
+    </div>`;
+  $("#overlay").classList.add("open");
+}
+
+function openOwnForm() {
+  $("#modal").innerHTML = `
+    <h2>${t("ownRecipe")}</h2>
+    <form class="own" id="ownForm">
+      <label>${t("fName")}</label><input name="name" required placeholder="${esc(t("fNamePh"))}">
+      <label>${t("fReq")}</label><input name="req" required placeholder="${esc(t("fReqPh"))}">
+      <label>${t("fOpt")}</label><input name="opt" placeholder="${esc(t("fOptPh"))}">
+      <label>${t("fTime")}</label><input name="time" type="number" min="1" value="30">
+      <label>${t("fCat")}</label><select name="cat">${CATS.slice(1).map(c => `<option value="${c}">${esc(catName(c))}</option>`).join("")}</select>
+      <label>${t("difficulty")}</label><select name="diff">${[1, 2, 3].map(d => `<option value="${d}">${t("diff")[d]}</option>`).join("")}</select>
+      <label>${t("fLand")}</label><input name="land" placeholder="${esc(t("fLandPh"))}">
+      <label>${t("fSteps")}</label><textarea name="steps" required></textarea>
+      <div class="actions"><button type="button" class="btn ghost small" data-close>${t("cancel")}</button><button class="btn small">${t("save")}</button></div>
+    </form>`;
+  $("#overlay").classList.add("open");
+  $("#ownForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const split = s => String(s || "").split(",").map(x => x.trim()).filter(Boolean).map(resolve);
+    own.push({ emoji: "⭐", name: f.get("name").trim(), cat: f.get("cat"), time: +f.get("time") || 30,
+      diff: +f.get("diff") || 1, land: String(f.get("land") || "").trim() || OWN_LAND,
+      req: split(f.get("req")), opt: split(f.get("opt")),
+      steps: String(f.get("steps")).split("\n").map(s => s.trim()).filter(Boolean) });
+    store.set("kb_own", own);
+    closeModal(); renderLands(); renderResults(); toast(t("saved"));
+  });
+}
+
+// ---------- Einstellungen ----------
+function openSettings() {
+  const theme = store.get("kb_theme", "system");
+  $("#modal").innerHTML = `
+    <h2>⚙️ ${t("settings")}</h2>
+    <h3>${t("appearance")}</h3>
+    <div class="seg theme-seg" id="themeSeg">
+      ${[["system", "🖥️"], ["light", "☀️"], ["dark", "🌙"]].map(([k, ic]) =>
+        `<button data-theme-opt="${k}" class="${theme === k ? "on" : ""}">${ic} ${t(k)}</button>`).join("")}
+    </div>
+    <p class="hint">${t("systemHint")}</p>
+    <h3>${t("language")}</h3>
+    <div class="lang-list" id="langList">
+      ${LANG_ORDER.map(c => `<button data-lang="${c}" class="${c === lang ? "on" : ""}"><span>${LANGS[c].flag}</span>${esc(LANGS[c].name)}</button>`).join("")}
+    </div>
+    <h3>✨ ${t("aiSection")}</h3>
+    ${aiKey()
+      ? `<div class="key-row"><span>✅ ${t("aiKeySaved")}</span><button class="btn ghost small" data-ai-remove="1">${t("aiKeyRemove")}</button></div>`
+      : `<label class="lbl" for="aiKeyInput">${t("aiKeyLabel")}</label>
+         <form class="addrow" id="aiKeyForm" autocomplete="off"><input id="aiKeyInput" type="password" spellcheck="false" autocapitalize="off" placeholder="sk-ant-…"><button class="btn">${t("save")}</button></form>`}
+    <label class="chk"><input type="checkbox" id="aiAutoChk" ${aiAuto() ? "checked" : ""}> ${t("aiAuto")}</label>
+    <p class="hint">${t("aiKeyHint")}</p>
+    <div class="actions"><button class="btn small" data-close>${t("done")}</button></div>`;
+  $("#overlay").classList.add("open");
+  const form = $("#aiKeyForm");
+  if (form) form.addEventListener("submit", e => {
+    e.preventDefault();
+    const v = $("#aiKeyInput").value.trim();
+    if (!v) return;
+    store.set("kb_ai_key", v); toast(t("aiKeySaved"));
+    openSettings(); scheduleAI(); renderResults();
+  });
+  $("#aiAutoChk").addEventListener("change", e => { store.set("kb_ai_auto", e.target.checked); scheduleAI(); renderResults(); });
+}
+
+function setLang(code) {
+  if (!LANGS[code]) return;
+  lang = code; L = LANGS[code]; store.set("kb_lang", code);
+  renderAll(); openSettings();
+}
+
+function applyTheme(pref) {
+  const root = document.documentElement;
+  const [mLight, mDark] = document.querySelectorAll('meta[name="theme-color"]');
+  const sb = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+  if (pref === "light" || pref === "dark") {
+    root.setAttribute("data-theme", pref);
+    const c = pref === "dark" ? "#1c1916" : "#faf6ef";
+    if (mLight) { mLight.content = c; mLight.removeAttribute("media"); }
+    if (mDark) { mDark.content = c; mDark.removeAttribute("media"); }
+    if (sb) sb.content = pref === "dark" ? "black" : "default";
+  } else {
+    root.removeAttribute("data-theme");
+    if (mLight) { mLight.content = "#faf6ef"; mLight.media = "(prefers-color-scheme: light)"; }
+    if (mDark) { mDark.content = "#1c1916"; mDark.media = "(prefers-color-scheme: dark)"; }
+    if (sb) sb.content = "default";
+  }
+}
+
+function closeModal() { $("#overlay").classList.remove("open"); }
+function toast(msg) { const el = $("#toast"); el.textContent = msg; el.classList.add("show"); clearTimeout(el._h); el._h = setTimeout(() => el.classList.remove("show"), 1800); }
+
+// ---------- KI-Suche (Claude API) ----------
+// Wird nur geladen, wenn die KI gebraucht wird. Der API-Schlüssel bleibt im Browser dieses Geräts.
+const AI_MODEL = "claude-opus-5-5";
+const AI_SDK_URL = "https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@1.6.0/+esm";
+let AnthropicSDK = null;
+const loadSDK = async () => AnthropicSDK || (AnthropicSDK = (await import(AI_SDK_URL)).default);
+const aiKey = () => store.get("kb_ai_key", "");
+const aiAuto = () => store.get("kb_ai_auto", true);
+let ai = { key: "", status: "idle", recipes: [], error: "" };
+const aiCache = store.get("kb_ai_cache", {});
+let aiTimer = null;
+
+const AI_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["recipes"],
+  properties: {
+    recipes: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["name", "emoji", "cuisine", "category", "time_minutes", "difficulty", "ingredients", "steps"],
+        properties: {
+          name: { type: "string" },
+          emoji: { type: "string" },
+          cuisine: { type: "string" },
+          category: { type: "string", enum: CATS.slice(1) },
+          time_minutes: { type: "integer" },
+          difficulty: { type: "integer", enum: [1, 2, 3] },
+          ingredients: {
+            type: "array",
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["name", "have", "optional"],
+              properties: { name: { type: "string" }, have: { type: "boolean" }, optional: { type: "boolean" } },
+            },
+          },
+          steps: { type: "array", items: { type: "string" } },
+        },
+      },
+    },
+  },
+};
+
+const pantryKey = () => lang + "|" + [...pantry].sort().join(",");
+
+// KI nur, wenn das Kochbuch selbst nichts findet oder eine unbekannte Zutat dabei ist
+function needsAI() {
+  if (!pantry.size) return false;
+  const evs = allRecipes().map(evaluate);
+  const found = evs.some(e => !e.missing.length || (e.missing.length <= 2 && e.have.length > 0));
+  return !found || [...pantry].some(id => !ING[id]);
+}
+
+function scheduleAI() {
+  clearTimeout(aiTimer);
+  const k = pantryKey();
+  if (ai.key !== k) ai = aiCache[k] ? { key: k, status: "done", recipes: aiCache[k], error: "" } : { key: k, status: "idle", recipes: [], error: "" };
+  if (ai.status !== "idle" || !aiKey() || !aiAuto() || !needsAI()) return;
+  aiTimer = setTimeout(() => runAI(false), 1200);
+}
+
+function toAIRecipe(x, i) {
+  const req = [], opt = [], aiHave = [];
+  for (const ing of x.ingredients || []) {
+    const name = String(ing.name || "").trim();
+    if (!name) continue;
+    const id = resolve(name);
+    const v = ING[id] ? id : name;
+    if (ing.have && !ING[id]) aiHave.push(v);
+    const list = ing.optional ? opt : req;
+    if (!req.includes(v) && !opt.includes(v)) list.push(v);
+  }
+  return {
+    id: "a" + i, ai: true, resolved: true, aiHave,
+    emoji: x.emoji || "✨", name: String(x.name || "?"), land: String(x.cuisine || ""),
+    cat: CATS.includes(x.category) && x.category !== "Alle" ? x.category : "Hauptgericht",
+    time: Math.max(1, Math.round(+x.time_minutes || 30)),
+    diff: Math.min(3, Math.max(1, Math.round(+x.difficulty || 1))),
+    req, opt, steps: (x.steps || []).map(String).filter(Boolean),
+  };
+}
+
+function aiErrorText(e) {
+  const A = AnthropicSDK;
+  if (e && e.aiMessage) return e.aiMessage;
+  if (A) {
+    if (e instanceof A.AuthenticationError || e instanceof A.PermissionDeniedError) return t("aiBadKey");
+    if (e instanceof A.RateLimitError) return t("aiRate");
+    if (e instanceof A.APIConnectionError) return t("aiOffline");
+    if (e instanceof A.APIError) return t("aiError", { x: `${e.status || ""} ${e.message}`.trim() });
+  }
+  if (!navigator.onLine) return t("aiOffline");
+  return t("aiError", { x: e && e.message ? e.message : String(e) });
+}
+
+async function runAI(more) {
+  const apiKey = aiKey();
+  if (!apiKey) { openSettings(); return; }
+  clearTimeout(aiTimer);
+  const k = pantryKey();
+  const prev = more && ai.key === k ? ai.recipes : [];
+  ai = { key: k, status: "loading", recipes: prev, error: "" };
+  renderResults();
+  try {
+    const Anthropic = await loadSDK();
+    const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
+    const items = [...pantry].map(nameOf);
+    const avoid = prev.map(r => r.name);
+    const response = await client.beta.messages.create({
+      model: AI_MODEL,
+      max_tokens: 16000,
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      output_config: { effort: "medium", format: { type: "json_schema", schema: AI_SCHEMA } },
+      system:
+        "You are the recipe assistant inside a home cookbook app. The user lists what they have at home. " +
+        "Suggest real, tasty dishes that mainly use those ingredients. Salt, pepper, cooking oil and water are always available: never list them. " +
+        "Set have=true only for ingredients the user listed (or obvious equivalents). Keep missing ingredients to at most 2 per recipe and prefer recipes that need none. " +
+        "Mark garnishes and extras as optional. difficulty: 1 easy, 2 medium, 3 hard. " +
+        `Write every text field (name, cuisine, ingredient names, steps) in ${LANGS[lang].name}. ` +
+        "Give 3 to 6 short, concrete steps with amounts, times and temperatures.",
+      messages: [{
+        role: "user",
+        content: `My ingredients: ${items.join(", ")}\nSuggest 3 recipes.` +
+          (avoid.length ? `\nDo not repeat these dishes: ${avoid.join(", ")}` : ""),
+      }],
+    });
+    if (response.stop_reason === "refusal") throw { aiMessage: t("aiNothing") };
+    if (response.stop_reason === "max_tokens") throw { aiMessage: t("aiError", { x: "max_tokens" }) };
+    const textBlock = response.content.find(b => b.type === "text");
+    const data = JSON.parse(textBlock ? textBlock.text : "{}");
+    const all = prev.concat((data.recipes || []).map((x, i) => toAIRecipe(x, prev.length + i)));
+    aiCache[k] = all;
+    const keys = Object.keys(aiCache); // nur die letzten 10 Suchen behalten
+    while (keys.length > 10) delete aiCache[keys.shift()];
+    store.set("kb_ai_cache", aiCache);
+    if (ai.key === k) ai = { key: k, status: all.length ? "done" : "empty", recipes: all, error: "" };
+  } catch (e) {
+    if (ai.key === k) ai = { key: k, status: "error", recipes: prev, error: aiErrorText(e) };
+  }
+  renderResults();
+}
+
+function aiSection(need) {
+  if (!pantry.size) return "";
+  const k = pantryKey();
+  const cur = ai.key === k ? ai : { status: "idle", recipes: [], error: "" };
+  const moreBtn = `<div class="ai-more"><button class="btn ghost small" data-ai="more">✨ ${t("aiMore")}</button></div>`;
+  if (!need && cur.status === "idle") return aiKey() ? moreBtn : "";
+  const head = `<div class="section-title"><h2>✨ ${t("aiTitle")}</h2>${cur.recipes.length ? `<span>${t("count", { n: cur.recipes.length })}</span>` : ""}</div>`;
+  const grid = cur.recipes.length ? `<div class="grid">${cur.recipes.map(r => card(r, evaluate(r))).join("")}</div>` : "";
+  let box;
+  if (!aiKey()) box = `<div class="ai-box"><p>${t("aiNoKey")}</p><button class="btn small" data-ai="settings">🔑 ${t("aiOpenSettings")}</button></div>`;
+  else if (cur.status === "loading") box = `<div class="ai-box"><span class="spinner"></span><p>${t("aiLoading")}</p></div>`;
+  else if (cur.status === "error") box = `<div class="ai-box err"><p>${esc(cur.error)}</p><button class="btn small" data-ai="run">${t("aiRetry")}</button></div>`;
+  else if (cur.status === "empty") box = `<div class="ai-box"><p>${t("aiNothing")}</p><button class="btn small" data-ai="run">${t("aiRetry")}</button></div>`;
+  else if (cur.status === "done") box = moreBtn;
+  else box = `<div class="ai-box"><p>${t("aiAsk")}</p><button class="btn small" data-ai="run">✨ ${t("aiButton")}</button></div>`;
+  return head + grid + box;
+}
+
+// ---------- Foto-Suche: Zutaten auf einem Foto erkennen ----------
+let scan = { items: [] };
+
+async function fileToJpeg(file, max = 1568) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL("image/jpeg", 0.85);
+  } finally { URL.revokeObjectURL(url); }
+}
+
+function scanModal(dataUrl, body) {
+  $("#modal").innerHTML = `<h2>📷 ${t("camTitle")}</h2>${dataUrl ? `<img class="scan-img" src="${dataUrl}" alt="">` : ""}${body}`;
+  $("#overlay").classList.add("open");
+}
+
+function renderScanResult(dataUrl) {
+  const n = scan.items.filter(x => x.on).length;
+  scanModal(dataUrl, scan.items.length
+    ? `<p class="hint">${t("camFound")}</p>
+       <div class="scan-list">${scan.items.map((x, i) =>
+         `<button class="scan-item ${x.on ? "on" : ""} ${x.had ? "had" : ""}" data-scan="${i}">${esc(nameOf(x.id))}${x.had ? ` · ${t("camAlready")}` : ""}</button>`).join("")}</div>
+       <div class="actions"><button class="btn ghost small" data-close>${t("cancel")}</button>
+       <button class="btn small" data-scan-add="1" ${n ? "" : "disabled"}>＋ ${t("camAdd", { n })}</button></div>`
+    : `<div class="ai-box"><p>${t("camNone")}</p></div><div class="actions"><button class="btn small" data-close>${t("close")}</button></div>`);
+  scan.dataUrl = dataUrl;
+}
+
+async function scanPhoto(file) {
+  const apiKey = aiKey();
+  if (!apiKey) { toast(t("camNeedKey")); openSettings(); return; }
+  let dataUrl;
+  try { dataUrl = await fileToJpeg(file); }
+  catch { scanModal("", `<div class="ai-box err"><p>${t("camImgError")}</p></div><div class="actions"><button class="btn small" data-close>${t("close")}</button></div>`); return; }
+  scanModal(dataUrl, `<div class="ai-box"><span class="spinner"></span><p>${t("camLoading")}</p></div>`);
+  try {
+    const Anthropic = await loadSDK();
+    const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
+    const catalog = Object.keys(ING).map(id => `${id} = ${ING[id][0]}${L.ing && L.ing[id] ? " / " + L.ing[id] : ""}`).join("\n");
+    const response = await client.beta.messages.create({
+      model: AI_MODEL,
+      max_tokens: 16000,
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      output_config: {
+        effort: "low",
+        format: { type: "json_schema", schema: {
+          type: "object", additionalProperties: false, required: ["items"],
+          properties: { items: { type: "array", items: {
+            type: "object", additionalProperties: false, required: ["catalog_id", "name"],
+            properties: { catalog_id: { type: "string", enum: [...Object.keys(ING), "other"] }, name: { type: "string" } },
+          } } },
+        } },
+      },
+      system:
+        "You identify food ingredients visible in a photo (fridge, pantry shelf, groceries, kitchen counter). " +
+        "List each distinct food item once and only what you can actually see. Ignore non-food items and ignore salt, pepper, cooking oil and water. " +
+        "If an item matches an entry of this catalog, use its id as catalog_id; otherwise use \"other\". " +
+        `Always give a short ingredient name in ${LANGS[lang].name}.\n\nCatalog (id = name):\n${catalog}`,
+      messages: [{
+        role: "user",
+        content: [
+          { type: "image", source: { type: "base64", media_type: "image/jpeg", data: dataUrl.split(",")[1] } },
+          { type: "text", text: "Which ingredients can you see in this photo?" },
+        ],
+      }],
+    });
+    if (response.stop_reason === "refusal") throw { aiMessage: t("camNone") };
+    if (response.stop_reason === "max_tokens") throw { aiMessage: t("aiError", { x: "max_tokens" }) };
+    const textBlock = response.content.find(b => b.type === "text");
+    const data = JSON.parse(textBlock ? textBlock.text : "{}");
+    const seen = new Set();
+    scan.items = [];
+    for (const it of data.items || []) {
+      const id = it.catalog_id !== "other" && ING[it.catalog_id] ? it.catalog_id : resolve(String(it.name || ""));
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      scan.items.push({ id, had: pantry.has(id), on: !pantry.has(id) });
+    }
+    renderScanResult(dataUrl);
+  } catch (e) {
+    scanModal(dataUrl, `<div class="ai-box err"><p>${esc(aiErrorText(e))}</p></div><div class="actions"><button class="btn small" data-close>${t("close")}</button></div>`);
+  }
+}
+
+const AI_UI = {
+  de: { aiTitle: "Von der KI gefunden", aiTag: "KI", aiSection: "KI-Suche", aiButton: "KI fragen", aiMore: "KI nach weiteren Ideen fragen",
+    aiAsk: "Nichts Passendes dabei? Die KI sucht Rezepte mit genau deinen Zutaten.", aiLoading: "Die KI sucht Rezepte mit deinen Zutaten …",
+    aiNoKey: "Nichts Passendes dabei? Mit einem Claude-API-Schlüssel sucht die KI automatisch Rezepte für dich.", aiOpenSettings: "Schlüssel eintragen",
+    aiError: "KI-Suche fehlgeschlagen: {x}", aiBadKey: "Der API-Schlüssel ist ungültig.", aiRate: "Zu viele Anfragen – bitte kurz warten.",
+    aiOffline: "Keine Internetverbindung.", aiNothing: "Die KI hat nichts Passendes gefunden.", aiRetry: "Nochmal versuchen",
+    aiSave: "In meine Rezepte", aiSaved: "In deinen Rezepten gespeichert", aiNote: "Von der KI erstellt – Mengen und Zeiten bitte selbst prüfen.",
+    aiKeyLabel: "Claude-API-Schlüssel", aiKeySaved: "Schlüssel gespeichert", aiKeyRemove: "Entfernen",
+    aiAuto: "Automatisch suchen, wenn das Kochbuch nichts findet",
+    aiKeyHint: "Der Schlüssel bleibt nur auf diesem Gerät. Du bekommst ihn auf console.anthropic.com – jede KI-Suche kostet ein paar Cent." },
+  en: { aiTitle: "Found by AI", aiTag: "AI", aiSection: "AI search", aiButton: "Ask AI", aiMore: "Ask AI for more ideas",
+    aiAsk: "Nothing fitting? The AI looks for recipes using exactly your ingredients.", aiLoading: "The AI is looking for recipes with your ingredients …",
+    aiNoKey: "Nothing fitting? With a Claude API key the AI searches recipes for you automatically.", aiOpenSettings: "Add key",
+    aiError: "AI search failed: {x}", aiBadKey: "The API key is invalid.", aiRate: "Too many requests – please wait a moment.",
+    aiOffline: "No internet connection.", aiNothing: "The AI found nothing suitable.", aiRetry: "Try again",
+    aiSave: "Save to my recipes", aiSaved: "Saved to your recipes", aiNote: "Created by AI – please check amounts and times yourself.",
+    aiKeyLabel: "Claude API key", aiKeySaved: "Key saved", aiKeyRemove: "Remove",
+    aiAuto: "Search automatically when the cookbook finds nothing",
+    aiKeyHint: "The key stays on this device only. Get one at console.anthropic.com – each AI search costs a few cents." },
+  fr: { aiTitle: "Trouvé par l'IA", aiTag: "IA", aiSection: "Recherche IA", aiButton: "Demander à l'IA", aiMore: "Demander d'autres idées à l'IA",
+    aiAsk: "Rien ne convient ? L'IA cherche des recettes avec exactement tes ingrédients.", aiLoading: "L'IA cherche des recettes avec tes ingrédients …",
+    aiNoKey: "Rien ne convient ? Avec une clé API Claude, l'IA cherche des recettes automatiquement.", aiOpenSettings: "Ajouter la clé",
+    aiError: "Échec de la recherche IA : {x}", aiBadKey: "La clé API n'est pas valide.", aiRate: "Trop de requêtes – patiente un instant.",
+    aiOffline: "Pas de connexion internet.", aiNothing: "L'IA n'a rien trouvé d'adapté.", aiRetry: "Réessayer",
+    aiSave: "Ajouter à mes recettes", aiSaved: "Enregistré dans tes recettes", aiNote: "Créé par l'IA – vérifie toi-même les quantités et les temps.",
+    aiKeyLabel: "Clé API Claude", aiKeySaved: "Clé enregistrée", aiKeyRemove: "Supprimer",
+    aiAuto: "Chercher automatiquement quand le livre ne trouve rien",
+    aiKeyHint: "La clé reste uniquement sur cet appareil. Obtiens-en une sur console.anthropic.com – chaque recherche coûte quelques centimes." },
+  es: { aiTitle: "Encontrado por la IA", aiTag: "IA", aiSection: "Búsqueda con IA", aiButton: "Preguntar a la IA", aiMore: "Pedir más ideas a la IA",
+    aiAsk: "¿Nada adecuado? La IA busca recetas con exactamente tus ingredientes.", aiLoading: "La IA está buscando recetas con tus ingredientes …",
+    aiNoKey: "¿Nada adecuado? Con una clave API de Claude, la IA busca recetas automáticamente.", aiOpenSettings: "Añadir clave",
+    aiError: "La búsqueda con IA falló: {x}", aiBadKey: "La clave API no es válida.", aiRate: "Demasiadas solicitudes – espera un momento.",
+    aiOffline: "Sin conexión a internet.", aiNothing: "La IA no encontró nada adecuado.", aiRetry: "Reintentar",
+    aiSave: "Guardar en mis recetas", aiSaved: "Guardado en tus recetas", aiNote: "Creado por IA – revisa tú mismo cantidades y tiempos.",
+    aiKeyLabel: "Clave API de Claude", aiKeySaved: "Clave guardada", aiKeyRemove: "Quitar",
+    aiAuto: "Buscar automáticamente cuando el recetario no encuentra nada",
+    aiKeyHint: "La clave solo se guarda en este dispositivo. Consíguela en console.anthropic.com – cada búsqueda cuesta unos céntimos." },
+  it: { aiTitle: "Trovato dall'IA", aiTag: "IA", aiSection: "Ricerca IA", aiButton: "Chiedi all'IA", aiMore: "Chiedi altre idee all'IA",
+    aiAsk: "Niente di adatto? L'IA cerca ricette proprio con i tuoi ingredienti.", aiLoading: "L'IA sta cercando ricette con i tuoi ingredienti …",
+    aiNoKey: "Niente di adatto? Con una chiave API di Claude l'IA cerca ricette in automatico.", aiOpenSettings: "Inserisci chiave",
+    aiError: "Ricerca IA non riuscita: {x}", aiBadKey: "La chiave API non è valida.", aiRate: "Troppe richieste – attendi un attimo.",
+    aiOffline: "Nessuna connessione internet.", aiNothing: "L'IA non ha trovato nulla di adatto.", aiRetry: "Riprova",
+    aiSave: "Salva nelle mie ricette", aiSaved: "Salvata nelle tue ricette", aiNote: "Creata dall'IA – controlla tu quantità e tempi.",
+    aiKeyLabel: "Chiave API di Claude", aiKeySaved: "Chiave salvata", aiKeyRemove: "Rimuovi",
+    aiAuto: "Cerca automaticamente quando il ricettario non trova nulla",
+    aiKeyHint: "La chiave resta solo su questo dispositivo. La trovi su console.anthropic.com – ogni ricerca costa pochi centesimi." },
+  pt: { aiTitle: "Encontrado pela IA", aiTag: "IA", aiSection: "Pesquisa com IA", aiButton: "Perguntar à IA", aiMore: "Pedir mais ideias à IA",
+    aiAsk: "Nada adequado? A IA procura receitas exatamente com os teus ingredientes.", aiLoading: "A IA está a procurar receitas com os teus ingredientes …",
+    aiNoKey: "Nada adequado? Com uma chave API do Claude, a IA procura receitas automaticamente.", aiOpenSettings: "Adicionar chave",
+    aiError: "A pesquisa com IA falhou: {x}", aiBadKey: "A chave API é inválida.", aiRate: "Demasiados pedidos – espera um momento.",
+    aiOffline: "Sem ligação à internet.", aiNothing: "A IA não encontrou nada adequado.", aiRetry: "Tentar de novo",
+    aiSave: "Guardar nas minhas receitas", aiSaved: "Guardada nas tuas receitas", aiNote: "Criada pela IA – confirma tu as quantidades e os tempos.",
+    aiKeyLabel: "Chave API do Claude", aiKeySaved: "Chave guardada", aiKeyRemove: "Remover",
+    aiAuto: "Pesquisar automaticamente quando o livro não encontra nada",
+    aiKeyHint: "A chave fica só neste dispositivo. Obtém-na em console.anthropic.com – cada pesquisa custa alguns cêntimos." },
+  tr: { aiTitle: "Yapay zekâ buldu", aiTag: "YZ", aiSection: "Yapay zekâ araması", aiButton: "Yapay zekâya sor", aiMore: "Yapay zekâdan başka fikirler iste",
+    aiAsk: "Uygun bir şey yok mu? Yapay zekâ tam senin malzemelerinle tarif arar.", aiLoading: "Yapay zekâ malzemelerinle tarif arıyor …",
+    aiNoKey: "Uygun bir şey yok mu? Claude API anahtarıyla yapay zekâ senin için otomatik tarif arar.", aiOpenSettings: "Anahtar ekle",
+    aiError: "Yapay zekâ araması başarısız: {x}", aiBadKey: "API anahtarı geçersiz.", aiRate: "Çok fazla istek – lütfen biraz bekle.",
+    aiOffline: "İnternet bağlantısı yok.", aiNothing: "Yapay zekâ uygun bir şey bulamadı.", aiRetry: "Tekrar dene",
+    aiSave: "Tariflerime kaydet", aiSaved: "Tariflerine kaydedildi", aiNote: "Yapay zekâ tarafından oluşturuldu – miktarları ve süreleri kendin kontrol et.",
+    aiKeyLabel: "Claude API anahtarı", aiKeySaved: "Anahtar kaydedildi", aiKeyRemove: "Kaldır",
+    aiAuto: "Yemek kitabı bir şey bulamazsa otomatik ara",
+    aiKeyHint: "Anahtar yalnızca bu cihazda kalır. console.anthropic.com adresinden alabilirsin – her arama birkaç kuruşa mal olur." },
+};
+
+const CAM_UI = {
+  de: { camTitle: "Foto-Suche", camHint: "Zutaten fotografieren", camLoading: "Ich schaue mir dein Foto an …",
+    camFound: "Das habe ich erkannt – tippe an, was nicht stimmt:", camAdd: "{n} hinzufügen", camAdded: "{n} Zutaten hinzugefügt", camAlready: "schon da",
+    camNone: "Ich konnte keine Lebensmittel erkennen. Versuch ein helleres Foto aus der Nähe.",
+    camNeedKey: "Für die Foto-Suche brauchst du einen Claude-API-Schlüssel.", camImgError: "Das Foto konnte nicht gelesen werden." },
+  en: { camTitle: "Photo search", camHint: "Photograph ingredients", camLoading: "Looking at your photo …",
+    camFound: "This is what I found – tap anything that's wrong:", camAdd: "Add {n}", camAdded: "{n} ingredients added", camAlready: "already there",
+    camNone: "I couldn't spot any food. Try a brighter photo from closer up.",
+    camNeedKey: "Photo search needs a Claude API key.", camImgError: "The photo couldn't be read." },
+  fr: { camTitle: "Recherche photo", camHint: "Photographier les ingrédients", camLoading: "J'examine ta photo …",
+    camFound: "Voici ce que j'ai reconnu – touche ce qui est faux :", camAdd: "Ajouter {n}", camAdded: "{n} ingrédients ajoutés", camAlready: "déjà là",
+    camNone: "Je n'ai reconnu aucun aliment. Essaie une photo plus claire et plus proche.",
+    camNeedKey: "La recherche photo nécessite une clé API Claude.", camImgError: "La photo n'a pas pu être lue." },
+  es: { camTitle: "Búsqueda por foto", camHint: "Fotografiar ingredientes", camLoading: "Estoy mirando tu foto …",
+    camFound: "Esto es lo que he reconocido – toca lo que no sea correcto:", camAdd: "Añadir {n}", camAdded: "{n} ingredientes añadidos", camAlready: "ya está",
+    camNone: "No he reconocido alimentos. Prueba con una foto más clara y de cerca.",
+    camNeedKey: "La búsqueda por foto necesita una clave API de Claude.", camImgError: "No se pudo leer la foto." },
+  it: { camTitle: "Ricerca con foto", camHint: "Fotografa gli ingredienti", camLoading: "Sto guardando la tua foto …",
+    camFound: "Ecco cosa ho riconosciuto – tocca ciò che non è giusto:", camAdd: "Aggiungi {n}", camAdded: "{n} ingredienti aggiunti", camAlready: "già presente",
+    camNone: "Non ho riconosciuto alimenti. Prova una foto più luminosa e più vicina.",
+    camNeedKey: "La ricerca con foto richiede una chiave API di Claude.", camImgError: "Impossibile leggere la foto." },
+  pt: { camTitle: "Pesquisa por foto", camHint: "Fotografar ingredientes", camLoading: "Estou a ver a tua foto …",
+    camFound: "Foi isto que reconheci – toca no que estiver errado:", camAdd: "Adicionar {n}", camAdded: "{n} ingredientes adicionados", camAlready: "já tens",
+    camNone: "Não reconheci alimentos. Tenta uma foto mais clara e mais próxima.",
+    camNeedKey: "A pesquisa por foto precisa de uma chave API do Claude.", camImgError: "Não foi possível ler a foto." },
+  tr: { camTitle: "Fotoğrafla arama", camHint: "Malzemelerin fotoğrafını çek", camLoading: "Fotoğrafına bakıyorum …",
+    camFound: "Tanıdıklarım bunlar – yanlış olana dokun:", camAdd: "{n} ekle", camAdded: "{n} malzeme eklendi", camAlready: "zaten var",
+    camNone: "Hiç yiyecek tanıyamadım. Daha aydınlık ve yakından bir fotoğraf dene.",
+    camNeedKey: "Fotoğrafla arama için Claude API anahtarı gerekir.", camImgError: "Fotoğraf okunamadı." },
+};
+for (const l in CAM_UI) Object.assign(AI_UI[l], CAM_UI[l]);
+
+// ---------- Events ----------
+$("#addForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const val = $("#ingInput").value;
+  val.split(/[,;]+/).map(resolve).filter(Boolean).forEach(id => pantry.add(id));
+  $("#ingInput").value = "";
+  render();
+});
+$("#pantry").addEventListener("click", e => { const id = e.target.dataset.rm; if (id) { pantry.delete(id); render(); } });
+$("#groups").addEventListener("click", e => {
+  const id = e.target.dataset.id; if (!id) return;
+  pantry.has(id) ? pantry.delete(id) : pantry.add(id); render();
+});
+$("#clearBtn").addEventListener("click", () => { pantry.clear(); render(); });
+$("#catSeg").addEventListener("click", e => { if (e.target.dataset.cat) { state.cat = e.target.dataset.cat; renderCats(); renderResults(); } });
+$("#timeSel").addEventListener("change", e => { state.maxTime = +e.target.value; renderResults(); });
+$("#diffSel").addEventListener("change", e => { state.diff = +e.target.value; renderResults(); });
+$("#landSel").addEventListener("change", e => { state.land = e.target.value; renderResults(); });
+$("#showAll").addEventListener("change", e => { state.showAll = e.target.checked; renderResults(); });
+$("#results").addEventListener("click", e => {
+  const a = e.target.closest("[data-ai]");
+  if (a) {
+    if (a.dataset.ai === "settings") openSettings();
+    else runAI(a.dataset.ai === "more");
+    return;
+  }
+  const c = e.target.closest("[data-open]"); if (c) openRecipe(c.dataset.open);
+});
+$("#ownBtn").addEventListener("click", openOwnForm);
+$("#camBtn").addEventListener("click", () => {
+  if (!aiKey()) { toast(t("camNeedKey")); openSettings(); return; }
+  $("#camInput").value = ""; $("#camInput").click();
+});
+$("#camInput").addEventListener("change", e => { const f = e.target.files && e.target.files[0]; if (f) scanPhoto(f); });
+$("#settingsBtn").addEventListener("click", openSettings);
+$("#jumpBtn").addEventListener("click", () => document.querySelector("main").scrollIntoView({ behavior: "smooth" }));
+$("#randomBtn").addEventListener("click", () => {
+  const all = allRecipes().map(r => ({ r, ev: evaluate(r) }));
+  const pool = pantry.size ? all.filter(x => !x.ev.missing.length) : all;
+  const pick = (pool.length ? pool : all)[Math.floor(Math.random() * (pool.length || all.length))];
+  openRecipe(pick.r.id);
+});
+$("#overlay").addEventListener("click", e => {
+  const btn = e.target.closest("button");
+  if (e.target.id === "overlay" || (btn && btn.hasAttribute("data-close"))) closeModal();
+  if (!btn) return;
+  if (btn.dataset.copy) {
+    const txt = btn.dataset.copy;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast(t("copied")), () => toast(t("missingList", { x: txt })));
+  }
+  if (btn.dataset.del) {
+    own.splice(+btn.dataset.del.slice(1), 1); store.set("kb_own", own);
+    closeModal(); renderLands(); renderResults(); toast(t("deleted"));
+  }
+  if (btn.dataset.themeOpt) {
+    store.set("kb_theme", btn.dataset.themeOpt); applyTheme(btn.dataset.themeOpt);
+    document.querySelectorAll("[data-theme-opt]").forEach(b => b.classList.toggle("on", b === btn));
+  }
+  if (btn.dataset.lang) setLang(btn.dataset.lang);
+  if (btn.dataset.scan) {
+    const it = scan.items[+btn.dataset.scan];
+    if (it) { it.on = !it.on; renderScanResult(scan.dataUrl); }
+  }
+  if (btn.dataset.scanAdd) {
+    const add = scan.items.filter(x => x.on);
+    add.forEach(x => pantry.add(x.id));
+    closeModal(); render(); toast(t("camAdded", { n: add.length }));
+  }
+  if (btn.dataset.aiRemove) { store.set("kb_ai_key", ""); openSettings(); renderResults(); }
+  if (btn.dataset.saveAi) {
+    const r = ai.recipes.find(x => x.id === btn.dataset.saveAi);
+    if (r) {
+      own.push({ emoji: r.emoji, name: r.name, cat: r.cat, time: r.time, diff: r.diff, land: r.land || OWN_LAND,
+        req: r.req, opt: r.opt, steps: r.steps });
+      store.set("kb_own", own);
+      closeModal(); renderLands(); renderResults(); toast(t("aiSaved"));
+    }
+  }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+applyTheme(store.get("kb_theme", "system"));
+renderAll();
+
+// Offline-Modus (nur wenn über http/https geöffnet)
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
