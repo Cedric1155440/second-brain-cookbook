@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-style="sleek">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -31,6 +31,7 @@
     --warn: #a86b12;
     --warn-soft: #f8ebd2;
     --shadow: 0 1px 2px rgba(60,40,20,.06), 0 4px 16px rgba(60,40,20,.06);
+    --on-accent: #fff;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -64,7 +65,7 @@
   .addrow { display: flex; gap: 8px; }
   .addrow input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; }
   .addrow input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-  .btn { padding: 10px 14px; border-radius: 10px; border: 1px solid transparent; background: var(--accent); color: #fff; font-weight: 600; }
+  .btn { padding: 10px 14px; border-radius: 10px; border: 1px solid transparent; background: var(--accent); color: var(--on-accent); font-weight: 600; }
   .btn.ghost { background: transparent; color: var(--text); border-color: var(--line); }
   .btn.small { padding: 6px 10px; font-size: 13px; }
   .hint { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
@@ -86,7 +87,7 @@
   .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
   .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 3px; flex-wrap: wrap; }
   .seg button { border: 0; background: transparent; color: var(--muted); padding: 6px 10px; border-radius: 7px; font-size: 13px; font-weight: 500; }
-  .seg button.on { background: var(--accent); color: #fff; }
+  .seg button.on { background: var(--accent); color: var(--on-accent); }
   select { padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; font-size: 13px; }
   .section-title { display: flex; align-items: baseline; gap: 10px; margin: 8px 0 12px; }
   .section-title h2 { font-size: 22px; }
@@ -211,6 +212,72 @@
     .grid { grid-template-columns: 1fr; }
     header .btn.small { padding: 8px 12px; }
   }
+
+  /* ================= Design „Modern“ (data-style="sleek") ================= */
+  :root[data-style="sleek"] {
+    --bg: #f5f6f8; --surface: #ffffff; --surface-2: #eef0f3; --text: #0b0d12; --muted: #6b7280;
+    --line: #e4e7ec; --accent: #0b0d12; --accent-soft: #eef0f3; --on-accent: #ffffff;
+    --ok: #0f9d58; --ok-soft: #e3f6ec; --warn: #c2410c; --warn-soft: #fff1e8;
+    --shadow: 0 1px 2px rgba(15,23,42,.04), 0 8px 24px rgba(15,23,42,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-style="sleek"]:not([data-theme="light"]) {
+      --bg: #08090b; --surface: #131418; --surface-2: #1d1f24; --text: #f4f5f7; --muted: #9096a1;
+      --line: #25272d; --accent: #f4f5f7; --accent-soft: #1d1f24; --on-accent: #0b0d12;
+      --ok: #34d399; --ok-soft: #0e2a20; --warn: #fb923c; --warn-soft: #2d1a0d;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-style="sleek"][data-theme="dark"] {
+    --bg: #08090b; --surface: #131418; --surface-2: #1d1f24; --text: #f4f5f7; --muted: #9096a1;
+    --line: #25272d; --accent: #f4f5f7; --accent-soft: #1d1f24; --on-accent: #0b0d12;
+    --ok: #34d399; --ok-soft: #0e2a20; --warn: #fb923c; --warn-soft: #2d1a0d;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+  [data-style="sleek"] body { font-family: Inter, system-ui, -apple-system, sans-serif; letter-spacing: -.005em; }
+  [data-style="sleek"] h1, [data-style="sleek"] h2, [data-style="sleek"] h3 { font-family: Inter, system-ui, -apple-system, sans-serif; letter-spacing: -.025em; font-weight: 700; }
+  [data-style="sleek"] header h1 { font-size: clamp(26px, 4.5vw, 34px); }
+  [data-style="sleek"] header p { font-size: 14px; }
+  [data-style="sleek"] .panel { border-radius: 22px; box-shadow: none; padding: 20px; }
+  [data-style="sleek"] .panel h2 { font-size: 17px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  [data-style="sleek"] .btn { border-radius: 999px; padding: 10px 18px; font-weight: 600; transition: transform .12s, opacity .12s; }
+  [data-style="sleek"] .btn:active { transform: scale(.97); }
+  [data-style="sleek"] .btn.ghost { background: var(--surface); border-color: var(--line); color: var(--text); }
+  [data-style="sleek"] .btn.small { padding: 7px 14px; }
+  [data-style="sleek"] .addrow input, [data-style="sleek"] select { border-radius: 999px; background: var(--surface-2); border-color: transparent; padding-left: 16px; }
+  [data-style="sleek"] .search-row input { border-radius: 999px; background: var(--surface); box-shadow: none; padding-top: 14px; padding-bottom: 14px; }
+  [data-style="sleek"] .chip { background: var(--surface-2); border-radius: 999px; padding: 6px 6px 6px 12px; }
+  [data-style="sleek"] .quick button { background: transparent; border-color: var(--line); padding: 6px 12px; }
+  [data-style="sleek"] .quick button.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  [data-style="sleek"] details.group { border-top-color: var(--line); padding: 10px 0; }
+  [data-style="sleek"] .basics { border-radius: 14px; }
+  [data-style="sleek"] .seg { border-radius: 999px; padding: 4px; background: var(--surface); }
+  [data-style="sleek"] .seg button { border-radius: 999px; padding: 7px 13px; }
+  [data-style="sleek"] .section-title h2 { font-size: 21px; }
+  [data-style="sleek"] .grid { gap: 16px; }
+  [data-style="sleek"] .card { border-radius: 22px; box-shadow: none; padding: 18px; gap: 10px; transition: transform .18s, box-shadow .18s, border-color .18s; }
+  [data-style="sleek"] .card:hover { transform: translateY(-4px); border-color: var(--line); box-shadow: var(--shadow); }
+  [data-style="sleek"] .card h3 { font-size: 17px; }
+  [data-style="sleek"] .r-img, [data-style="sleek"] .net-img { margin: -18px -18px 6px; border-radius: 22px 22px 0 0; }
+  [data-style="sleek"] .net-img { width: calc(100% + 36px); }
+  [data-style="sleek"] .r-img.loaded { height: 170px; }
+  [data-style="sleek"] .r-img.big { margin: 6px 0 0; border-radius: 18px; }
+  [data-style="sleek"] .r-img.big.loaded { height: 240px; }
+  [data-style="sleek"] .bar { height: 4px; }
+  [data-style="sleek"] .badge { padding: 4px 10px; }
+  [data-style="sleek"] .diff.d3 { color: var(--warn); }
+  [data-style="sleek"] .modal { border-radius: 28px; padding: 26px; }
+  [data-style="sleek"] .modal h2 { font-size: 26px; }
+  [data-style="sleek"] .overlay { background: rgba(5,6,8,.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  [data-style="sleek"] .lang-list button { border-radius: 14px; background: var(--surface-2); border-color: transparent; }
+  [data-style="sleek"] .lang-list button.on { background: var(--accent); color: var(--on-accent); }
+  [data-style="sleek"] .tut-list li { border-radius: 16px; }
+  [data-style="sleek"] .ai-box { border-style: solid; border-color: var(--line); border-radius: 18px; }
+  [data-style="sleek"] .placeholder { border-style: solid; border-width: 1px; border-radius: 22px; background: var(--surface); }
+  [data-style="sleek"] .toast { border-radius: 999px; padding: 10px 18px; }
+  [data-style="sleek"] .jump { border-radius: 999px; }
+  .style-seg { display: flex; width: 100%; margin-bottom: 4px; }
+  .style-seg button { flex: 1; padding: 10px 8px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -1051,6 +1118,8 @@ function openSettings() {
   const theme = store.get("kb_theme", "system");
   $("#modal").innerHTML = `
     <h2>⚙️ ${t("settings")}</h2>
+    <h3>${t("design")}</h3>
+    ${styleSegHTML()}
     <h3>${t("appearance")}</h3>
     <div class="seg theme-seg" id="themeSeg">
       ${[["system", "🖥️"], ["light", "☀️"], ["dark", "🌙"]].map(([k, ic]) =>
@@ -1076,23 +1145,34 @@ function switchLang(code) {
 }
 function setLang(code) { switchLang(code); openSettings(); }
 
+// Design: "sleek" (Modern, Standard) oder "classic" (Klassisch)
+const STYLE_BG = { classic: { light: "#faf6ef", dark: "#1c1916" }, sleek: { light: "#f5f6f8", dark: "#08090b" } };
+const designStyle = () => store.get("kb_style", "sleek") === "classic" ? "classic" : "sleek";
+function applyStyle(style) {
+  document.documentElement.setAttribute("data-style", style);
+  applyTheme(store.get("kb_theme", "system"));
+}
+
 function applyTheme(pref) {
   const root = document.documentElement;
   const [mLight, mDark] = document.querySelectorAll('meta[name="theme-color"]');
   const sb = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+  const bg = STYLE_BG[designStyle()];
   if (pref === "light" || pref === "dark") {
     root.setAttribute("data-theme", pref);
-    const c = pref === "dark" ? "#1c1916" : "#faf6ef";
+    const c = bg[pref];
     if (mLight) { mLight.content = c; mLight.removeAttribute("media"); }
     if (mDark) { mDark.content = c; mDark.removeAttribute("media"); }
     if (sb) sb.content = pref === "dark" ? "black" : "default";
   } else {
     root.removeAttribute("data-theme");
-    if (mLight) { mLight.content = "#faf6ef"; mLight.media = "(prefers-color-scheme: light)"; }
-    if (mDark) { mDark.content = "#1c1916"; mDark.media = "(prefers-color-scheme: dark)"; }
+    if (mLight) { mLight.content = bg.light; mLight.media = "(prefers-color-scheme: light)"; }
+    if (mDark) { mDark.content = bg.dark; mDark.media = "(prefers-color-scheme: dark)"; }
     if (sb) sb.content = "default";
   }
 }
+const styleSegHTML = () => `<div class="seg style-seg">${[["sleek", "✨"], ["classic", "🍳"]].map(([k, ic]) =>
+  `<button data-style-opt="${k}" class="${designStyle() === k ? "on" : ""}">${ic} ${t(k === "sleek" ? "styleSleek" : "styleClassic")}</button>`).join("")}</div>`;
 
 function closeModal() {
   if (tut.active) { tut.active = false; store.set("kb_onboarded", true); } // Tutorial weggeklickt = übersprungen
@@ -1913,6 +1993,9 @@ function openTutorial(step) {
   else if (kind === "theme") body = `
     <div class="tut-hero">🎨</div>
     <h2>${t("tutThemeTitle")}</h2>
+    <h3>${t("design")}</h3>
+    ${styleSegHTML()}
+    <h3>${t("appearance")}</h3>
     <div class="seg theme-seg">${[["system", "🖥️"], ["light", "☀️"], ["dark", "🌙"]].map(([k, ic]) =>
       `<button data-theme-opt="${k}" class="${theme === k ? "on" : ""}">${ic} ${t(k)}</button>`).join("")}</div>
     <p class="hint">${t("systemHint")}</p>`;
@@ -2078,6 +2161,17 @@ const OAI_NOTE = {
   tr: "OpenAI, doğrudan tarayıcıdan yapılan istekleri bazen engeller. Çalışmazsa OpenRouter'ı kullan ve orada bir GPT modeli seç.",
 };
 for (const l in OAI_NOTE) AI_UI[l].aiOpenAINote = OAI_NOTE[l];
+
+const STYLE_UI = {
+  de: { design: "Design", styleSleek: "Modern", styleClassic: "Klassisch" },
+  en: { design: "Design", styleSleek: "Modern", styleClassic: "Classic" },
+  fr: { design: "Design", styleSleek: "Moderne", styleClassic: "Classique" },
+  es: { design: "Diseño", styleSleek: "Moderno", styleClassic: "Clásico" },
+  it: { design: "Design", styleSleek: "Moderno", styleClassic: "Classico" },
+  pt: { design: "Design", styleSleek: "Moderno", styleClassic: "Clássico" },
+  tr: { design: "Tasarım", styleSleek: "Modern", styleClassic: "Klasik" },
+};
+for (const l in STYLE_UI) Object.assign(AI_UI[l], STYLE_UI[l]);
 // Überall "OpenRouter" mit aufzählen
 for (const l in AI_UI) for (const k of ["aiNoKey", "tutAiText"]) AI_UI[l][k] = AI_UI[l][k].replace("DeepSeek", "DeepSeek, OpenRouter");
 
@@ -2139,6 +2233,10 @@ $("#overlay").addEventListener("click", e => {
     own.splice(+btn.dataset.del.slice(1), 1); store.set("kb_own", own);
     closeModal(); renderLands(); renderResults(); toast(t("deleted"));
   }
+  if (btn.dataset.styleOpt) {
+    store.set("kb_style", btn.dataset.styleOpt); applyStyle(designStyle());
+    document.querySelectorAll("[data-style-opt]").forEach(b => b.classList.toggle("on", b === btn));
+  }
   if (btn.dataset.themeOpt) {
     store.set("kb_theme", btn.dataset.themeOpt); applyTheme(btn.dataset.themeOpt);
     document.querySelectorAll("[data-theme-opt]").forEach(b => b.classList.toggle("on", b === btn));
@@ -2180,7 +2278,7 @@ $("#overlay").addEventListener("click", e => {
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
 
-applyTheme(store.get("kb_theme", "system"));
+applyStyle(designStyle());
 renderAll();
 if (!store.get("kb_onboarded", false)) openTutorial(0);
 
