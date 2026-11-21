@@ -8,6 +8,7 @@ Gib ein, was du zuhause hast, und das Kochbuch schlägt dir passende Rezepte vor
 - **Vorrat eintragen** per Text oder durch Antippen; die App zeigt, was du sofort kochen kannst und wo nur 1–2 Zutaten fehlen
 - **✨ KI-Suche:** Findet das Kochbuch nichts Passendes, sucht Claude Rezepte mit genau deinen Zutaten
 - **📷 Foto-Suche:** Foto vom Kühlschrank oder Einkauf machen, die KI erkennt die Zutaten
+- **🌐 Internet-Suche:** sucht zusätzlich live in der offenen Rezept-Datenbank [TheMealDB](https://www.themealdb.com/) (ohne Schlüssel, Rezepte auf Englisch)
 - **Eigene Rezepte** anlegen und KI-Rezepte speichern
 - **7 Sprachen:** Deutsch, English, Français, Español, Italiano, Português, Türkçe
 - **Darstellung:** System, Hell oder Dunkel
@@ -26,6 +27,10 @@ Dann `http://localhost:8080` öffnen. Für die Installation auf dem iPhone muss 
 ## KI-Funktionen
 
 KI-Suche und Foto-Suche nutzen die Claude API. Dafür trägst du in den Einstellungen einen eigenen API-Schlüssel ein (erhältlich auf [console.anthropic.com](https://console.anthropic.com)). Der Schlüssel wird nur im Browser des jeweiligen Geräts gespeichert und nie in diesem Repository. Jede Anfrage kostet ein paar Cent.
+
+## Internet-Suche (TheMealDB)
+
+Rezeptdaten und Fotos der Internet-Suche stammen von [TheMealDB](https://www.themealdb.com/). Die App nutzt den kostenlosen Testschlüssel `1`, der laut den [Nutzungsbedingungen](https://www.themealdb.com/terms_of_use.php) nur für Entwicklung und Lernzwecke gedacht ist. Dieses Projekt ist privat und nicht für eine öffentliche Veröffentlichung gedacht. Wer die App öffentlich anbieten will, braucht einen Supporter-Schlüssel von TheMealDB und trägt ihn in `index.html` bei `MEALDB` ein.
 
 ## Aufbau
 

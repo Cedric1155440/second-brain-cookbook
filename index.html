@@ -118,6 +118,10 @@
   .ai-tag { color: var(--accent); font-weight: 600; }
   .spinner { width: 18px; height: 18px; flex: none; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .net-img { width: calc(100% + 32px); margin: -16px -16px 4px; height: 140px; object-fit: cover; border-radius: 14px 14px 0 0; background: var(--surface-2); }
+  .ok-text { color: var(--ok); }
+  .section-title a { color: var(--muted); }
+  a.btn { text-decoration: none; display: inline-flex; align-items: center; }
   .tut-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
   .tut-dots { display: flex; gap: 6px; }
   .tut-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
@@ -743,6 +747,7 @@ function renderResults() {
     if (!ready.length && !almost.length && pantry.size)
       out.push(`<div class="placeholder"><div class="big">🤔</div><p>${t("noneTitle")}<br>${t("noneText")}</p></div>`);
     out.push(aiSection(needsAI()));
+    out.push(netSection());
     if (state.showAll && rest.length) out.push(section(t("more"), t("count", { n: rest.length }), rest));
   }
   $("#results").innerHTML = out.join("");
@@ -763,7 +768,7 @@ function renderLands() {
   $("#subtitle").textContent = `${t("tagline")} ${t("stats", { n: all.length, k: lands.length })}`;
 }
 
-function render() { renderPantry(); scheduleAI(); renderResults(); }
+function render() { renderPantry(); scheduleAI(); scheduleNet(); renderResults(); }
 function renderAll() { buildLookup(); renderStatic(); renderGroups(); renderCats(); renderLands(); render(); }
 
 // ---------- Rezept-Detail ----------
@@ -1236,6 +1241,162 @@ const CAM_UI = {
 };
 for (const l in CAM_UI) Object.assign(AI_UI[l], CAM_UI[l]);
 
+// ---------- Internet-Suche: TheMealDB (Testschlüssel "1", nur privat / zum Lernen) ----------
+// Bedingungen: https://www.themealdb.com/terms_of_use.php – für eine öffentliche Veröffentlichung braucht es einen Supporter-Schlüssel.
+const MEALDB = "https://www.themealdb.com/api/json/v1/1/";
+// Zutaten, die bei TheMealDB anders heißen (sonst wird der englische Name benutzt)
+const MEALDB_MAP = {
+  paprika: ["red pepper", "green pepper"], bananen: ["banana"], ananas: ["pineapple chunks"], quark: ["cottage cheese"],
+  hack: ["minced beef"], nudeln: ["spaghetti", "penne rigate", "macaroni"], toast: ["bread"], tomatenmark: ["tomato puree"],
+  bohnen: ["kidney beans", "cannellini beans"], mais: ["sweetcorn"], bruehe: ["chicken stock", "vegetable stock"],
+  oliven: ["black olives"], currypaste: ["curry powder", "thai green curry paste"], chili: ["chilli", "red chilli"],
+  suesskartoffel: ["sweet potatoes"], beeren: ["strawberries", "raspberries", "blueberries"],
+  schokolade: ["dark chocolate", "milk chocolate"], blaetterteig: ["puff pastry", "filo pastry"],
+  asianudeln: ["rice noodles", "egg noodles", "noodles"], rotwein: ["red wine", "white wine"], gelatine: ["gelatine leafs"],
+  pesto: [], kaffee: [], loeffelbiskuit: [], miso: [], nori: [], reispapier: [], blumenkohl: [], bulgur: [], tahini: [],
+};
+const netQueries = id => (MEALDB_MAP[id]
+  || (LANGS.en && LANGS.en.ing[id] ? [LANGS.en.ing[id].toLowerCase()]
+  : !ING[id] ? [String(id).toLowerCase()] : [])).slice(0, 3); // unbekannte Zutaten so suchen, wie sie eingetippt wurden
+let net = { key: "", status: "idle", meals: [] };
+const netFilterCache = {}, netMealCache = {};
+let netTimer = null;
+
+function scheduleNet() {
+  clearTimeout(netTimer);
+  const k = [...pantry].sort().join(",");
+  if (net.key === k) return;
+  net = { key: k, status: pantry.size ? "loading" : "idle", meals: [] };
+  if (pantry.size) netTimer = setTimeout(() => runNet(k), 700);
+}
+
+async function netFetch(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+
+async function runNet(k) {
+  const ids = [...pantry].filter(id => netQueries(id).length);
+  if (!ids.length) { if (net.key === k) { net.status = "nomap"; renderResults(); } return; }
+  const score = new Map(); // idMeal -> { meal, ids:Set }
+  let failed = 0, total = 0;
+  await Promise.all(ids.slice(0, 8).flatMap(id => netQueries(id).map(async q => {
+    total++;
+    try {
+      const url = MEALDB + "filter.php?i=" + encodeURIComponent(q.replace(/ /g, "_"));
+      const data = netFilterCache[url] || (netFilterCache[url] = await netFetch(url));
+      for (const m of data.meals || []) {
+        const e = score.get(m.idMeal) || { meal: m, ids: new Set() };
+        e.ids.add(id); score.set(m.idMeal, e);
+      }
+    } catch { failed++; }
+  })));
+  if (net.key !== k) return; // Vorrat hat sich inzwischen geändert
+  const meals = [...score.values()].sort((a, b) => b.ids.size - a.ids.size || a.meal.strMeal.localeCompare(b.meal.strMeal)).slice(0, 9);
+  net = { key: k, status: failed && failed === total ? "error" : meals.length ? "done" : "empty", meals };
+  renderResults();
+}
+
+const safeUrl = u => /^https?:\/\//i.test(String(u || "")) ? String(u) : "";
+
+function netSection() {
+  if (!pantry.size) return "";
+  const head = `<div class="section-title"><h2>🌐 ${t("netTitle")}</h2><span>${net.meals.length ? t("count", { n: net.meals.length }) + " · " : ""}<a href="https://www.themealdb.com/" target="_blank" rel="noopener">${t("netSource")}</a></span></div>`;
+  if (net.status === "loading") return head + `<div class="ai-box"><span class="spinner"></span><p>${t("netLoading")}</p></div>`;
+  if (net.status === "error") return head + `<div class="ai-box err"><p>${t("netError")}</p></div>`;
+  if (net.status === "nomap" || net.status === "empty") return head + `<div class="ai-box"><p>${t(net.status === "nomap" ? "netNoMap" : "netNone")}</p></div>`;
+  if (net.status !== "done") return "";
+  return head + `<div class="grid">${net.meals.map(({ meal, ids }) => `
+    <button class="card net-card" data-net="${esc(meal.idMeal)}">
+      ${safeUrl(meal.strMealThumb) ? `<img class="net-img" loading="lazy" src="${esc(safeUrl(meal.strMealThumb))}" alt="">` : ""}
+      <h3>${esc(meal.strMeal)}</h3>
+      <div class="meta">${meal.strArea ? `<span>🌍 ${esc(meal.strArea)}</span>` : ""}<span>🌐 TheMealDB</span></div>
+      <div class="missing ok-text">✓ ${t("netMatch", { a: ids.size })}: ${[...ids].map(nameOf).map(esc).join(", ")}</div>
+    </button>`).join("")}</div>`;
+}
+
+// Steht eine Zutat aus dem Internet-Rezept in deinem Vorrat?
+function netHave(ingName) {
+  const s = ingName.toLowerCase().trim();
+  if (/^(salt|sea salt|black pepper|pepper|water|oil|olive oil|vegetable oil|sunflower oil|cold water|hot water)$/.test(s)) return true;
+  // "Chicken Stock" ist kein Hähnchen, "Tomato Puree" keine Tomate
+  const MODS = ["stock", "paste", "powder", "sauce", "juice", "puree", "oil", "vinegar", "flakes", "cube", "leaves", "seeds", "extract", "jam"];
+  const modOf = str => MODS.filter(m => new RegExp("\\b" + m + "\\b").test(str));
+  for (const id of pantry) {
+    const terms = [...netQueries(id), (LANGS.en && LANGS.en.ing[id] || "").toLowerCase()].filter(Boolean);
+    if (terms.some(x => {
+      if (s === x || stem(s) === stem(x)) return true;
+      if (!(s.includes(x) || x.includes(s))) return false;
+      const ms = modOf(s), mx = modOf(x);
+      return ms.every(m => mx.includes(m)) && mx.every(m => ms.includes(m));
+    })) return true;
+  }
+  return false;
+}
+
+async function openNetMeal(idMeal) {
+  $("#modal").innerHTML = `<div class="ai-box"><span class="spinner"></span><p>${t("netLoading")}</p></div>`;
+  $("#overlay").classList.add("open");
+  try {
+    const url = MEALDB + "lookup.php?i=" + encodeURIComponent(idMeal);
+    const m = netMealCache[idMeal] || (netMealCache[idMeal] = ((await netFetch(url)).meals || [])[0]);
+    if (!m) throw new Error("not found");
+    const ings = [];
+    for (let i = 1; i <= 20; i++) {
+      const n = (m["strIngredient" + i] || "").trim();
+      if (n) ings.push({ n, q: (m["strMeasure" + i] || "").trim() });
+    }
+    const steps = String(m.strInstructions || "").split(/\r?\n+/).map(s => s.trim())
+      .filter(s => s && !/^(step\s*)?\d+\.?$/i.test(s));
+    const missing = ings.filter(x => !netHave(x.n)).map(x => x.n);
+    const src = safeUrl(m.strSource), yt = safeUrl(m.strYoutube), img = safeUrl(m.strMealThumb);
+    $("#modal").innerHTML = `
+      ${img ? `<img class="scan-img" src="${esc(img)}" alt="">` : ""}
+      <h2>${esc(m.strMeal)}</h2>
+      <div class="meta">${m.strArea ? `<span>🌍 ${esc(m.strArea)}</span>` : ""}${m.strCategory ? `<span>${esc(m.strCategory)}</span>` : ""}</div>
+      ${lang !== "en" ? `<p class="hint">🇬🇧 ${t("netEnglish")}</p>` : ""}
+      <h3>${t("ingredients")}</h3>
+      <ul class="ing">${ings.map(x => `<li class="${netHave(x.n) ? "have" : "miss"}"><span class="dot">${netHave(x.n) ? "✓" : "!"}</span>${esc(x.n)}${x.q ? ` <small class="hint">· ${esc(x.q)}</small>` : ""}</li>`).join("")}</ul>
+      <h3>${t("preparation")}</h3>
+      <ol class="steps">${steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
+      <p class="hint">${t("netSource")}: <a href="https://www.themealdb.com/meal/${encodeURIComponent(m.idMeal)}" target="_blank" rel="noopener">themealdb.com</a></p>
+      <div class="actions">
+        ${src ? `<a class="btn ghost small" href="${esc(src)}" target="_blank" rel="noopener">🔗 ${t("netOpen")}</a>` : ""}
+        ${yt ? `<a class="btn ghost small" href="${esc(yt)}" target="_blank" rel="noopener">▶️ ${t("netVideo")}</a>` : ""}
+        ${missing.length ? `<button class="btn ghost small" data-copy="${esc(missing.join(", "))}">📋 ${t("copyMissing")}</button>` : ""}
+        <button class="btn small" data-close>${t("close")}</button>
+      </div>`;
+  } catch {
+    $("#modal").innerHTML = `<div class="ai-box err"><p>${t("netError")}</p></div><div class="actions"><button class="btn small" data-close>${t("close")}</button></div>`;
+  }
+}
+
+const NET_UI = {
+  de: { netTitle: "Aus dem Internet", netSource: "Rezepte & Fotos: TheMealDB", netLoading: "Suche im Internet …", netNone: "Im Internet nichts Passendes gefunden.",
+    netError: "Die Internet-Suche geht gerade nicht – bist du offline?", netNoMap: "Für deine Zutaten gibt es in der Internet-Datenbank keine passenden Einträge.",
+    netMatch: "{a} deiner Zutaten", netEnglish: "Dieses Rezept gibt es nur auf Englisch.", netOpen: "Original ansehen", netVideo: "Video" },
+  en: { netTitle: "From the internet", netSource: "Recipes & photos: TheMealDB", netLoading: "Searching the internet …", netNone: "Nothing suitable found online.",
+    netError: "Internet search isn't working right now – are you offline?", netNoMap: "The online database has no entries for your ingredients.",
+    netMatch: "{a} of your ingredients", netEnglish: "This recipe is only available in English.", netOpen: "View original", netVideo: "Video" },
+  fr: { netTitle: "Depuis internet", netSource: "Recettes & photos : TheMealDB", netLoading: "Recherche sur internet …", netNone: "Rien d'adapté trouvé en ligne.",
+    netError: "La recherche internet ne fonctionne pas – es-tu hors ligne ?", netNoMap: "La base de données en ligne n'a rien pour tes ingrédients.",
+    netMatch: "{a} de tes ingrédients", netEnglish: "Cette recette n'existe qu'en anglais.", netOpen: "Voir l'original", netVideo: "Vidéo" },
+  es: { netTitle: "De internet", netSource: "Recetas y fotos: TheMealDB", netLoading: "Buscando en internet …", netNone: "No se encontró nada adecuado en internet.",
+    netError: "La búsqueda en internet no funciona ahora – ¿estás sin conexión?", netNoMap: "La base de datos en línea no tiene nada para tus ingredientes.",
+    netMatch: "{a} de tus ingredientes", netEnglish: "Esta receta solo está en inglés.", netOpen: "Ver original", netVideo: "Vídeo" },
+  it: { netTitle: "Da internet", netSource: "Ricette e foto: TheMealDB", netLoading: "Cerco su internet …", netNone: "Niente di adatto trovato online.",
+    netError: "La ricerca su internet non funziona – sei offline?", netNoMap: "Il database online non ha voci per i tuoi ingredienti.",
+    netMatch: "{a} dei tuoi ingredienti", netEnglish: "Questa ricetta è disponibile solo in inglese.", netOpen: "Vedi originale", netVideo: "Video" },
+  pt: { netTitle: "Da internet", netSource: "Receitas e fotos: TheMealDB", netLoading: "A pesquisar na internet …", netNone: "Nada adequado encontrado online.",
+    netError: "A pesquisa na internet não funciona agora – estás offline?", netNoMap: "A base de dados online não tem nada para os teus ingredientes.",
+    netMatch: "{a} dos teus ingredientes", netEnglish: "Esta receita só existe em inglês.", netOpen: "Ver original", netVideo: "Vídeo" },
+  tr: { netTitle: "İnternetten", netSource: "Tarifler ve fotoğraflar: TheMealDB", netLoading: "İnternette aranıyor …", netNone: "İnternette uygun bir şey bulunamadı.",
+    netError: "İnternet araması şu an çalışmıyor – çevrimdışı mısın?", netNoMap: "Çevrimiçi veritabanında malzemelerin için kayıt yok.",
+    netMatch: "{a} malzemen", netEnglish: "Bu tarif yalnızca İngilizce mevcut.", netOpen: "Orijinali gör", netVideo: "Video" },
+};
+for (const l in NET_UI) Object.assign(AI_UI[l], NET_UI[l]);
+
 // ---------- Tutorial beim ersten Öffnen ----------
 const tut = { active: false, step: 0 };
 const TUT_STEPS = ["lang", "theme", "how", "ai", "done"];
@@ -1388,6 +1549,7 @@ $("#results").addEventListener("click", e => {
     else runAI(a.dataset.ai === "more");
     return;
   }
+  const n = e.target.closest("[data-net]"); if (n) { openNetMeal(n.dataset.net); return; }
   const c = e.target.closest("[data-open]"); if (c) openRecipe(c.dataset.open);
 });
 $("#ownBtn").addEventListener("click", openOwnForm);
