@@ -8,6 +8,7 @@ Gib ein, was du zuhause hast, und das Kochbuch schlägt dir passende Rezepte vor
 - **Vorrat eintragen** per Text oder durch Antippen; die App zeigt, was du sofort kochen kannst und wo nur 1–2 Zutaten fehlen
 - **✨ KI-Suche:** Findet das Kochbuch nichts Passendes, sucht Claude Rezepte mit genau deinen Zutaten
 - **📷 Foto-Suche:** Foto vom Kühlschrank oder Einkauf machen, die KI erkennt die Zutaten
+- **📸 Beispielbilder:** zu fast jedem Rezept ein Foto von Wikipedia, wie das Gericht ungefähr aussieht (frei lizenziert, mit Link zur Quelle)
 - **🌐 Internet-Suche:** sucht zusätzlich live in der offenen Rezept-Datenbank [TheMealDB](https://www.themealdb.com/) (ohne Schlüssel, Rezepte auf Englisch)
 - **Eigene Rezepte** anlegen und KI-Rezepte speichern
 - **7 Sprachen:** Deutsch, English, Français, Español, Italiano, Português, Türkçe

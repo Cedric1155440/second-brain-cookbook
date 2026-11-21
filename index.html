@@ -118,6 +118,13 @@
   .ai-tag { color: var(--accent); font-weight: 600; }
   .spinner { width: 18px; height: 18px; flex: none; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .r-img { margin: -16px -16px 4px; height: 0; overflow: hidden; border-radius: 14px 14px 0 0; background: var(--surface-2); transition: height .25s; }
+  .r-img.loaded { height: 130px; }
+  .r-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .r-img.big { margin: 4px 0 0; border-radius: 12px; }
+  .r-img.big.loaded { height: 220px; }
+  .img-credit { margin: 4px 0 0; font-size: 11px; color: var(--muted); }
+  .img-credit a { color: var(--muted); }
   .net-img { width: calc(100% + 32px); margin: -16px -16px 4px; height: 140px; object-fit: cover; border-radius: 14px 14px 0 0; background: var(--surface-2); }
   .ok-text { color: var(--ok); }
   .section-title a { color: var(--muted); }
@@ -714,7 +721,9 @@ function card(r, ev) {
   if (!ev.missing.length) badge = `<span class="badge ok">✓ ${t("allThere")}</span>`;
   else if (ev.missing.length <= 2) badge = `<span class="badge warn">${t("missingN", { n: ev.missing.length })}</span>`;
   else badge = `<span class="badge no">${ev.have.length}/${ev.req.length}</span>`;
+  const wk = recipeKey(r);
   return `<button class="card" data-open="${r.id}">
+    ${wk ? `<div class="r-img" data-wiki="${esc(wk)}"></div>` : ""}
     <div class="top"><span class="emoji">${r.emoji || "🍽️"}</span>${badge}</div>
     <h3>${esc(r.name)}</h3>
     <div class="meta"><span>⏱ ${fmtTime(r.time)}</span>${r.land ? `<span>🌍 ${esc(landName(r.land))}</span>` : ""}${r.own ? `<span>★ ${t("ownTag")}</span>` : ""}${r.ai ? `<span class="ai-tag">✨ ${t("aiTag")}</span>` : ""}</div>
@@ -751,6 +760,7 @@ function renderResults() {
     if (state.showAll && rest.length) out.push(section(t("more"), t("count", { n: rest.length }), rest));
   }
   $("#results").innerHTML = out.join("");
+  observeImgs($("#results"));
   $("#jumpBtn").textContent = "🍽️ " + (pantry.size ? t("jumpCount", { a: ready.length, b: almost.length }) : t("jump"));
 }
 const section = (title, sub, arr) => `<div class="section-title"><h2>${title}</h2><span>${sub}</span></div><div class="grid">${arr.map(x => card(x.r, x.ev)).join("")}</div>`;
@@ -781,6 +791,7 @@ function openRecipe(id) {
     <div class="head"><span class="emoji">${r.emoji || "🍽️"}</span><div><h2>${esc(r.name)}</h2>
     <div class="meta"><span>⏱ ${fmtTime(r.time)}</span>${r.land ? `<span>🌍 ${esc(landName(r.land))}</span>` : ""}<span>${esc(catName(r.cat))}</span>${diffBadge(r.diff)}</div></div></div>
     ${r.ai ? `<p class="hint">✨ ${t("aiNote")}</p>` : ""}
+    ${recipeKey(r) ? `<div class="r-img big" data-wiki="${esc(recipeKey(r))}" data-credit></div>` : ""}
     <h3>${t("ingredients")}</h3>
     <ul class="ing">${ev.req.map(x => ev.have.includes(x) ? li(x, "have", "✓") : li(x, "miss", "!")).join("")}</ul>
     ${ev.opt.length ? `<h3>${t("optional")}</h3><ul class="ing">${ev.opt.map(x => ev.optHave.includes(x) ? li(x, "have", "✓") : li(x, "opt", "·")).join("")}</ul>` : ""}
@@ -794,6 +805,7 @@ function openRecipe(id) {
       <button class="btn small" data-close>${t("close")}</button>
     </div>`;
   $("#overlay").classList.add("open");
+  $("#modal").querySelectorAll("[data-wiki]").forEach(fillImg);
 }
 
 function openOwnForm() {
@@ -1241,6 +1253,101 @@ const CAM_UI = {
 };
 for (const l in CAM_UI) Object.assign(AI_UI[l], CAM_UI[l]);
 
+// ---------- Beispielbilder von Wikipedia (frei lizenziert) ----------
+// Rezeptname → Wikipedia-Artikel (englisch; "de:" = deutsche Wikipedia). Das Bild zeigt, wie das Gericht ungefähr aussieht.
+const WIKI = {
+  "Spaghetti Aglio e Olio": "Spaghetti aglio e olio", "Pfannkuchen": "de:Pfannkuchen", "Rührei": "Scrambled eggs", "Gemüse-Omelett": "Omelette",
+  "Nudeln mit Tomatensauce": "Pasta al pomodoro", "Spaghetti Bolognese": "Bolognese sauce", "Spaghetti Carbonara": "Carbonara",
+  "Bratkartoffeln": "Bratkartoffeln", "Kartoffelpüree": "Mashed potato", "Kartoffelsuppe": "de:Kartoffelsuppe", "Gebratener Reis": "Fried rice",
+  "Hähnchen-Curry": "Chicken tikka masala", "Linsen-Dal": "de:Dal (Gericht)", "Chili con Carne": "Chili con carne", "Chili sin Carne": "Vegetarian chili",
+  "Shakshuka": "Shakshouka", "Griechischer Salat": "Greek salad", "Tomate-Mozzarella": "Caprese salad", "Quesadillas": "de:Quesadilla",
+  "Toast Hawaii": "Toast Hawaii", "Pizza-Toast": "Pizza bread", "Arme Ritter": "French toast", "Bruschetta": "Bruschetta",
+  "Gemüsepfanne mit Reis": "Stir frying", "Pesto-Nudeln": "Pesto", "Nudelauflauf": "de:Nudelauflauf", "Brokkoli-Sahne-Nudeln": "Pasta",
+  "Champignon-Rahmnudeln": "Mushroom sauce", "Ofenkartoffeln mit Kräuterquark": "Baked potato", 
+  "Thunfisch-Tomaten-Nudeln": "Pasta", "Thunfischsalat": "de:Thunfischsalat", "Porridge": "Porridge", "Bananen-Pancakes": "Pancake",
+  "Kürbissuppe": "Pumpkin soup", "Tomatensuppe": "Tomato soup", "Pilzrisotto": "Risotto", "Kichererbsen-Curry": "Chana masala",
+  "Avocado-Toast": "Avocado toast", "Hähnchen mit Ofengemüse": "Roast chicken", "Frikadellen": "Frikadeller", "Gurkensalat": "Cucumber salad",
+  "Hähnchen-Wraps": "Wrap (food)", "Nudelsalat": "Pasta salad", "Milchreis": "Rice pudding", "Apfel-Crumble": "Crumble",
+  "Würstchen mit Kartoffelsalat": "Potato salad", "Linsensuppe": "Lentil soup",
+  "Lasagne": "Lasagna", "Pizza Margherita": "Pizza Margherita", "Penne all'Arrabbiata": "Arrabbiata sauce", "Minestrone": "Minestrone",
+  "Gnocchi selbstgemacht": "Gnocchi", "Melanzane alla Parmigiana": "Parmigiana", "Tiramisu": "Tiramisu", "Panna Cotta": "Panna cotta",
+  "Focaccia": "Focaccia", "Ratatouille": "Ratatouille", "Quiche Lorraine": "Quiche", "Crêpes": "Crêpe", "Croque Monsieur": "Croque monsieur",
+  "Französische Zwiebelsuppe": "French onion soup", "Coq au Vin": "Coq au vin", "Boeuf Bourguignon": "Beef bourguignon",
+  "Mousse au Chocolat": "Chocolate mousse", "Crème brûlée": "Crème brûlée", "Paella": "Paella", "Tortilla de Patatas": "Spanish omelette",
+  "Gazpacho": "Gazpacho", "Patatas Bravas": "Patatas bravas", "Gambas al Ajillo": "Gambas al ajillo", "Moussaka": "Moussaka",
+  "Tzatziki": "Tzatziki", "Gyros-Pfanne": "Gyros", "Hummus": "Hummus", "Falafel": "Falafel", "Menemen": "Menemen (food)",
+  "Mercimek (Rote-Linsen-Suppe)": "Lentil soup", "Tabouleh": "Tabbouleh", "Köfte": "Kofta", "Börek mit Spinat & Feta": "Börek",
+  "Wiener Schnitzel": "Wiener schnitzel", "Käsespätzle": "de:Käsespätzle", "Rinderrouladen": "de:Rinderroulade", "Gulasch": "Goulash",
+  "Kaiserschmarrn": "Kaiserschmarrn", "Kartoffelpuffer": "Potato pancake", "Currywurst": "Currywurst", "Erbsensuppe": "Pea soup",
+  "Flammkuchen": "Tarte flambée", "Königsberger Klopse": "Königsberger Klopse", "Schweinebraten": "de:Schweinebraten", "Waffeln": "Waffle",
+  "Fish & Chips": "Fish and chips", "Shepherd's Pie": "Shepherd's pie", "Full English Breakfast": "Full breakfast", "Scones": "Scone",
+  "Irish Stew": "Irish stew", "Burger": "Hamburger", "Mac & Cheese": "Macaroni and cheese", "American Pancakes": "Pancake",
+  "Brownies": "Chocolate brownie", "Chocolate Chip Cookies": "Chocolate chip cookie", "Chicken Wings": "Buffalo wing",
+  "Pulled Pork": "Pulled pork", "Caesar Salad": "Caesar salad", "Tacos": "Taco", "Guacamole": "Guacamole", "Burrito": "Burrito",
+  "Enchiladas": "Enchilada", "Huevos Rancheros": "Huevos rancheros", "Empanadas": "Empanada", "Ceviche": "Ceviche", "Arepas": "Arepa",
+  "Butter Chicken": "Butter chicken", "Chana Masala": "Chana masala", "Palak Paneer": "Palak paneer", "Naan": "Naan",
+  "Chicken Biryani": "Biryani", "Aloo Gobi": "Aloo gobi", "Mango Lassi": "Lassi", "Pad Thai": "Pad thai", "Grünes Thai-Curry": "Green curry",
+  "Tom Kha Gai": "Tom kha kai", "Mango Sticky Rice": "Mango sticky rice", "Pad Kra Pao": "Phat kaphrao", "Pho": "Pho",
+  "Sommerrollen": "Gỏi cuốn", "Gebratene Nudeln": "Chow mein", "Hähnchen süß-sauer": "Sweet and sour pork",
+  "Kung Pao Chicken": "Kung Pao chicken", "Mapo Tofu": "Mapo tofu", "Jiaozi (Teigtaschen)": "Jiaozi", "Frühlingsrollen": "Spring roll",
+  "Sushi (Maki)": "Sushi", "Ramen": "Ramen", "Teriyaki-Hähnchen": "Teriyaki", "Miso-Suppe": "Miso soup", "Okonomiyaki": "Okonomiyaki",
+  "Onigiri": "Onigiri", "Bibimbap": "Bibimbap", "Bulgogi": "Bulgogi", "Japchae": "Japchae", "Poke Bowl": "Poke (dish)",
+  "Gemüse-Couscous": "Couscous", "Hähnchen-Tajine": "Tajine", "Jollof-Reis": "Jollof rice", "Maafe (Erdnuss-Eintopf)": "Maafe",
+  "Borschtsch": "Borscht", "Pierogi": "Pierogi", "Bœuf Stroganoff": "Beef Stroganoff", "Köttbullar": "de:Köttbullar",
+  "Zimtschnecken": "Cinnamon roll", "Pavlova": "Pavlova (cake)", "Bananenbrot": "Banana bread", "Apfelstrudel": "Apple strudel",
+};
+const imgCache = store.get("kb_img2", {});
+const imgPending = {};
+
+function wikiImage(key) {
+  if (key in imgCache) return Promise.resolve(imgCache[key]);
+  if (imgPending[key]) return imgPending[key];
+  const [wiki, title] = key.startsWith("de:") ? ["de", key.slice(3)] : ["en", key];
+  return imgPending[key] = fetch(`https://${wiki}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}?redirect=true`,
+      { headers: { "Api-User-Agent": "SecondBrainCookbook/1.0 (private hobby recipe app)" } })
+    .then(r => r.ok ? r.json() : null)
+    .then(j => {
+      // 500px-Vorschau (Wikimedia liefert nur Standardgrößen); ist das Original kleiner, das Original nehmen (größere Vorschaubilder gibt es dann nicht)
+      const big = j && j.originalimage && j.originalimage.width >= 500 && j.thumbnail
+        ? j.thumbnail.source.replace(/\/\d+px-/, "/500px-") : j && j.originalimage && j.originalimage.source;
+      const img = j && j.thumbnail && safeUrl(big)
+        ? { src: big, page: safeUrl(j.content_urls && j.content_urls.desktop && j.content_urls.desktop.page) }
+        : null;
+      imgCache[key] = img; store.set("kb_img2", imgCache);
+      return img;
+    })
+    .catch(() => null) // offline: kein Bild, später nochmal versuchen
+    .finally(() => { delete imgPending[key]; });
+}
+
+// Bilder erst laden, wenn die Karte sichtbar wird
+const imgObserver = "IntersectionObserver" in window ? new IntersectionObserver(entries => {
+  for (const e of entries) if (e.isIntersecting) { imgObserver.unobserve(e.target); fillImg(e.target); }
+}, { rootMargin: "300px" }) : null;
+
+function fillImg(el) {
+  wikiImage(el.dataset.wiki).then(img => {
+    if (!img) { el.remove(); return; }
+    const i = new Image();
+    i.alt = ""; i.loading = "lazy"; i.decoding = "async";
+    i.onload = () => {
+      el.classList.add("loaded");
+      if (el.dataset.credit !== undefined && img.page)
+        el.insertAdjacentHTML("afterend", `<p class="img-credit">📷 ${t("imgCredit")} · <a href="${esc(img.page)}" target="_blank" rel="noopener">Wikipedia</a></p>`);
+    };
+    i.onerror = () => el.remove();
+    i.src = img.src;
+    el.appendChild(i);
+  });
+}
+function observeImgs(root) {
+  root.querySelectorAll("[data-wiki]:not([data-seen])").forEach(el => {
+    el.dataset.seen = "1";
+    imgObserver ? imgObserver.observe(el) : fillImg(el);
+  });
+}
+const recipeKey = r => !r.own && !r.ai && r.id && r.id[0] === "r" ? WIKI[R[+r.id.slice(1)][1]] : null;
+
 // ---------- Internet-Suche: TheMealDB (Testschlüssel "1", nur privat / zum Lernen) ----------
 // Bedingungen: https://www.themealdb.com/terms_of_use.php – für eine öffentliche Veröffentlichung braucht es einen Supporter-Schlüssel.
 const MEALDB = "https://www.themealdb.com/api/json/v1/1/";
@@ -1396,6 +1503,10 @@ const NET_UI = {
     netMatch: "{a} malzemen", netEnglish: "Bu tarif yalnızca İngilizce mevcut.", netOpen: "Orijinali gör", netVideo: "Video" },
 };
 for (const l in NET_UI) Object.assign(AI_UI[l], NET_UI[l]);
+const IMG_UI = { de: "Beispielbild – so ähnlich sieht es aus", en: "Example photo – roughly how it looks", fr: "Photo d'exemple – à peu près le résultat",
+  es: "Foto de ejemplo – más o menos así queda", it: "Foto d'esempio – più o meno il risultato", pt: "Foto de exemplo – mais ou menos o resultado",
+  tr: "Örnek fotoğraf – aşağı yukarı böyle görünür" };
+for (const l in IMG_UI) AI_UI[l].imgCredit = IMG_UI[l];
 
 // ---------- Tutorial beim ersten Öffnen ----------
 const tut = { active: false, step: 0 };
