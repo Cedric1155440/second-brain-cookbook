@@ -359,6 +359,10 @@
 <script src="lang/it-trad.js"></script>
 <script src="lang/pt-trad.js"></script>
 <script src="lang/tr-trad.js"></script>
+<script src="lang/ru.js"></script>
+<script src="lang/ru-2.js"></script>
+<script src="lang/ru-more.js"></script>
+<script src="lang/ru-trad.js"></script>
 
 <script>
 // ---------- Zutaten-Katalog ----------
@@ -888,7 +892,7 @@ LANGS.de = {
   },
   ing: {}, cat: {}, land: {}, r: {},
 };
-const LANG_ORDER = ["de", "en", "fr", "es", "it", "pt", "tr"].filter(c => LANGS[c]);
+const LANG_ORDER = ["de", "en", "ru", "fr", "es", "it", "pt", "tr"].filter(c => LANGS[c]);
 
 // ---------- Speicher ----------
 const store = {
@@ -1135,7 +1139,7 @@ function recipeTools(r) {
   if (ids.includes("fritteuse") && !/pfanne/.test(txt)) ids = ids.filter(x => x !== "pfanne");
   return toolCache[key] = ids;
 }
-const toolName = id => TOOLS[id][1][lang] || TOOLS[id][1].de;
+const toolName = id => TOOLS[id][1][lang] || (L.ui && L.ui["tool_" + id]) || TOOLS[id][1].de;
 const toolIcons = r => recipeTools(r).map(id => `<span title="${esc(toolName(id))}">${TOOLS[id][0]}</span>`).join("");
 
 // ---------- Rezeptsuche ----------

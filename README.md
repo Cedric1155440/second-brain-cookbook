@@ -12,7 +12,7 @@ Gib ein, was du zuhause hast, und das Kochbuch schlägt dir passende Rezepte vor
 - **📸 Beispielbilder:** zu fast jedem Rezept (298 von 306) ein Foto von Wikipedia, wie das Gericht ungefähr aussieht (frei lizenziert, mit Link zur Quelle)
 - **🌐 Internet-Suche:** sucht zusätzlich live in der offenen Rezept-Datenbank [TheMealDB](https://www.themealdb.com/) (ohne Schlüssel, Rezepte auf Englisch)
 - **Eigene Rezepte** anlegen und KI-Rezepte speichern
-- **7 Sprachen:** Deutsch, English, Français, Español, Italiano, Português, Türkçe
+- **8 Sprachen:** Deutsch, English, Русский, Français, Español, Italiano, Português, Türkçe
 - **Darstellung:** System, Hell oder Dunkel
 - **Web-App fürs iPhone:** funktioniert offline und lässt sich zum Home-Bildschirm hinzufügen
 

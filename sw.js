@@ -1,8 +1,9 @@
 // Offline-Modus: App-Dateien werden beim ersten Öffnen gespeichert.
 // Nach Änderungen an der App die Versionsnummer erhöhen, damit iPhones das Update laden.
-const CACHE = "kochbuch-v15";
+const CACHE = "kochbuch-v16";
 const LANG_FILES = ["en", "fr", "es", "it", "pt", "tr"].flatMap(l => [`./lang/${l}.js`, `./lang/${l}-more.js`, `./lang/${l}-trad.js`]);
-const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./quesadilla-guy.jpg", ...LANG_FILES];
+const RU_FILES = ["ru", "ru-2", "ru-more", "ru-trad"].map(f => `./lang/${f}.js`);
+const FILES = [...RU_FILES, "./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./quesadilla-guy.jpg", ...LANG_FILES];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
