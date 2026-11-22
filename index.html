@@ -282,6 +282,39 @@
   .tool-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--surface-2); font-size: 14px; font-weight: 500; }
   .style-seg { display: flex; width: 100%; margin-bottom: 4px; }
   .style-seg button { flex: 1; padding: 10px 8px; font-size: 14px; }
+
+  /* ================= Flüssigkeit & Animationen ================= */
+  html { scroll-behavior: smooth; }
+  /* Bilder haben sofort ihren Platz (kein Springen beim Scrollen) und blenden weich ein */
+  .r-img { height: 130px; transition: none; background: linear-gradient(100deg, var(--surface-2) 30%, var(--line) 50%, var(--surface-2) 70%) 0 0 / 300% 100%; animation: shimmer 1.4s linear infinite; }
+  .r-img.loaded { animation: none; background: var(--surface-2); }
+  .r-img img { opacity: 0; transition: opacity .35s ease; }
+  .r-img.loaded img { opacity: 1; }
+  .r-img.big, .r-img.big.loaded { height: 220px; }
+  [data-style="sleek"] .r-img, [data-style="sleek"] .r-img.loaded { height: 170px; }
+  [data-style="sleek"] .r-img.big, [data-style="sleek"] .r-img.big.loaded { height: 240px; }
+  .net-img { opacity: 0; transition: opacity .35s ease; }
+  .net-img.loaded { opacity: 1; }
+  @keyframes shimmer { to { background-position: -300% 0; } }
+  /* Lange Listen: Karten außerhalb des Bildschirms werden erst gezeichnet, wenn man hinscrollt */
+  .card { content-visibility: auto; contain-intrinsic-size: auto 340px; }
+  /* Fenster öffnen weich */
+  .overlay.open { animation: ovIn .18s ease-out; }
+  .overlay.open .modal { animation: modalIn .26s cubic-bezier(.2, .9, .3, 1.15); }
+  @keyframes ovIn { from { opacity: 0; } }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(14px) scale(.97); } }
+  .toast { transform: translate(-50%, 10px); transition: opacity .2s, transform .25s cubic-bezier(.2, .9, .3, 1.2); }
+  .toast.show { transform: translate(-50%, 0); }
+  /* sanfte Rückmeldung bei Knöpfen und Auswahl */
+  .btn, .quick button, .seg button, .lang-list button, .scan-item, .chip button { transition: background-color .15s, color .15s, border-color .15s, transform .12s; }
+  .btn:active, .quick button:active, .seg button:active, .lang-list button:active, .scan-item:active { transform: scale(.96); }
+  #results { animation: fadeIn .2s ease-out; }
+  @keyframes fadeIn { from { opacity: .4; } }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .r-img, .overlay.open, .overlay.open .modal, #results { animation: none !important; }
+    .btn:active, .quick button:active, .seg button:active { transform: none; }
+  }
 </style>
 </head>
 <body>
@@ -341,28 +374,6 @@
 <div class="toast" id="toast"></div>
 
 <script>window.LANGS = window.LANGS || {};</script>
-<script src="lang/en.js"></script>
-<script src="lang/fr.js"></script>
-<script src="lang/es.js"></script>
-<script src="lang/it.js"></script>
-<script src="lang/pt.js"></script>
-<script src="lang/tr.js"></script>
-<script src="lang/en-more.js"></script>
-<script src="lang/fr-more.js"></script>
-<script src="lang/es-more.js"></script>
-<script src="lang/it-more.js"></script>
-<script src="lang/pt-more.js"></script>
-<script src="lang/tr-more.js"></script>
-<script src="lang/en-trad.js"></script>
-<script src="lang/fr-trad.js"></script>
-<script src="lang/es-trad.js"></script>
-<script src="lang/it-trad.js"></script>
-<script src="lang/pt-trad.js"></script>
-<script src="lang/tr-trad.js"></script>
-<script src="lang/ru.js"></script>
-<script src="lang/ru-2.js"></script>
-<script src="lang/ru-more.js"></script>
-<script src="lang/ru-trad.js"></script>
 
 <script>
 // ---------- Zutaten-Katalog ----------
@@ -892,7 +903,32 @@ LANGS.de = {
   },
   ing: {}, cat: {}, land: {}, r: {},
 };
-const LANG_ORDER = ["de", "en", "ru", "fr", "es", "it", "pt", "tr"].filter(c => LANGS[c]);
+// Sprachen werden erst geladen, wenn man sie braucht – das macht den Start deutlich schneller.
+const LANG_META = {
+  de: { name: "Deutsch", flag: "🇩🇪" }, en: { name: "English", flag: "🇬🇧" }, ru: { name: "Русский", flag: "🇷🇺" },
+  fr: { name: "Français", flag: "🇫🇷" }, es: { name: "Español", flag: "🇪🇸" }, it: { name: "Italiano", flag: "🇮🇹" },
+  pt: { name: "Português", flag: "🇵🇹" }, tr: { name: "Türkçe", flag: "🇹🇷" },
+};
+const LANG_ORDER = Object.keys(LANG_META);
+const LANG_SRC = { ru: ["ru", "ru-2", "ru-more", "ru-trad"] };
+const langFiles = c => LANG_SRC[c] || [c, c + "-more", c + "-trad"];
+const langLoading = {};
+function loadLang(code) {
+  if (code === "de" || !LANG_META[code]) return Promise.resolve();
+  if (langLoading[code]) return langLoading[code];
+  return langLoading[code] = new Promise((resolve, reject) => {
+    const files = langFiles(code);
+    let left = files.length;
+    files.forEach(f => {
+      const s = document.createElement("script");
+      s.src = `lang/${f}.js`;
+      s.async = false; // Reihenfolge einhalten: Grunddatei zuerst
+      s.onload = () => { if (--left === 0) resolve(); };
+      s.onerror = () => { delete langLoading[code]; reject(new Error("lang " + f)); };
+      document.head.appendChild(s);
+    });
+  });
+}
 
 // ---------- Speicher ----------
 const store = {
@@ -905,11 +941,11 @@ let state = { cat: "Alle", maxTime: 999, showAll: false, diff: 0, land: "Alle", 
 
 const autoLang = () => {
   const langs = (navigator.languages || [navigator.language || "de"]).map(l => String(l).slice(0, 2).toLowerCase());
-  return langs.find(l => LANGS[l]) || "de";
+  return langs.find(l => LANG_META[l]) || "de";
 };
 let lang = store.get("kb_lang", null);
-if (!LANGS[lang]) lang = autoLang();
-let L = LANGS[lang];
+if (!LANG_META[lang]) lang = autoLang();
+let L = LANGS[lang] || LANGS.de;
 
 function t(key, vars) {
   let s = (L.ui && L.ui[key] != null) ? L.ui[key]
@@ -922,14 +958,20 @@ const nameOf = id => (L.ing && L.ing[id]) || (ING[id] ? ING[id][0] : String(id).
 const catName = c => (L.cat && L.cat[c]) || c;
 const landName = l => (L.land && L.land[l]) || l;
 
+// Rezeptliste wird nur neu gebaut, wenn sich Sprache oder eigene Rezepte ändern (spart viel Rechenzeit)
+let recipesCache = null, recipesKey = "";
 function allRecipes() {
+  const key = lang + "|" + own.length + "|" + own.map(o => o.name).join("|");
+  if (recipesCache && recipesKey === key && recipesCache.L === L) return recipesCache.list;
   const base = R.map((r, i) => {
     const m = META[r[1]] || [1, "International"];
     const tr = L.r && L.r[r[1]];
     return { id: "r" + i, emoji: r[0], name: tr ? tr[0] : r[1], cat: r[2], time: r[3], req: r[4], opt: r[5],
       steps: tr && tr[1] && tr[1].length ? tr[1] : r[6], diff: r[7] || m[0], land: r[8] || m[1] };
   });
-  return base.concat(own.map((o, i) => ({ diff: 1, land: OWN_LAND, ...o, id: "o" + i, own: true })));
+  const list = base.concat(own.map((o, i) => ({ diff: 1, land: OWN_LAND, ...o, id: "o" + i, own: true })));
+  recipesCache = { list, L }; recipesKey = key;
+  return list;
 }
 const diffBadge = d => `<span class="diff d${d}" title="${t("difficulty")}">${"●".repeat(d)}${"○".repeat(3 - d)} ${t("diff")[d]}</span>`;
 const fmtTime = m => m >= 60 ? `${Math.floor(m / 60)} ${t("hours")}${m % 60 ? " " + (m % 60) + " " + t("min") : ""}` : `${m} ${t("min")}`;
@@ -951,7 +993,17 @@ function resolve(text) {
 }
 
 // ---------- Matching ----------
+// Abgleich mit dem Vorrat zwischenspeichern, bis sich der Vorrat ändert
+let pantryVer = 0;
+const evalCache = new WeakMap();
 function evaluate(r) {
+  const c = evalCache.get(r);
+  if (c && c.v === pantryVer) return c.e;
+  const e = evaluateNow(r);
+  evalCache.set(r, { v: pantryVer, e });
+  return e;
+}
+function evaluateNow(r) {
   // Rezept-Zutaten sind schon IDs – nur freie Texte (eigene Rezepte) werden übersetzt
   // KI-Rezepte sind schon aufgelöst; ihr "hat"-Hinweis zählt für Zutaten, die das Kochbuch nicht kennt
   const norm = x => (ING[x] || r.resolved) ? x : resolve(x);
@@ -1183,7 +1235,7 @@ function netQSection() {
   if (!netQ.meals.length) return "";
   return head + `<div class="grid">${netQ.meals.map(m => `
     <button class="card net-card" data-net="${esc(m.idMeal)}">
-      ${safeUrl(m.strMealThumb) ? `<img class="net-img" loading="lazy" src="${esc(safeUrl(m.strMealThumb))}" alt="">` : ""}
+      ${safeUrl(m.strMealThumb) ? `<img class="net-img" loading="lazy" decoding="async" onload="this.classList.add('loaded')" src="${esc(safeUrl(m.strMealThumb))}" alt="">` : ""}
       <h3>${esc(m.strMeal)}</h3>
       <div class="meta">${m.strArea ? `<span>🌍 ${esc(m.strArea)}</span>` : ""}<span>🌐 TheMealDB</span></div>
     </button>`).join("")}</div>`;
@@ -1204,8 +1256,8 @@ function renderLands() {
   $("#subtitle").textContent = `${t("tagline")} ${t("stats", { n: all.length, k: lands.length })}`;
 }
 
-function render() { renderPantry(); scheduleAI(); scheduleNet(); renderResults(); }
-function renderAll() { buildLookup(); renderStatic(); renderGroups(); renderCats(); renderLands(); render(); }
+function render() { pantryVer++; renderPantry(); scheduleAI(); scheduleNet(); renderResults(); }
+function renderAll() { buildLookup(); pantryVer++; renderStatic(); renderGroups(); renderCats(); renderLands(); render(); }
 
 // ---------- Rezept-Detail ----------
 function openRecipe(id) {
@@ -1293,7 +1345,7 @@ function openSettings() {
     <p class="hint">${t("systemHint")}</p>
     <h3>${t("language")}</h3>
     <div class="lang-list" id="langList">
-      ${LANG_ORDER.map(c => `<button data-lang="${c}" class="${c === lang ? "on" : ""}"><span>${LANGS[c].flag}</span>${esc(LANGS[c].name)}</button>`).join("")}
+      ${LANG_ORDER.map(c => `<button data-lang="${c}" class="${c === lang ? "on" : ""}"><span>${LANG_META[c].flag}</span>${esc(LANG_META[c].name)}</button>`).join("")}
     </div>
     <h3>✨ ${t("aiSection")}</h3>
     ${aiSettingsHTML()}
@@ -1303,12 +1355,13 @@ function openSettings() {
   bindAiSettings(openSettings);
 }
 
-function switchLang(code) {
-  if (!LANGS[code]) return;
-  lang = code; L = LANGS[code]; store.set("kb_lang", code);
+async function switchLang(code) {
+  if (!LANG_META[code]) return;
+  try { await loadLang(code); } catch { toast(t("aiOffline")); return; }
+  lang = code; L = LANGS[code] || LANGS.de; store.set("kb_lang", code);
   renderAll();
 }
-function setLang(code) { switchLang(code); openSettings(); }
+function setLang(code) { switchLang(code).then(openSettings); }
 
 // Design: "sleek" (Modern, Standard) oder "classic" (Klassisch)
 const STYLE_BG = { classic: { light: "#faf6ef", dark: "#1c1916" }, sleek: { light: "#f5f6f8", dark: "#08090b" } };
@@ -1651,7 +1704,7 @@ async function runAI(more) {
         "Suggest real, tasty dishes that mainly use those ingredients. Salt, pepper, cooking oil and water are always available: never list them. " +
         "Set have=true only for ingredients the user listed (or obvious equivalents). Keep missing ingredients to at most 2 per recipe and prefer recipes that need none. " +
         "Mark garnishes and extras as optional. difficulty: 1 easy, 2 medium, 3 hard. " +
-        `Write every text field (name, cuisine, ingredient names, steps) in ${LANGS[lang].name}. ` +
+        `Write every text field (name, cuisine, ingredient names, steps) in ${LANG_META[lang].name}. ` +
         "Give 3 to 6 short, concrete steps with amounts, times and temperatures.",
       text: `My ingredients: ${items.join(", ")}\nSuggest 3 recipes.` +
         (avoid.length ? `\nDo not repeat these dishes: ${avoid.join(", ")}` : ""),
@@ -1742,7 +1795,7 @@ async function scanPhoto(file) {
         "You identify food ingredients visible in a photo (fridge, pantry shelf, groceries, kitchen counter). " +
         "List each distinct food item once and only what you can actually see. Ignore non-food items and ignore salt, pepper, cooking oil and water. " +
         "If an item matches an entry of this catalog, use its id as catalog_id; otherwise use \"other\". " +
-        `Always give a short ingredient name in ${LANGS[lang].name}.\n\nCatalog (id = name):\n${catalog}`,
+        `Always give a short ingredient name in ${LANG_META[lang].name}.\n\nCatalog (id = name):\n${catalog}`,
       text: "Which ingredients can you see in this photo?",
     });
     const seen = new Set();
@@ -2027,6 +2080,7 @@ async function netFetch(url) {
 }
 
 async function runNet(k) {
+  await loadLang("en").catch(() => {}); // englische Zutatennamen für TheMealDB
   const ids = [...pantry].filter(id => netQueries(id).length);
   if (!ids.length) { if (net.key === k) { net.status = "nomap"; renderResults(); } return; }
   const score = new Map(); // idMeal -> { meal, ids:Set }
@@ -2059,7 +2113,7 @@ function netSection() {
   if (net.status !== "done") return "";
   return head + `<div class="grid">${net.meals.map(({ meal, ids }) => `
     <button class="card net-card" data-net="${esc(meal.idMeal)}">
-      ${safeUrl(meal.strMealThumb) ? `<img class="net-img" loading="lazy" src="${esc(safeUrl(meal.strMealThumb))}" alt="">` : ""}
+      ${safeUrl(meal.strMealThumb) ? `<img class="net-img" loading="lazy" decoding="async" onload="this.classList.add('loaded')" src="${esc(safeUrl(meal.strMealThumb))}" alt="">` : ""}
       <h3>${esc(meal.strMeal)}</h3>
       <div class="meta">${meal.strArea ? `<span>🌍 ${esc(meal.strArea)}</span>` : ""}<span>🌐 TheMealDB</span></div>
       <div class="missing ok-text">✓ ${t("netMatch", { a: ids.size })}: ${[...ids].map(nameOf).map(esc).join(", ")}</div>
@@ -2089,6 +2143,7 @@ async function openNetMeal(idMeal) {
   $("#modal").innerHTML = `<div class="ai-box"><span class="spinner"></span><p>${t("netLoading")}</p></div>`;
   $("#overlay").classList.add("open");
   try {
+    await loadLang("en").catch(() => {});
     const url = MEALDB + "lookup.php?i=" + encodeURIComponent(idMeal);
     const m = netMealCache[idMeal] || (netMealCache[idMeal] = ((await netFetch(url)).meals || [])[0]);
     if (!m) throw new Error("not found");
@@ -2166,7 +2221,7 @@ function openTutorial(step) {
     <h2>${t("tutWelcome")}</h2>
     <p class="hint">${t("tutIntro")}</p>
     <h3>${t("tutLangQ")}</h3>
-    <div class="lang-list">${LANG_ORDER.map(c => `<button data-tut-lang="${c}" class="${c === lang ? "on" : ""}"><span>${LANGS[c].flag}</span>${esc(LANGS[c].name)}</button>`).join("")}</div>`;
+    <div class="lang-list">${LANG_ORDER.map(c => `<button data-tut-lang="${c}" class="${c === lang ? "on" : ""}"><span>${LANG_META[c].flag}</span>${esc(LANG_META[c].name)}</button>`).join("")}</div>`;
   else if (kind === "theme") body = `
     <div class="tut-hero">🎨</div>
     <h2>${t("tutThemeTitle")}</h2>
@@ -2382,7 +2437,12 @@ $("#timeSel").addEventListener("change", e => { state.maxTime = +e.target.value;
 $("#diffSel").addEventListener("change", e => { state.diff = +e.target.value; renderResults(); });
 $("#landSel").addEventListener("change", e => { state.land = e.target.value; renderResults(); });
 $("#showAll").addEventListener("change", e => { state.showAll = e.target.checked; renderResults(); });
-$("#searchInput").addEventListener("input", e => { state.q = e.target.value; scheduleNetQ(); renderResults(); });
+let searchTimer = null; // erst rechnen, wenn kurz nicht getippt wird – flüssigeres Tippen
+$("#searchInput").addEventListener("input", e => {
+  state.q = e.target.value;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { scheduleNetQ(); renderResults(); }, 120);
+});
 $("#searchInput").addEventListener("keydown", e => { if (e.key === "Enter") e.target.blur(); });
 $("#results").addEventListener("click", e => {
   const a = e.target.closest("[data-ai]");
@@ -2430,7 +2490,7 @@ $("#overlay").addEventListener("click", e => {
     document.querySelectorAll("[data-theme-opt]").forEach(b => b.classList.toggle("on", b === btn));
   }
   if (btn.dataset.lang) setLang(btn.dataset.lang);
-  if (btn.dataset.tutLang) { switchLang(btn.dataset.tutLang); openTutorial(tut.step); }
+  if (btn.dataset.tutLang) switchLang(btn.dataset.tutLang).then(() => openTutorial(tut.step));
   if (btn.dataset.tut) {
     const a = btn.dataset.tut;
     if (a === "next") openTutorial(tut.step + 1);
@@ -2467,8 +2527,14 @@ $("#overlay").addEventListener("click", e => {
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
 
 applyStyle(designStyle());
-renderAll();
-if (!store.get("kb_onboarded", false)) openTutorial(0);
+// Zuerst nur die gewählte Sprache laden, dann zeichnen
+loadLang(lang).catch(() => { lang = "de"; }).then(() => {
+  L = LANGS[lang] || LANGS.de;
+  renderAll();
+  if (!store.get("kb_onboarded", false)) openTutorial(0);
+  // Englisch wird für die Internet-Suche gebraucht – im Leerlauf nachladen
+  (window.requestIdleCallback || (f => setTimeout(f, 1500)))(() => loadLang("en").catch(() => {}));
+});
 
 // Offline-Modus (nur wenn über http/https geöffnet)
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
