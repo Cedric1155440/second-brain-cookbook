@@ -4,12 +4,12 @@ Gib ein, was du zuhause hast, und das Kochbuch schlägt dir passende Rezepte vor
 
 ## Funktionen
 
-- **256 Rezepte aus 38 Küchen**, jeweils mit Schwierigkeit (leicht / mittel / schwer), Zeit und Zubereitung
+- **306 Rezepte aus 46 Küchen** (davon 50 traditionelle Gerichte wie Blintschiki, Pelmeni oder Chatschapuri), jeweils mit Schwierigkeit (leicht / mittel / schwer), Zeit und Zubereitung
 - **🔎 Rezeptsuche:** nach Name, Land, Kategorie oder Zutat suchen (auch ohne Umlaute), dazu passende Treffer aus dem Internet
 - **Vorrat eintragen** per Text oder durch Antippen; die App zeigt, was du sofort kochen kannst und wo nur 1–2 Zutaten fehlen
 - **✨ KI-Suche:** Findet das Kochbuch nichts Passendes, sucht eine KI Rezepte mit genau deinen Zutaten – wahlweise Claude, ChatGPT, DeepSeek, Gemini oder OpenRouter
 - **📷 Foto-Suche:** Foto vom Kühlschrank oder Einkauf machen, die KI erkennt die Zutaten
-- **📸 Beispielbilder:** zu fast jedem Rezept (248 von 256) ein Foto von Wikipedia, wie das Gericht ungefähr aussieht (frei lizenziert, mit Link zur Quelle)
+- **📸 Beispielbilder:** zu fast jedem Rezept (298 von 306) ein Foto von Wikipedia, wie das Gericht ungefähr aussieht (frei lizenziert, mit Link zur Quelle)
 - **🌐 Internet-Suche:** sucht zusätzlich live in der offenen Rezept-Datenbank [TheMealDB](https://www.themealdb.com/) (ohne Schlüssel, Rezepte auf Englisch)
 - **Eigene Rezepte** anlegen und KI-Rezepte speichern
 - **7 Sprachen:** Deutsch, English, Français, Español, Italiano, Português, Türkçe

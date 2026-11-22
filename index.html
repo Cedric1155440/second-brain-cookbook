@@ -353,6 +353,12 @@
 <script src="lang/it-more.js"></script>
 <script src="lang/pt-more.js"></script>
 <script src="lang/tr-more.js"></script>
+<script src="lang/en-trad.js"></script>
+<script src="lang/fr-trad.js"></script>
+<script src="lang/es-trad.js"></script>
+<script src="lang/it-trad.js"></script>
+<script src="lang/pt-trad.js"></script>
+<script src="lang/tr-trad.js"></script>
 
 <script>
 // ---------- Zutaten-Katalog ----------
@@ -386,7 +392,7 @@ const ING = {
   feta: ["Feta", 2, ["schafskäse", "hirtenkäse"]],
   sahne: ["Sahne", 2, ["schlagsahne", "kochsahne", "schmand", "crème fraîche", "creme fraiche"]],
   quark: ["Quark", 2, ["magerquark"]],
-  joghurt: ["Joghurt", 2, ["naturjoghurt", "griechischer joghurt"]],
+  joghurt: ["Joghurt", 2, ["naturjoghurt", "griechischer joghurt", "kefir", "buttermilch", "ayran"]],
   mayo: ["Mayonnaise", 2, ["mayo"]],
   hack: ["Hackfleisch", 3, ["hack", "rinderhack", "gehacktes", "faschiertes"]],
   haehnchen: ["Hähnchen", 3, ["hähnchenbrust", "hühnchen", "huhn", "chicken", "pute", "putenbrust"]],
@@ -427,7 +433,7 @@ const ING = {
   // --- Erweiterung für Weltküche ---
   aubergine: ["Aubergine", 0, ["melanzani"]],
   blumenkohl: ["Blumenkohl", 0, ["karfiol"]],
-  kohl: ["Kohl", 0, ["weißkohl", "chinakohl", "spitzkohl", "rotkohl", "wirsing"]],
+  kohl: ["Kohl", 0, ["weißkohl", "chinakohl", "spitzkohl", "rotkohl", "wirsing", "grünkohl", "sauerkraut"]],
   rotebete: ["Rote Bete", 0, ["rote beete", "rote rübe"]],
   suesskartoffel: ["Süßkartoffel", 0, ["süßkartoffeln", "batate"]],
   mango: ["Mango", 1, []],
@@ -470,6 +476,7 @@ const ING = {
   sellerie: ["Sellerie", 0, ["staudensellerie", "knollensellerie", "stangensellerie"]],
   frischkaese: ["Frischkäse", 2, ["ricotta", "philadelphia", "doppelrahmfrischkäse"]],
   nuesse: ["Nüsse", 4, ["walnüsse", "mandeln", "haselnüsse", "cashews", "nuss", "pistazien"]],
+  buchweizen: ["Buchweizen", 4, ["grechka", "kasha", "buchweizengrütze"]],
 };
 
 // ---------- Rezepte ----------
@@ -780,6 +787,71 @@ R.push(
   ["🧋","Eiskaffee","Getränk",5,["kaffee","milch"],["zucker","sahne","vanille"],["Starken Kaffee kochen und abkühlen lassen.","Ein Glas mit Eiswürfeln füllen.","Kaffee und Milch darübergießen und süßen."],1,"International"],
 );
 
+// Erweiterung 3: 50 traditionelle Rezepte
+R.push(
+  // Russland, Ukraine, Kaukasus, Mittel- und Osteuropa
+  ["🥞","Blintschiki mit Quark","Frühstück",45,["mehl","eier","milch","quark"],["zucker","butter","beeren","vanille","sahne"],["Mehl, 2 Eier, Milch, etwas Zucker und Salz zu einem dünnen Teig verrühren und 15 Min. ruhen lassen.","Dünne Pfannkuchen in wenig Butter von beiden Seiten backen.","Quark mit 1 Ei, Zucker und Vanille verrühren, auf die Blintschiki geben und zu Päckchen falten.","In Butter goldbraun braten und mit Schmand oder Beeren servieren."],2,"Russland"],
+  ["🥞","Blini","Snack",90,["mehl","hefe","milch","eier"],["sahne","lachs","butter"],["Hefe in lauwarmer Milch auflösen, mit Mehl, Eigelb und Salz verrühren.","1 Std. an einem warmen Ort gehen lassen.","Steif geschlagenes Eiweiß unterheben.","Kleine, dicke Blini in Butter backen und mit Schmand und Lachs servieren."],2,"Russland"],
+  ["🧀","Syrniki","Frühstück",25,["quark","eier","mehl","zucker"],["beeren","sahne","vanille"],["Quark mit Ei, Zucker, Vanille und 3–4 EL Mehl verrühren.","Mit bemehlten Händen kleine, flache Taler formen.","In Öl bei mittlerer Hitze von beiden Seiten goldbraun braten.","Mit Schmand, Honig oder Beeren servieren."],1,"Russland"],
+  ["🥟","Pelmeni","Hauptgericht",90,["mehl","eier","hack","zwiebeln"],["sahne","butter","essig"],["Mehl, Ei, Wasser und Salz zu einem festen Teig kneten und 30 Min. ruhen lassen.","Hack mit fein geriebener Zwiebel, Salz, Pfeffer und etwas Wasser mischen.","Teig dünn ausrollen, Kreise ausstechen, füllen und zu kleinen Ringen falten.","In Salzwasser kochen, bis sie oben schwimmen, und mit Schmand oder Butter servieren."],3,"Russland"],
+  ["🥟","Wareniki mit Kartoffeln","Hauptgericht",90,["mehl","kartoffeln","zwiebeln"],["sahne","speck","butter"],["Kartoffeln kochen und zerstampfen, Zwiebeln goldbraun braten und unterheben.","Mehl, Wasser, etwas Öl und Salz zu einem weichen Teig kneten.","Dünn ausrollen, Kreise ausstechen, füllen und zu Halbmonden verschließen.","In Salzwasser garen und mit Röstzwiebeln, Speck oder Schmand servieren."],3,"Ukraine"],
+  ["🍲","Soljanka","Suppe",45,["wuerstchen","gurke","zwiebeln","tomatenmark","bruehe"],["oliven","zitrone","sahne","kapern"],["Zwiebeln und Wurststreifen anbraten, Tomatenmark kurz mitrösten.","Mit Brühe aufgießen, Gewürzgurken in Streifen und etwas Gurkenwasser zugeben.","20 Min. köcheln, Oliven und Kapern hinzufügen.","Mit Zitronenscheibe und Schmand servieren."],2,"Russland"],
+  ["🥬","Schtschi","Suppe",60,["kohl","kartoffeln","karotten","zwiebeln","bruehe"],["rind","sahne","tomatenmark"],["Zwiebel und Karotte andünsten.","Brühe (mit Rindfleisch) aufkochen, Kartoffeln und fein geschnittenen Kohl zugeben.","40 Min. köcheln lassen.","Mit Kräutern und einem Klecks Schmand servieren."],1,"Russland"],
+  ["🥒","Okroschka","Suppe",20,["gurke","kartoffeln","eier","joghurt"],["wuerstchen","fruehlingszwiebeln","sahne"],["Kartoffeln und Eier kochen und abkühlen lassen.","Gurke, Kartoffeln, Eier und Wurst klein würfeln.","Mit Kräutern mischen und mit kaltem Kefir aufgießen.","Gut gekühlt mit Schmand servieren."],1,"Russland"],
+  ["🥗","Olivier-Salat","Salat",40,["kartoffeln","karotten","erbsen","eier","gurke","mayo"],["wuerstchen","schinken"],["Kartoffeln, Karotten und Eier kochen und abkühlen lassen.","Alles mit Gewürzgurken und Wurst in kleine Würfel schneiden.","Erbsen unterheben und mit Mayonnaise, Salz und Pfeffer mischen.","Mindestens 1 Std. kühl durchziehen lassen."],1,"Russland"],
+  ["🍄","Grechka mit Pilzen","Hauptgericht",30,["buchweizen","champignons","zwiebeln"],["butter","sahne"],["Buchweizen kurz in der trockenen Pfanne rösten.","Mit doppelter Menge Salzwasser 15–20 Min. zugedeckt garen.","Pilze und Zwiebeln in Butter braten.","Unter den Buchweizen mischen und mit Schmand servieren."],1,"Russland"],
+  ["🍚","Plow","Hauptgericht",90,["reis","lamm","karotten","zwiebeln"],["knoblauch","kichererbsen"],["Lammfleisch in einem schweren Topf scharf anbraten.","Zwiebeln und viele Karottenstreifen zugeben und weich schmoren.","Mit Kreuzkümmel würzen, Reis darüber verteilen und mit Wasser bedecken.","Ganze Knoblauchknollen hineinstecken und zugedeckt 30 Min. garen."],2,"Usbekistan"],
+  ["🍢","Schaschlik","Hauptgericht",30,["schwein","zwiebeln","essig"],["paprika","tomaten"],["Fleisch in große Würfel schneiden.","Mit Zwiebelringen, Essig, Salz und Pfeffer über Nacht marinieren.","Mit Zwiebeln und Paprika auf Spieße stecken.","Über Holzkohle oder in der Grillpfanne rundum braten."],2,"Russland"],
+  ["🧀","Chatschapuri","Hauptgericht",90,["mehl","hefe","kaese","eier","butter"],["feta","milch"],["Hefeteig aus Mehl, Hefe, Milch und Salz kneten und 1 Std. gehen lassen.","Zu Schiffchen formen und mit geriebenem Käse und Feta füllen.","Bei 220 °C 12 Min. backen.","Ein Eigelb und ein Stück Butter in die Mitte geben und kurz weiterbacken."],3,"Georgien"],
+  ["🥟","Chinkali","Hauptgericht",90,["mehl","hack","zwiebeln"],["koriander","chili"],["Mehl, Wasser und Salz zu einem festen Teig kneten.","Hack mit Zwiebeln, Kräutern, Pfeffer und etwas Wasser saftig mischen.","Teig rund ausrollen, Füllung in die Mitte geben und in vielen Falten zu einem Beutel drehen.","In Salzwasser 12 Min. kochen und mit viel Pfeffer essen."],3,"Georgien"],
+  ["🫘","Lobio","Vegetarisch",30,["bohnen","zwiebeln","nuesse","knoblauch"],["koriander","essig","chili"],["Zwiebeln in Öl weich dünsten.","Rote Bohnen dazugeben und leicht zerdrücken.","Gehackte Walnüsse, Knoblauch, Essig und Gewürze unterrühren.","Mit Koriander servieren, warm oder kalt."],1,"Georgien"],
+  ["🍲","Gulaschsuppe","Suppe",90,["rind","kartoffeln","zwiebeln","paprikapulver","paprika"],["tomatenmark","knoblauch"],["Zwiebeln in Öl goldbraun braten.","Rindfleischwürfel zugeben und anbraten, Paprikapulver unterrühren.","Mit Wasser aufgießen und 60 Min. köcheln.","Kartoffeln und Paprika zugeben und weitere 20 Min. kochen."],2,"Ungarn"],
+  ["🫓","Lángos","Snack",90,["mehl","hefe","milch"],["knoblauch","sahne","kaese"],["Hefeteig aus Mehl, Hefe, lauwarmer Milch und Salz kneten, 1 Std. gehen lassen.","Teigstücke zu flachen Fladen ziehen.","In heißem Öl von beiden Seiten goldbraun frittieren.","Mit Knoblauchöl, Schmand und geriebenem Käse belegen."],2,"Ungarn"],
+  ["🍗","Paprikahuhn","Hauptgericht",50,["haehnchen","zwiebeln","paprikapulver","sahne"],["paprika","tomaten","nudeln"],["Zwiebeln in Öl glasig dünsten.","Hähnchen anbraten, Paprikapulver unterrühren und mit etwas Wasser ablöschen.","Zugedeckt 30 Min. schmoren.","Schmand einrühren und mit Nockerln oder Nudeln servieren."],2,"Ungarn"],
+  ["🥬","Bigos","Hauptgericht",120,["kohl","wuerstchen","schwein","zwiebeln"],["champignons","tomatenmark","rotwein"],["Fleisch und Wurst anbraten, Zwiebeln zugeben.","Sauerkraut und frischen Kohl hinzufügen.","Pilze, Gewürze und etwas Wein dazugeben.","Mindestens 1,5 Std. langsam schmoren – am nächsten Tag schmeckt es noch besser."],2,"Polen"],
+  ["🥔","Halušky","Hauptgericht",40,["kartoffeln","mehl","speck"],["feta","sahne"],["Rohe Kartoffeln fein reiben und mit Mehl und Salz zu einem Teig mischen.","Kleine Nocken in kochendes Salzwasser schaben und garen.","Speck knusprig braten.","Nocken mit Schafskäse und Speck mischen."],2,"Slowakei"],
+  // Deutschland & Österreich
+  ["🥩","Sauerbraten","Hauptgericht",240,["rind","essig","rotwein","zwiebeln","karotten"],["zucker","mehl"],["Fleisch 3 Tage in Essig, Wein, Zwiebeln, Karotten und Gewürzen einlegen.","Trockentupfen und rundum scharf anbraten.","Mit der Marinade aufgießen und 2 Std. schmoren.","Die Sauce abseihen, mit etwas Zucker abschmecken und binden."],3,"Deutschland"],
+  ["🍲","Labskaus","Hauptgericht",45,["rind","kartoffeln","rotebete","zwiebeln","gurke"],["eier","fisch"],["Kartoffeln kochen und stampfen.","Zwiebeln anbraten, Pökelfleisch (Corned Beef) zerkleinern und unterrühren.","Mit Kartoffeln und etwas Rote-Bete-Saft mischen.","Mit Spiegelei, Gewürzgurke und Rote Bete servieren."],2,"Deutschland"],
+  ["🥟","Maultaschen","Hauptgericht",90,["mehl","eier","hack","spinat","brot"],["zwiebeln","bruehe"],["Nudelteig aus Mehl und Eiern kneten und ruhen lassen.","Hack mit Spinat, eingeweichtem Brot, Zwiebel und Ei vermengen.","Teig dünn ausrollen, Füllung verteilen, einschlagen und in Stücke schneiden.","In Brühe 15 Min. ziehen lassen oder in Scheiben mit Ei anbraten."],3,"Deutschland"],
+  ["🍞","Semmelknödel","Beilage",45,["brot","milch","eier","zwiebeln"],["petersilie","butter"],["Brötchen in Würfel schneiden und mit warmer Milch übergießen.","Zwiebeln in Butter dünsten und mit Eiern und Petersilie unterkneten.","Mit nassen Händen Knödel formen.","In siedendem Salzwasser 20 Min. ziehen lassen."],2,"Deutschland"],
+  ["🥬","Grünkohl mit Pinkel","Hauptgericht",120,["kohl","wuerstchen","zwiebeln","kartoffeln"],["speck","senf"],["Grünkohl waschen, blanchieren und hacken.","Zwiebeln und Speck anbraten, Grünkohl und etwas Brühe zugeben.","1,5 Std. schmoren, Würste die letzten 30 Min. mitgaren.","Mit Salzkartoffeln und Senf servieren."],2,"Deutschland"],
+  ["🥟","Germknödel","Dessert",120,["mehl","hefe","milch","butter","zucker"],["vanille","beeren"],["Hefeteig kneten und 1 Std. gehen lassen.","Teig portionieren, mit Pflaumenmus füllen und zu Knödeln formen.","Nochmals 20 Min. gehen lassen und über Dampf 15 Min. garen.","Mit flüssiger Butter, Mohn und Zucker servieren."],3,"Österreich"],
+  ["🍲","Linsen mit Spätzle","Hauptgericht",60,["linsen","mehl","eier","wuerstchen"],["essig","speck","karotten"],["Linsen mit Karotten und Speck weich kochen.","Mit Mehlschwitze binden und mit Essig säuerlich abschmecken.","Spätzleteig aus Mehl, Eiern und Wasser schlagen und in Salzwasser schaben.","Mit Saitenwürstchen servieren."],2,"Deutschland"],
+  ["🥧","Zwiebelkuchen","Hauptgericht",90,["mehl","hefe","zwiebeln","speck","sahne","eier"],[],["Hefeteig kneten, gehen lassen und auf ein Blech ausrollen.","Viele Zwiebeln mit Speck weich dünsten und abkühlen lassen.","Mit Schmand und Eiern verrühren und auf dem Teig verteilen.","Bei 200 °C ca. 35 Min. goldbraun backen."],2,"Deutschland"],
+  // Italien, Frankreich, Spanien, Portugal
+  ["🥩","Ossobuco","Hauptgericht",150,["rind","karotten","sellerie","zwiebeln","rotwein","dosentomaten"],["zitrone","petersilie"],["Beinscheiben mehlieren und scharf anbraten.","Gemüse würfeln und anschwitzen.","Mit Wein ablöschen, Tomaten zugeben und zugedeckt 2 Std. schmoren.","Mit Gremolata aus Zitronenschale, Knoblauch und Petersilie servieren."],3,"Italien"],
+  ["🌽","Polenta mit Pilzen","Vegetarisch",35,["maismehl","champignons","parmesan","butter"],["knoblauch","petersilie"],["Salzwasser aufkochen und Polenta unter Rühren einrieseln lassen.","Bei kleiner Hitze 20 Min. rühren, Butter und Parmesan einrühren.","Pilze mit Knoblauch in Butter braten.","Polenta mit den Pilzen und Petersilie servieren."],1,"Italien"],
+  ["🍙","Arancini","Snack",90,["reis","mozzarella","paniermehl","eier"],["parmesan","erbsen","hack"],["Risottoreis kochen, mit Parmesan mischen und abkühlen lassen.","Kugeln formen und mit Mozzarella (und Ragù) füllen.","In Ei und Paniermehl wenden.","In heißem Öl goldbraun frittieren."],3,"Italien"],
+  ["🫘","Cassoulet","Hauptgericht",180,["bohnen","wuerstchen","speck","dosentomaten"],["haehnchen","knoblauch","paniermehl"],["Speck, Würste und Fleisch anbraten.","Weiße Bohnen, Tomaten, Knoblauch und Kräuter zugeben.","In eine Auflaufform geben und mit Paniermehl bestreuen.","Bei 160 °C 2 Std. im Ofen schmoren, die Kruste mehrmals unterrühren."],3,"Frankreich"],
+  ["🍲","Pot-au-feu","Suppe",180,["rind","karotten","lauch","kartoffeln"],["sellerie","senf"],["Rindfleisch in kaltem Wasser aufsetzen und abschäumen.","2 Std. sanft köcheln lassen.","Gemüse in großen Stücken zugeben und weitere 40 Min. garen.","Brühe als Vorspeise, Fleisch und Gemüse mit Senf servieren."],2,"Frankreich"],
+  ["🫘","Fabada Asturiana","Hauptgericht",150,["bohnen","wuerstchen","speck"],["paprikapulver"],["Große weiße Bohnen über Nacht einweichen.","Mit Chorizo, Morcilla und Speck in Wasser aufsetzen.","Ganz sanft 2 Std. köcheln, nicht umrühren, nur den Topf schwenken.","Mit etwas Paprikapulver abschmecken."],2,"Spanien"],
+  ["🥧","Pastel de Nata","Dessert",60,["blaetterteig","milch","eier","zucker"],["zimt","zitrone","vanille"],["Milch mit Zucker, Zitronenschale und Zimt aufkochen und mit etwas Mehl binden.","Abkühlen lassen und Eigelbe unterrühren.","Muffinform mit dünn ausgerolltem Blätterteig auslegen und Creme einfüllen.","Bei 250 °C ca. 15 Min. backen, bis die Oberfläche dunkle Flecken hat."],3,"Portugal"],
+  ["🐟","Bacalhau à Brás","Hauptgericht",45,["fisch","kartoffeln","eier","zwiebeln"],["oliven","petersilie"],["Gewässerten Stockfisch zerzupfen.","Zwiebeln in Olivenöl weich dünsten, Fisch zugeben.","Sehr dünne Kartoffelstifte frittieren und untermischen.","Verquirlte Eier unterziehen, bis sie cremig stocken; mit Oliven und Petersilie servieren."],2,"Portugal"],
+  // Asien, Afrika, Amerika, Australien
+  ["🫓","Masala Dosa","Hauptgericht",60,["reis","linsen","kartoffeln","zwiebeln"],["currypaste","kokosmilch"],["Reis und Linsen einweichen, fein mahlen und über Nacht fermentieren lassen.","Kartoffeln kochen und mit Zwiebeln und Gewürzen zu einer Füllung braten.","Teig hauchdünn in einer heißen Pfanne verstreichen und knusprig backen.","Mit Füllung belegen, einrollen und mit Kokos-Chutney servieren."],3,"Indien"],
+  ["🥟","Samosas","Snack",75,["mehl","kartoffeln","erbsen"],["currypaste","ingwer","chili"],["Teig aus Mehl, Öl, Salz und Wasser kneten.","Kartoffeln kochen, zerdrücken und mit Erbsen und Gewürzen anbraten.","Teig zu Kegeln formen, füllen und verschließen.","In heißem Öl goldbraun frittieren."],2,"Indien"],
+  ["🍚","Congee","Frühstück",75,["reis","ingwer","bruehe"],["haehnchen","fruehlingszwiebeln","sojasauce","eier"],["Reis mit viel Brühe und Ingwer aufkochen.","Bei kleiner Hitze 1 Std. köcheln, bis ein sämiger Brei entsteht.","Optional Hähnchen darin garen.","Mit Frühlingszwiebeln, Sojasauce und Ei servieren."],1,"China"],
+  ["🍜","Dan-Dan-Nudeln","Hauptgericht",25,["asianudeln","hack","sojasauce","erdnuesse"],["chili","spinat","knoblauch"],["Hack mit Knoblauch knusprig braten und mit Sojasauce würzen.","Sauce aus Sojasauce, Erdnussbutter, Chiliöl und etwas Nudelwasser rühren.","Nudeln und Spinat kochen.","Alles in Schalen anrichten und mit Erdnüssen bestreuen."],2,"China"],
+  ["🍚","Gyudon","Hauptgericht",25,["rind","zwiebeln","reis","sojasauce"],["eier","ingwer"],["Reis kochen.","Zwiebeln in Brühe mit Sojasauce und Zucker weich köcheln.","Hauchdünnes Rindfleisch zugeben und kurz garen.","Auf dem Reis anrichten, optional mit Ei."],1,"Japan"],
+  ["🍚","Oyakodon","Hauptgericht",25,["haehnchen","eier","zwiebeln","reis","sojasauce"],["fruehlingszwiebeln"],["Reis kochen.","Zwiebeln und Hähnchen in Brühe mit Sojasauce und Zucker garen.","Verquirlte Eier darübergießen und zugedeckt stocken lassen.","Über den Reis geben und mit Frühlingszwiebeln servieren."],1,"Japan"],
+  ["🥖","Bánh Mì","Snack",30,["brot","schwein","karotten","gurke"],["koriander","chili","mayo"],["Karotten in Streifen schneiden und in Essig mit Zucker einlegen.","Schweinefleisch marinieren und scharf braten.","Baguette aufschneiden und mit Mayonnaise bestreichen.","Mit Fleisch, Gemüse, Koriander und Chili füllen."],2,"Vietnam"],
+  ["🥘","Bobotie","Hauptgericht",75,["hack","brot","eier","milch","zwiebeln"],["currypaste","aepfel","nuesse"],["Zwiebeln mit Curry anbraten, Hack zugeben.","Eingeweichtes Brot, Apfel und Rosinen untermischen und in eine Form geben.","Eier mit Milch verquirlen und darübergießen.","Bei 180 °C 35 Min. backen, bis der Guss gestockt ist."],2,"Südafrika"],
+  ["🍗","Doro Wat","Hauptgericht",120,["haehnchen","zwiebeln","eier","butter"],["ingwer","knoblauch","chili","paprikapulver"],["Sehr viele Zwiebeln ohne Fett lange langsam weich schmoren.","Butter, Berbere-Gewürz, Ingwer und Knoblauch zugeben.","Hähnchenteile darin 45 Min. schmoren.","Hart gekochte Eier zugeben und mit Fladenbrot servieren."],3,"Äthiopien"],
+  ["🍲","Pozole","Suppe",120,["schwein","mais","bruehe"],["chili","salat","zitrone","zwiebeln"],["Schweinefleisch in Brühe 1,5 Std. weich kochen.","Mais (Hominy) und Chilisauce zugeben und 20 Min. köcheln.","Fleisch zerzupfen.","Mit Salat, Zwiebeln, Radieschen und Limette servieren."],2,"Mexiko"],
+  ["🫘","Feijoada","Hauptgericht",180,["bohnen","schwein","wuerstchen","speck","reis"],["zwiebeln","knoblauch"],["Schwarze Bohnen über Nacht einweichen.","Mit Fleisch, Wurst und Speck 2 Std. langsam kochen.","Zwiebeln und Knoblauch anbraten und unterrühren.","Mit Reis, Orangenscheiben und Grünkohl servieren."],3,"Brasilien"],
+  ["🍗","Arroz con Pollo","Hauptgericht",50,["reis","haehnchen","paprika","erbsen"],["mais","zwiebeln","koriander"],["Hähnchen anbraten und herausnehmen.","Zwiebeln und Paprika anbraten, Reis kurz mitrösten.","Mit Brühe und Gewürzen aufgießen, Hähnchen zurückgeben.","Zugedeckt 20 Min. garen, Erbsen zum Schluss unterheben."],1,"Kolumbien"],
+  ["🍲","Gumbo","Suppe",90,["wuerstchen","haehnchen","paprika","sellerie","zwiebeln","mehl"],["garnelen","reis","chili"],["Mehl und Öl unter Rühren zu einer dunklen Mehlschwitze rösten.","Zwiebeln, Paprika und Sellerie darin dünsten.","Brühe, Hähnchen und Wurst zugeben und 45 Min. köcheln.","Garnelen kurz mitgaren und über Reis servieren."],3,"USA"],
+  ["🥧","Meat Pie","Hauptgericht",75,["hack","blaetterteig","zwiebeln","bruehe"],["tomatenmark","karotten"],["Hack mit Zwiebeln anbraten, Brühe und Tomatenmark zugeben und dick einkochen.","Förmchen mit Teig auslegen und die abgekühlte Füllung einfüllen.","Mit Blätterteig verschließen und mit Ei bestreichen.","Bei 200 °C 25 Min. goldbraun backen."],2,"Australien"],
+);
+// Zusätzliche Suchbegriffe (andere Schreibweisen)
+const SEARCH_ALIAS = {
+  "Blintschiki mit Quark": "blinschiki blinchiki blintschiki блинчики nalesniki", "Blini": "блины blinis", "Syrniki": "sirniki syrnyky сырники quarkkeulchen",
+  "Pelmeni": "пельмени pelmeni", "Wareniki mit Kartoffeln": "vareniki varenyky вареники", "Soljanka": "solyanka солянка", "Schtschi": "shchi щи kohlsuppe",
+  "Okroschka": "okroshka окрошка", "Olivier-Salat": "russischer salat оливье olivie", "Grechka mit Pilzen": "grechka гречка buckwheat", "Plow": "plov pilaw palov плов",
+  "Schaschlik": "shashlik шашлык", "Chatschapuri": "khachapuri hatschapuri", "Chinkali": "khinkali", "Halušky": "halusky haluschki",
+};
+
 const CATS = ["Alle", "Hauptgericht", "Vegetarisch", "Frühstück", "Suppe", "Salat", "Snack", "Beilage", "Dessert", "Getränk"];
 const OWN_LAND = "Eigene Küche";
 
@@ -1046,6 +1118,9 @@ const TOOLS_FIX = {
   "Zimtschnecken": ["ofen", "blech"], "Apfelstrudel": ["ofen", "blech"], "Hefezopf": ["ofen", "blech"], "Baklava": ["ofen", "auflaufform", "topf"],
   "Gefüllte Paprika": ["topf", "ofen", "auflaufform"], "Kartoffelgratin": ["ofen", "auflaufform"], "Saag Aloo": ["topf", "pfanne"],
   "Fisch-Tacos": ["pfanne"], "Lomo Saltado": ["fritteuse", "wok", "topf"], "Hackbraten": ["ofen", "auflaufform"], "Jambalaya": ["pfanne", "topf"],
+  "Blini": ["pfanne", "handmixer"], "Lobio": ["pfanne"], "Germknödel": ["topf"], "Bacalhau à Brás": ["pfanne", "fritteuse"],
+  "Fabada Asturiana": ["topf"], "Feijoada": ["topf", "pfanne"], "Masala Dosa": ["mixer", "pfanne", "topf"], "Olivier-Salat": ["topf", "kuehlschrank"],
+  "Okroschka": ["topf", "kuehlschrank"], "Plow": ["topf"], "Schaschlik": ["pfanne", "spezial"], "Halušky": ["reibe", "topf", "pfanne"],
 };
 const toolCache = {};
 function recipeTools(r) {
@@ -1067,7 +1142,7 @@ const toolIcons = r => recipeTools(r).map(id => `<span title="${esc(toolName(id)
 const normText = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ß/g, "ss");
 function searchScore(r, words) {
   const base = r.id[0] === "r" ? R[+r.id.slice(1)][1] : "";
-  const name = normText(r.name + " " + base);
+  const name = normText(r.name + " " + base + " " + (SEARCH_ALIAS[base] || ""));
   const rest = normText([landName(r.land), r.land, catName(r.cat), ...r.req.map(nameOf), ...(r.opt || []).map(nameOf),
     ...r.req, ...(r.opt || [])].join(" "));
   let score = 0;
@@ -1847,6 +1922,18 @@ Object.assign(WIKI, { // Erweiterung 2
   "Flan": "Crème caramel", "Zitronenkuchen": "Pound cake", "Tarte Tatin": "Tarte Tatin", "Hefezopf": "Hefekranz",
   "Joghurt mit Honig und Nüssen": "Strained yogurt", "Schokoladenpudding": "Chocolate pudding", "Heiße Schokolade": "Hot chocolate",
   "Bananen-Milchshake": "Milkshake", "Zitronenlimonade": "Lemonade", "Chai Latte": "Masala chai", "Eiskaffee": "Iced coffee",
+});
+Object.assign(WIKI, { // Erweiterung 3: traditionelle Rezepte
+  "Blintschiki mit Quark": "Blintz", "Blini": "Blini", "Syrniki": "Syrniki", "Pelmeni": "Pelmeni", "Wareniki mit Kartoffeln": "Varenyky",
+  "Soljanka": "Solyanka", "Schtschi": "Shchi", "Okroschka": "Okroshka", "Olivier-Salat": "Olivier salad", "Grechka mit Pilzen": "Kasha",
+  "Plow": "Plov", "Schaschlik": "Shashlik", "Chatschapuri": "Khachapuri", "Chinkali": "Khinkali", "Lobio": "Lobio",
+  "Gulaschsuppe": "de:Gulaschsuppe", "Lángos": "Lángos", "Paprikahuhn": "Chicken paprikash", "Bigos": "Bigos", "Halušky": "Bryndzové halušky",
+  "Sauerbraten": "Sauerbraten", "Labskaus": "Labskaus", "Maultaschen": "Maultasche", "Semmelknödel": "de:Semmelknödel",
+  "Grünkohl mit Pinkel": "de:Grünkohl mit Pinkel", "Germknödel": "Germknödel", "Linsen mit Spätzle": "de:Linsen mit Spätzle", "Zwiebelkuchen": "Zwiebelkuchen",
+  "Ossobuco": "Ossobuco", "Polenta mit Pilzen": "Polenta", "Arancini": "Arancini", "Cassoulet": "Cassoulet", "Pot-au-feu": "Pot-au-feu",
+  "Fabada Asturiana": "Fabada asturiana", "Pastel de Nata": "Pastel de nata", "Bacalhau à Brás": "Bacalhau à Brás", "Masala Dosa": "Masala dosa",
+  "Samosas": "Samosa", "Congee": "Congee", "Dan-Dan-Nudeln": "Dandan noodles", "Gyudon": "Gyūdon", "Oyakodon": "Oyakodon", "Bánh Mì": "Bánh mì",
+  "Bobotie": "Bobotie", "Doro Wat": "Doro wat", "Pozole": "Pozole", "Feijoada": "Feijoada", "Arroz con Pollo": "Arroz con pollo", "Gumbo": "Gumbo", "Meat Pie": "Meat pie",
 });
 const imgCache = store.get("kb_img2", {});
 const imgPending = {};
